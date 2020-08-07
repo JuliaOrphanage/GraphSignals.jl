@@ -1,6 +1,10 @@
 module GraphSignals
 
+using GraphLaplacians
 using LightGraphs
+
+import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
+    normalized_laplacian, scaled_laplacian
 import LightGraphs: nv, ne, adjacency_matrix
 
 export
