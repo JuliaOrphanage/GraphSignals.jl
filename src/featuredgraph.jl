@@ -19,15 +19,11 @@ References to graph or features are hold in this type.
 - `edge_feature`: edge features attached to graph.
 - `gloabl_feature`: gloabl graph features attached to graph.
 """
-struct FeaturedGraph{T,S,R,Q} <: AbstractFeaturedGraph
-    graph::Ref{T}
-    nf::Ref{S}
-    ef::Ref{R}
-    gf::Ref{Q}
-
-    function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
-        new{T,S,R,Q}(Ref(graph), Ref(nf), Ref(ef), Ref(gf))
-    end
+mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector} <: AbstractFeaturedGraph
+    graph::T
+    nf::S
+    ef::R
+    gf::Q
 end
 
 FeaturedGraph() = FeaturedGraph(zeros(0,0), zeros(0,0), zeros(0,0), zeros(0))
@@ -42,7 +38,7 @@ FeaturedGraph(graph::T, nf::AbstractMatrix) where {T} = FeaturedGraph(graph, nf,
 Get referenced graph.
 """
 graph(::NullGraph) = nothing
-graph(fg::FeaturedGraph) = fg.graph[]
+graph(fg::FeaturedGraph) = fg.graph
 
 """
     node_feature(::AbstractFeaturedGraph)
@@ -50,7 +46,7 @@ graph(fg::FeaturedGraph) = fg.graph[]
 Get node feature attached to graph.
 """
 node_feature(::NullGraph) = nothing
-node_feature(fg::FeaturedGraph) = fg.nf[]
+node_feature(fg::FeaturedGraph) = fg.nf
 
 """
     edge_feature(::AbstractFeaturedGraph)
@@ -58,7 +54,7 @@ node_feature(fg::FeaturedGraph) = fg.nf[]
 Get edge feature attached to graph.
 """
 edge_feature(::NullGraph) = nothing
-edge_feature(fg::FeaturedGraph) = fg.ef[]
+edge_feature(fg::FeaturedGraph) = fg.ef
 
 """
     global_feature(::AbstractFeaturedGraph)
@@ -66,16 +62,16 @@ edge_feature(fg::FeaturedGraph) = fg.ef[]
 Get global feature attached to graph.
 """
 global_feature(::NullGraph) = nothing
-global_feature(fg::FeaturedGraph) = fg.gf[]
+global_feature(fg::FeaturedGraph) = fg.gf
 
 has_graph(::NullGraph) = false
-has_graph(fg::FeaturedGraph) = fg.graph[] != zeros(0,0)
+has_graph(fg::FeaturedGraph) = fg.graph != zeros(0,0)
 
 has_node_feature(::NullGraph) = false
-has_node_feature(fg::FeaturedGraph) = fg.nf[] != zeros(0,0)
+has_node_feature(fg::FeaturedGraph) = fg.nf != zeros(0,0)
 
 has_edge_feature(::NullGraph) = false
-has_edge_feature(fg::FeaturedGraph) = fg.ef[] != zeros(0,0)
+has_edge_feature(fg::FeaturedGraph) = fg.ef != zeros(0,0)
 
 has_global_feature(::NullGraph) = false
-has_global_feature(fg::FeaturedGraph) = fg.gf[] != zeros(0)
+has_global_feature(fg::FeaturedGraph) = fg.gf != zeros(0)
