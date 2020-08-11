@@ -7,6 +7,26 @@ adjacency_list(::NullGraph) = [zeros(0)]
 adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
 
 """
+    adjacency_list(adj)
+Transform a adjacency matrix into a adjacency list.
+"""
+function adjacency_list(adj::AbstractMatrix{T}) where {T}
+    n = size(adj,1)
+    @assert n == size(adj,2) "adjacency matrix is not a square matrix."
+    A = (adj .!= zero(T))
+    if !issymmetric(adj)
+        A = A .| A'
+    end
+    indecies = collect(1:n)
+    ne = Vector{Int}[indecies[view(A, :, i)] for i = 1:n]
+    return ne
+end
+
+adjacency_list(adj::AbstractVector{<:AbstractVector{<:Integer}}) = adj
+
+Zygote.@nograd adjacency_list
+
+"""
     nv(::AbstractFeaturedGraph)
 
 Get node number of graph.

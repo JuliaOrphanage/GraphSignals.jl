@@ -1,4 +1,12 @@
+function adjacency_matrix(adj::AbstractMatrix, T::DataType=eltype(adj))
+    m, n = size(adj)
+    (m == n) || throw(DimensionMismatch("adjacency matrix is not a square matrix: ($m, $n)"))
+    T.(adj)
+end
+
 adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adjacency_matrix(graph(fg), T)
+
+Zygote.@nograd adjacency_matrix
 
 function degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out)
     degrees(graph(fg), T; dir=dir)
