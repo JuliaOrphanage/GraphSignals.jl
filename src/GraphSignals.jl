@@ -4,6 +4,8 @@ using LinearAlgebra: issymmetric
 
 using GraphLaplacians
 using LightGraphs
+using LightGraphs: AbstractSimpleGraph, outneighbors
+using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, outneighbors
 using Zygote
 
 import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
