@@ -1,7 +1,10 @@
 module GraphSignals
 
+using LinearAlgebra: issymmetric
+
 using GraphLaplacians
 using LightGraphs
+using Zygote
 
 import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
     normalized_laplacian, scaled_laplacian
@@ -38,5 +41,7 @@ export
 include("featuredgraph.jl")
 include("graph.jl")
 include("linalg.jl")
+include("simplegraph.jl")
+include("weightedgraph.jl")
 
 end
