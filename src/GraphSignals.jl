@@ -30,6 +30,7 @@ export
     nv,
     ne,
     adjacency_list,
+    fetch_graph,
 
     # linalg
     adjacency_matrix,

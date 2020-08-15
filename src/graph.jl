@@ -44,3 +44,7 @@ Get edge number of graph.
 ne(::NullGraph) = 0
 ne(fg::FeaturedGraph) = ne(graph(fg))
 ne(fg::FeaturedGraph{T}) where {T<:AbstractVector} = sum(map(length, graph(fg)))÷2
+
+fetch_graph(::NullGraph, fg::FeaturedGraph) = graph(fg)
+fetch_graph(fg::FeaturedGraph, ::NullGraph) = graph(fg)
+fetch_graph(fg1::FeaturedGraph, fg2::FeaturedGraph) = has_graph(fg1) ? graph(fg1) : graph(fg2)
