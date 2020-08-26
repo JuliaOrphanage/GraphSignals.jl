@@ -1,8 +1,10 @@
 using GraphSignals
+using CUDA
 using Test
 
 tests = [
     "featuredgraph",
+    "graph",
     "linalg",
 ]
 
