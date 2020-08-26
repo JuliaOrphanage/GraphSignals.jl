@@ -1,11 +1,16 @@
 using GraphSignals
 using CUDA
+using GraphLaplacians
+using LightGraphs
+using SimpleWeightedGraphs
 using Test
 
 tests = [
     "featuredgraph",
     "graph",
     "linalg",
+    "simplegraph",
+    "weightedgraph",
 ]
 
 @testset "GraphSignals.jl" begin
