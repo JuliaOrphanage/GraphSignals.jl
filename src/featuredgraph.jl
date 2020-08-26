@@ -35,32 +35,29 @@ end
 
 FeaturedGraph() = FeaturedGraph(zeros(0,0), zeros(0,0), zeros(0,0), zeros(0))
 
-FeaturedGraph(graph::T) where {T} = FeaturedGraph(graph, zeros(0,0), zeros(0,0), zeros(0))
+FeaturedGraph(graph) = FeaturedGraph(graph, zeros(0,0), zeros(0,0), zeros(0))
 
-FeaturedGraph(graph::T, nf::AbstractMatrix) where {T} = FeaturedGraph(graph, nf, zeros(0,0), zeros(0))
+function FeaturedGraph(graph::T) where {T<:AbstractMatrix}
+    z = zero(eltype(graph))
+    nf = similar(graph,0,0).*z
+    ef = similar(graph,0,0).*z
+    gf = similar(graph,0).*z
+    FeaturedGraph(graph, nf, ef, gf)
+end
 
-# function FeaturedGraph(graph::T) where {T<:AbstractMatrix}
-#     z = zero(eltype(graph))
-#     nf = similar(graph,0,0).*z
-#     S = typeof(nf)
-#     gf = similar(graph,0).*z
-#     R = typeof(gf)
-#     FeaturedGraph{T,S,S,R}(graph, nf, similar(graph,0,0).*z, gf)
-# end
-
-function FeaturedGraph(graph::T, nf::S) where {T,S<:AbstractMatrix}
+function FeaturedGraph(graph, nf::S) where {S<:AbstractMatrix}
     z = zero(eltype(nf))
+    ef = similar(nf,0,0).*z
     gf = similar(nf,0).*z
-    R = typeof(gf)
-    FeaturedGraph{T,S,S,R}(graph, nf, similar(nf,0,0).*z, gf)
+    FeaturedGraph(graph, nf, ef, gf)
 end
 
 function FeaturedGraph(graph::T, nf::S) where {T<:AbstractMatrix,S<:AbstractMatrix}
     z = zero(eltype(nf))
     graph = convert(typeof(nf), graph)
+    ef = similar(nf,0,0).*z
     gf = similar(nf,0).*z
-    R = typeof(gf)
-    FeaturedGraph{T,S,S,R}(graph, nf, similar(nf,0,0).*z, gf)
+    FeaturedGraph(graph, nf, ef, gf)
 end
 
 """

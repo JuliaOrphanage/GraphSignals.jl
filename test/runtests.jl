@@ -1,4 +1,5 @@
 using GraphSignals
+using CUDA
 using Test
 
 tests = [
