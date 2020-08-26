@@ -13,6 +13,10 @@ tests = [
     "weightedgraph",
 ]
 
+if CUDA.functional()
+    push!(tests, "cuda")
+end
+
 @testset "GraphSignals.jl" begin
     for t in tests
         include("$(t).jl")
