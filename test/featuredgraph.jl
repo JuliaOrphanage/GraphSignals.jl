@@ -28,7 +28,6 @@ gf = rand(7)
     @test node_feature(fg) == zeros(0,0)
     @test edge_feature(fg) == zeros(0,0)
     @test global_feature(fg) == zeros(0)
-    @test nv(fg) == 4
 
 
     fg = FeaturedGraph(adj, nf)

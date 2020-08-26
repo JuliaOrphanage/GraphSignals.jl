@@ -43,6 +43,7 @@ Get edge number of graph.
 """
 ne(::NullGraph) = 0
 ne(fg::FeaturedGraph) = ne(graph(fg))
+ne(fg::FeaturedGraph{T}) where {T<:AbstractMatrix} = sum(graph(fg) .!= zero(eltype(T)))
 ne(fg::FeaturedGraph{T}) where {T<:AbstractVector} = sum(map(length, graph(fg)))÷2
 
 """
