@@ -45,6 +45,12 @@ ne(::NullGraph) = 0
 ne(fg::FeaturedGraph) = ne(graph(fg))
 ne(fg::FeaturedGraph{T}) where {T<:AbstractVector} = sum(map(length, graph(fg)))÷2
 
+"""
+    fetch_graph(g1, g2)
+
+Fetch graph from `g1` or `g2`. If there is only one graph available, fetch that one.
+Otherwise, fetch the first one.
+"""
 fetch_graph(::NullGraph, fg::FeaturedGraph) = graph(fg)
 fetch_graph(fg::FeaturedGraph, ::NullGraph) = graph(fg)
 fetch_graph(fg1::FeaturedGraph, fg2::FeaturedGraph) = has_graph(fg1) ? graph(fg1) : graph(fg2)

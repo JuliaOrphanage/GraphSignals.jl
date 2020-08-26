@@ -4,6 +4,7 @@ using Test
 
 tests = [
     "featuredgraph",
+    "graph",
     "linalg",
 ]
 
