@@ -21,6 +21,7 @@ export
     node_feature,
     edge_feature,
     global_feature,
+    mask,
     has_graph,
     has_node_feature,
     has_edge_feature,

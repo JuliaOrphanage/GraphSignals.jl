@@ -1,3 +1,4 @@
+N = 4
 adj = [0 1 0 1;
        1 0 1 0;
        0 1 0 1;
@@ -17,6 +18,7 @@ gf = rand(7)
     @test isnothing(node_feature(ng))
     @test isnothing(edge_feature(ng))
     @test isnothing(global_feature(ng))
+    @test isnothing(mask(ng))
 
 
     fg = FeaturedGraph(adj)
@@ -28,6 +30,7 @@ gf = rand(7)
     @test node_feature(fg) == zeros(0,0)
     @test edge_feature(fg) == zeros(0,0)
     @test global_feature(fg) == zeros(0)
+    @test mask(fg) == zeros(N, N)
 
 
     fg = FeaturedGraph(adj, nf)
@@ -39,6 +42,7 @@ gf = rand(7)
     @test node_feature(fg) == nf
     @test edge_feature(fg) == zeros(0,0)
     @test global_feature(fg) == zeros(0)
+    @test mask(fg) == zeros(N, N)
 
 
     fg = FeaturedGraph(adj, nf, ef ,gf)
@@ -50,4 +54,5 @@ gf = rand(7)
     @test node_feature(fg) == nf
     @test edge_feature(fg) == ef
     @test global_feature(fg) == gf
+    @test mask(fg) == zeros(N, N)
 end
