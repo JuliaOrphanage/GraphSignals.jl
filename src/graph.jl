@@ -35,6 +35,7 @@ nv(::NullGraph) = 0
 nv(fg::FeaturedGraph) = nv(graph(fg))
 nv(fg::FeaturedGraph{T}) where {T<:AbstractMatrix} = size(graph(fg), 1)
 nv(fg::FeaturedGraph{T}) where {T<:AbstractVector} = length(graph(fg))
+nv(g::AbstractMatrix) = size(g, 1)
 
 """
     ne(::AbstractFeaturedGraph)

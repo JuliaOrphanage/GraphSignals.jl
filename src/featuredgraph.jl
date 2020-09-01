@@ -24,32 +24,40 @@ mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVe
     nf::S
     ef::R
     gf::Q
+    mask
 
-    function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
-        new{T,S,R,Q}(graph, nf, ef, gf)
+    function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q, mask) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+        new{T,S,R,Q}(graph, nf, ef, gf, mask)
     end
-    function FeaturedGraph{T,S,R,Q}(graph, nf, ef, gf) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
-        new{T,S,R,Q}(T(graph), S(nf), R(ef), Q(gf))
+    function FeaturedGraph{T,S,R,Q}(graph, nf, ef, gf, mask) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+        new{T,S,R,Q}(T(graph), S(nf), R(ef), Q(gf), mask)
     end
 end
 
-FeaturedGraph() = FeaturedGraph(zeros(0,0), zeros(0,0), zeros(0,0), zeros(0))
+FeaturedGraph() = FeaturedGraph(zeros(0,0), zeros(0,0), zeros(0,0), zeros(0), zeros(0,0))
 
-FeaturedGraph(graph) = FeaturedGraph(graph, zeros(0,0), zeros(0,0), zeros(0))
+function FeaturedGraph(graph)
+    T = eltype(graph)
+    N = nv(graph)
+    mask = zeros(T, N, N)
+    FeaturedGraph(graph, zeros(0,0), zeros(0,0), zeros(0), mask)
+end
 
 function FeaturedGraph(graph::T) where {T<:AbstractMatrix}
     z = zero(eltype(graph))
     nf = similar(graph,0,0).*z
     ef = similar(graph,0,0).*z
     gf = similar(graph,0).*z
-    FeaturedGraph(graph, nf, ef, gf)
+    mask = similar(graph,size(graph)...).*z
+    FeaturedGraph(graph, nf, ef, gf, mask)
 end
 
 function FeaturedGraph(graph, nf::S) where {S<:AbstractMatrix}
     z = zero(eltype(nf))
     ef = similar(nf,0,0).*z
     gf = similar(nf,0).*z
-    FeaturedGraph(graph, nf, ef, gf)
+    mask = similar(graph,size(graph)...).*z
+    FeaturedGraph(graph, nf, ef, gf, mask)
 end
 
 function FeaturedGraph(graph::T, nf::S) where {T<:AbstractMatrix,S<:AbstractMatrix}
@@ -57,7 +65,15 @@ function FeaturedGraph(graph::T, nf::S) where {T<:AbstractMatrix,S<:AbstractMatr
     graph = convert(typeof(nf), graph)
     ef = similar(nf,0,0).*z
     gf = similar(nf,0).*z
-    FeaturedGraph(graph, nf, ef, gf)
+    mask = similar(graph,size(graph)...).*z
+    FeaturedGraph(graph, nf, ef, gf, mask)
+end
+
+function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+    ET = eltype(graph)
+    N = nv(graph)
+    mask = zeros(ET, N, N)
+    FeaturedGraph(graph, nf, ef, gf, mask)
 end
 
 """
@@ -91,6 +107,9 @@ Get global feature attached to graph.
 """
 global_feature(::NullGraph) = nothing
 global_feature(fg::FeaturedGraph) = fg.gf
+
+mask(::NullGraph) = nothing
+mask(fg::FeaturedGraph) = fg.mask
 
 has_graph(::NullGraph) = false
 has_graph(fg::FeaturedGraph) = fg.graph != zeros(0,0)
