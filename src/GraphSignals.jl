@@ -1,6 +1,6 @@
 module GraphSignals
 
-using LinearAlgebra: issymmetric
+using LinearAlgebra: issymmetric, diag, diagm
 
 using GraphLaplacians
 using LightGraphs
