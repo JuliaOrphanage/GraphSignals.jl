@@ -1,10 +1,11 @@
 N = 4
-adj = [0 1 0 1;
+E = 5
+adj = [0 1 1 1;
        1 0 1 0;
-       0 1 0 1;
+       1 1 0 1;
        1 0 1 0]
-nf = rand(3, 4)
-ef = rand(5, 6)
+nf = rand(3, N)
+ef = rand(5, E)
 gf = rand(7)
 
 
@@ -27,9 +28,9 @@ gf = rand(7)
     @test has_edge_feature(fg) == false
     @test has_global_feature(fg) == false
     @test graph(fg) == adj
-    @test node_feature(fg) == zeros(0,0)
-    @test edge_feature(fg) == zeros(0,0)
-    @test global_feature(fg) == zeros(0)
+    @test node_feature(fg) == Fill(0, (0, N))
+    @test edge_feature(fg) == Fill(0, (0, E))
+    @test global_feature(fg) == Fill(0, 0)
     @test mask(fg) == zeros(N, N)
 
 
@@ -40,7 +41,7 @@ gf = rand(7)
     @test has_global_feature(fg) == false
     @test graph(fg) == adj
     @test node_feature(fg) == nf
-    @test edge_feature(fg) == zeros(0,0)
+    @test edge_feature(fg) == Fill(0., (0, E))
     @test global_feature(fg) == zeros(0)
     @test mask(fg) == zeros(N, N)
 

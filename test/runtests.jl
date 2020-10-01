@@ -1,5 +1,6 @@
 using GraphSignals
 using CUDA
+using FillArrays
 using GraphLaplacians
 using LightGraphs
 using SimpleWeightedGraphs
