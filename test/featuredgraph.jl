@@ -4,6 +4,10 @@ adj = [0 1 1 1;
        1 0 1 0;
        1 1 0 1;
        1 0 1 0]
+adj2 = [0 1 0 1;
+        1 0 1 1;
+        0 1 0 1;
+        1 1 1 0]
 nf = rand(3, N)
 ef = rand(5, E)
 gf = rand(7)
@@ -56,4 +60,18 @@ gf = rand(7)
     @test edge_feature(fg) == ef
     @test global_feature(fg) == gf
     @test mask(fg) == zeros(N, N)
+
+    fg.graph = adj2
+    @test fg.graph == adj2
+    @test_throws DimensionMismatch fg.graph = [0 1; 0 1]
+    
+    nf_ = rand(10, N)
+    fg.nf = nf_
+    @test fg.nf == nf_
+    @test_throws DimensionMismatch fg.nf = rand(10, 10)
+    
+    ef_ = rand(10, E)
+    fg.ef = ef_
+    @test fg.ef == ef_
+    @test_throws DimensionMismatch fg.ef = rand(10, 10)
 end

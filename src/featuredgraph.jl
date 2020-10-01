@@ -96,11 +96,34 @@ function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q) where {T,S<:AbstractMatrix
     FeaturedGraph(graph, nf, ef, gf, mask)
 end
 
-check_num_node(g, nf) = @assert nv(g) == size(nf, 2)
-check_num_edge(g, ef) = @assert ne(g) == size(ef, 2)
+function check_num_node(nv::Real, nf)
+    N = size(nf, 2)
+    if nv != N
+        throw(DimensionMismatch("number of nodes must match between graph ($nv) and node features ($N)"))
+    end
+end
 
-check_num_node(nv::Real, nf) = @assert nv == size(nf, 2)
-check_num_edge(ne::Real, ef) = @assert ne == size(ef, 2)
+function check_num_edge(ne::Real, ef)
+    E = size(ef, 2)
+    if ne != E
+        throw(DimensionMismatch("number of nodes must match between graph ($ne) and edge features ($E)"))
+    end
+end
+
+check_num_node(g, nf) = check_num_node(nv(g), nf)
+check_num_edge(g, ef) = check_num_edge(ne(g), ef)
+
+function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
+    if prop == :graph
+        check_num_node(x, fg.nf)
+        check_num_edge(x, fg.ef)
+    elseif prop == :nf
+        check_num_node(fg.graph, x)
+    elseif prop == :ef
+        check_num_edge(fg.graph, x)
+    end
+    setfield!(fg, prop, x)
+end
 
 """
     graph(::AbstractFeaturedGraph)
