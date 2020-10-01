@@ -34,46 +34,96 @@ mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVe
     end
 end
 
-FeaturedGraph() = FeaturedGraph(zeros(0,0), zeros(0,0), zeros(0,0), zeros(0), zeros(0,0))
+FeaturedGraph() = FeaturedGraph(Fill(0., (0,0)), Fill(0., (0,0)), Fill(0., (0,0)),
+                                Fill(0., 0), Fill(0., (0,0)))
 
 function FeaturedGraph(graph)
     T = eltype(graph)
     N = nv(graph)
-    mask = zeros(T, N, N)
-    FeaturedGraph(graph, zeros(0,0), zeros(0,0), zeros(0), mask)
+    E = ne(graph)
+
+    nf = Fill(zero(T), (0, N))
+    ef = Fill(zero(T), (0, E))
+    gf = Fill(zero(T), 0)
+    mask = Fill(zero(T), (N, N))
+    FeaturedGraph(graph, nf, ef, gf, mask)
 end
 
 function FeaturedGraph(graph::T) where {T<:AbstractMatrix}
     z = zero(eltype(graph))
-    nf = similar(graph,0,0).*z
-    ef = similar(graph,0,0).*z
-    gf = similar(graph,0).*z
-    mask = similar(graph,size(graph)...).*z
+    N = nv(graph)
+    E = ne(graph)
+
+    nf = Fill(z, (0, N))
+    ef = Fill(z, (0, E))
+    gf = Fill(z, 0)
+    mask = Fill(z, (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask)
 end
 
 function FeaturedGraph(graph, nf::S) where {S<:AbstractMatrix}
     z = zero(eltype(nf))
-    ef = similar(nf,0,0).*z
-    gf = similar(nf,0).*z
-    mask = similar(graph,size(graph)...).*z
+    N = nv(graph)
+    E = ne(graph)
+    check_num_node(N, nf)
+
+    ef = Fill(z, (0, E))
+    gf = Fill(z, 0)
+    mask = Fill(z, (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask)
 end
 
 function FeaturedGraph(graph::T, nf::S) where {T<:AbstractMatrix,S<:AbstractMatrix}
     z = zero(eltype(nf))
+    N = nv(graph)
+    E = ne(graph)
+    check_num_node(N, nf)
+
     graph = convert(typeof(nf), graph)
-    ef = similar(nf,0,0).*z
-    gf = similar(nf,0).*z
-    mask = similar(graph,size(graph)...).*z
+    ef = Fill(z, (0, E))
+    gf = Fill(z, 0)
+    mask = Fill(z, (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask)
 end
 
 function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
     ET = eltype(graph)
     N = nv(graph)
-    mask = zeros(ET, N, N)
+    E = ne(graph)
+    check_num_node(N, nf)
+    check_num_node(E, ef)
+
+    mask = Fill(zero(ET), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask)
+end
+
+function check_num_node(nv::Real, nf)
+    N = size(nf, 2)
+    if nv != N
+        throw(DimensionMismatch("number of nodes must match between graph ($nv) and node features ($N)"))
+    end
+end
+
+function check_num_edge(ne::Real, ef)
+    E = size(ef, 2)
+    if ne != E
+        throw(DimensionMismatch("number of nodes must match between graph ($ne) and edge features ($E)"))
+    end
+end
+
+check_num_node(g, nf) = check_num_node(nv(g), nf)
+check_num_edge(g, ef) = check_num_edge(ne(g), ef)
+
+function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
+    if prop == :graph
+        check_num_node(x, fg.nf)
+        check_num_edge(x, fg.ef)
+    elseif prop == :nf
+        check_num_node(fg.graph, x)
+    elseif prop == :ef
+        check_num_edge(fg.graph, x)
+    end
+    setfield!(fg, prop, x)
 end
 
 """
@@ -112,13 +162,13 @@ mask(::NullGraph) = nothing
 mask(fg::FeaturedGraph) = fg.mask
 
 has_graph(::NullGraph) = false
-has_graph(fg::FeaturedGraph) = fg.graph != zeros(0,0)
+has_graph(fg::FeaturedGraph) = fg.graph != Fill(0., (0,0))
 
 has_node_feature(::NullGraph) = false
-has_node_feature(fg::FeaturedGraph) = fg.nf != zeros(0,0)
+has_node_feature(fg::FeaturedGraph) = !isempty(fg.nf)
 
 has_edge_feature(::NullGraph) = false
-has_edge_feature(fg::FeaturedGraph) = fg.ef != zeros(0,0)
+has_edge_feature(fg::FeaturedGraph) = !isempty(fg.ef)
 
 has_global_feature(::NullGraph) = false
-has_global_feature(fg::FeaturedGraph) = fg.gf != zeros(0)
+has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)

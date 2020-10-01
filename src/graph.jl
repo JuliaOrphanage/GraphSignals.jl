@@ -46,6 +46,23 @@ ne(::NullGraph) = 0
 ne(fg::FeaturedGraph) = ne(graph(fg))
 ne(fg::FeaturedGraph{T}) where {T<:AbstractMatrix} = sum(graph(fg) .!= zero(eltype(T)))
 ne(fg::FeaturedGraph{T}) where {T<:AbstractVector} = sum(map(length, graph(fg)))÷2
+function ne(g::AbstractMatrix; self_loop::Bool=false)
+    g = g .!= 0
+
+    if issymmetric(g)
+        if self_loop
+            return div(sum(g + diagm(diag(g))), 2)
+        else
+            return div(sum(g - diagm(diag(g))), 2)
+        end
+    else
+        if self_loop
+            return sum(g)
+        else
+            return sum(g - diagm(diag(g)))
+        end
+    end
+end
 
 """
     fetch_graph(g1, g2)

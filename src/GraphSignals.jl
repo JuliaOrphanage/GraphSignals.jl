@@ -1,7 +1,8 @@
 module GraphSignals
 
-using LinearAlgebra: issymmetric
+using LinearAlgebra: issymmetric, diag, diagm
 
+using FillArrays
 using GraphLaplacians
 using LightGraphs
 using LightGraphs: AbstractSimpleGraph, outneighbors

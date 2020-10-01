@@ -1,12 +1,17 @@
-adj1 = [0 1 0 1;
+adj1 = [0 1 0 1; # symmetric
         1 0 1 0;
         0 1 0 1;
         1 0 1 0]
-adj2 = [1 1 0 1 0;
+adj2 = [1 1 0 1 0; # asymmetric
         1 1 1 0 0;
         0 1 1 1 1;
         1 0 1 1 0;
         1 0 1 0 1]
+adj3 = [1 1 0 1 0; # symmetric
+        1 1 1 0 0;
+        0 1 1 1 1;
+        1 0 1 1 0;
+        0 0 1 0 1]
 adjl = [[2, 4], [1, 3], [2, 4], [1, 3]]
 
 @testset "graph" begin
@@ -26,6 +31,10 @@ adjl = [[2, 4], [1, 3], [2, 4], [1, 3]]
     @test ne(ng) == 0
     @test ne(fg1) == 8
     @test ne(fg2) == 16
+    @test ne(adj2) == 11
+    @test ne(adj2, self_loop=true) == 16
+    @test ne(adj3) == 5
+    @test ne(adj3, self_loop=true) == 10
 
     @test fetch_graph(ng, fg1) == adj1
     @test fetch_graph(fg1, ng) == adj1
