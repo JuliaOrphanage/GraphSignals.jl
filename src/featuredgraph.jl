@@ -34,7 +34,8 @@ mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVe
     end
 end
 
-FeaturedGraph() = FeaturedGraph(zeros(0,0), zeros(0,0), zeros(0,0), zeros(0), zeros(0,0))
+FeaturedGraph() = FeaturedGraph(Fill(0., (0,0)), Fill(0., (0,0)), Fill(0., (0,0)),
+                                Fill(0., 0), Fill(0., (0,0)))
 
 function FeaturedGraph(graph)
     T = eltype(graph)
@@ -161,7 +162,7 @@ mask(::NullGraph) = nothing
 mask(fg::FeaturedGraph) = fg.mask
 
 has_graph(::NullGraph) = false
-has_graph(fg::FeaturedGraph) = fg.graph != zeros(0,0)
+has_graph(fg::FeaturedGraph) = fg.graph != Fill(0., (0,0))
 
 has_node_feature(::NullGraph) = false
 has_node_feature(fg::FeaturedGraph) = !isempty(fg.nf)
