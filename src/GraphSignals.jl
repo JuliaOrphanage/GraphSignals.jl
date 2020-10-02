@@ -41,7 +41,10 @@ export
     inv_sqrt_degree_matrix,
     laplacian_matrix,
     normalized_laplacian,
-    scaled_laplacian
+    scaled_laplacian,
+    laplacian_matrix!,
+    normalized_laplacian!,
+    scaled_laplacian!
 
 include("featuredgraph.jl")
 include("graph.jl")

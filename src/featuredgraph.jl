@@ -1,3 +1,5 @@
+const MATRIX_TYPES = [:nonmatrix, :adjm, :laplacian, :normalized, :scaled]
+
 abstract type AbstractFeaturedGraph end
 
 """
@@ -25,17 +27,19 @@ mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVe
     ef::R
     gf::Q
     mask
+    matrix_type::Symbol
 
-    function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q, mask) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
-        new{T,S,R,Q}(graph, nf, ef, gf, mask)
+    function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q, mask, mt::Symbol) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+        @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :nonmatrix, :adjm, :laplacian, :normalized or :scaled"
+        new{T,S,R,Q}(graph, nf, ef, gf, mask, mt)
     end
-    function FeaturedGraph{T,S,R,Q}(graph, nf, ef, gf, mask) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
-        new{T,S,R,Q}(T(graph), S(nf), R(ef), Q(gf), mask)
+    function FeaturedGraph{T,S,R,Q}(graph, nf, ef, gf, mask, mt) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+        @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :nonmatrix, :adjm, :laplacian, :normalized or :scaled"
+        new{T,S,R,Q}(T(graph), S(nf), R(ef), Q(gf), mask, mt)
     end
 end
 
-FeaturedGraph() = FeaturedGraph(Fill(0., (0,0)), Fill(0., (0,0)), Fill(0., (0,0)),
-                                Fill(0., 0), Fill(0., (0,0)))
+FeaturedGraph() = NullGraph()
 
 function FeaturedGraph(graph)
     T = eltype(graph)
@@ -46,7 +50,7 @@ function FeaturedGraph(graph)
     ef = Fill(zero(T), (0, E))
     gf = Fill(zero(T), 0)
     mask = Fill(zero(T), (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask)
+    FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix)
 end
 
 function FeaturedGraph(graph::T) where {T<:AbstractMatrix}
@@ -58,7 +62,7 @@ function FeaturedGraph(graph::T) where {T<:AbstractMatrix}
     ef = Fill(z, (0, E))
     gf = Fill(z, 0)
     mask = Fill(z, (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask)
+    FeaturedGraph(graph, nf, ef, gf, mask, :adjm)
 end
 
 function FeaturedGraph(graph, nf::S) where {S<:AbstractMatrix}
@@ -70,7 +74,7 @@ function FeaturedGraph(graph, nf::S) where {S<:AbstractMatrix}
     ef = Fill(z, (0, E))
     gf = Fill(z, 0)
     mask = Fill(z, (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask)
+    FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix)
 end
 
 function FeaturedGraph(graph::T, nf::S) where {T<:AbstractMatrix,S<:AbstractMatrix}
@@ -83,10 +87,10 @@ function FeaturedGraph(graph::T, nf::S) where {T<:AbstractMatrix,S<:AbstractMatr
     ef = Fill(z, (0, E))
     gf = Fill(z, 0)
     mask = Fill(z, (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask)
+    FeaturedGraph(graph, nf, ef, gf, mask, :adjm)
 end
 
-function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+function FeaturedGraph(graph, nf::S, ef::R, gf::Q) where {S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
     ET = eltype(graph)
     N = nv(graph)
     E = ne(graph)
@@ -94,7 +98,17 @@ function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q) where {T,S<:AbstractMatrix
     check_num_node(E, ef)
 
     mask = Fill(zero(ET), (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask)
+    FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix)
+end
+
+function FeaturedGraph(graph::AbstractMatrix{T}, nf::S, ef::R, gf::Q) where {T<:Real,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+    N = nv(graph)
+    E = ne(graph)
+    check_num_node(N, nf)
+    check_num_node(E, ef)
+
+    mask = Fill(zero(T), (N, N))
+    FeaturedGraph(graph, nf, ef, gf, mask, :adjm)
 end
 
 function check_num_node(nv::Real, nf)

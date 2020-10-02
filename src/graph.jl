@@ -34,7 +34,6 @@ Get node number of graph.
 nv(::NullGraph) = 0
 nv(fg::FeaturedGraph) = nv(graph(fg))
 nv(fg::FeaturedGraph{T}) where {T<:AbstractMatrix} = size(graph(fg), 1)
-nv(fg::FeaturedGraph{T}) where {T<:AbstractVector} = length(graph(fg))
 nv(g::AbstractMatrix) = size(g, 1)
 
 """
@@ -45,7 +44,6 @@ Get edge number of graph.
 ne(::NullGraph) = 0
 ne(fg::FeaturedGraph) = ne(graph(fg))
 ne(fg::FeaturedGraph{T}) where {T<:AbstractMatrix} = sum(graph(fg) .!= zero(eltype(T)))
-ne(fg::FeaturedGraph{T}) where {T<:AbstractVector} = sum(map(length, graph(fg)))÷2
 function ne(g::AbstractMatrix; self_loop::Bool=false)
     g = g .!= 0
 

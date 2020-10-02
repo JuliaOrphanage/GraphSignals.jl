@@ -31,3 +31,29 @@ end
 function scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg)))
     scaled_laplacian(graph(fg), T)
 end
+
+## Inplace operations
+
+function laplacian_matrix!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out)
+    if fg.matrix_type == :adjm
+        fg.graph .= laplacian_matrix(graph(fg), T; dir=dir)
+        fg.matrix_type = :laplacian
+    end
+    fg
+end
+
+function normalized_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false)
+    if fg.matrix_type == :adjm
+        fg.graph .= normalized_laplacian(graph(fg), T; selfloop=selfloop)
+        fg.matrix_type = :normalized
+    end
+    fg
+end
+
+function scaled_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)))
+    if fg.matrix_type == :adjm
+        fg.graph .= scaled_laplacian(graph(fg), T)
+        fg.matrix_type = :scaled
+    end
+    fg
+end
