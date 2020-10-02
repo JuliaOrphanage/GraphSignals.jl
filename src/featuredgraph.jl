@@ -111,17 +111,17 @@ function FeaturedGraph(graph::AbstractMatrix{T}, nf::S, ef::R, gf::Q) where {T<:
     FeaturedGraph(graph, nf, ef, gf, mask, :adjm)
 end
 
-function check_num_node(nv::Real, nf)
+function check_num_node(graph_nv::Real, nf)
     N = size(nf, 2)
-    if nv != N
-        throw(DimensionMismatch("number of nodes must match between graph ($nv) and node features ($N)"))
+    if graph_nv != N
+        throw(DimensionMismatch("number of nodes must match between graph ($graph_nv) and node features ($N)"))
     end
 end
 
-function check_num_edge(ne::Real, ef)
+function check_num_edge(graph_ne::Real, ef)
     E = size(ef, 2)
-    if ne != E
-        throw(DimensionMismatch("number of nodes must match between graph ($ne) and edge features ($E)"))
+    if graph_ne != E
+        throw(DimensionMismatch("number of nodes must match between graph ($graph_ne) and edge features ($E)"))
     end
 end
 
