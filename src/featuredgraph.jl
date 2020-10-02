@@ -39,8 +39,7 @@ mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVe
     end
 end
 
-FeaturedGraph() = FeaturedGraph(Fill(0., (0,0)), Fill(0., (0,0)), Fill(0., (0,0)),
-                                Fill(0., 0), Fill(0., (0,0)))
+FeaturedGraph() = NullGraph()
 
 function FeaturedGraph(graph)
     T = eltype(graph)
