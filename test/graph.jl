@@ -35,6 +35,7 @@ add_edge!(ug, 2, 3); add_edge!(ug, 3, 4)
     @test nv(fg1) == 4
     @test nv(fg2) == 5
     @test nv(fg3) == 4
+    @test nv(adjl) == 4
 
     @test ne(ng) == 0
     @test ne(fg1) == 8
