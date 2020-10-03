@@ -95,7 +95,7 @@ function FeaturedGraph(graph, nf::S, ef::R, gf::Q) where {S<:AbstractMatrix,R<:A
     N = nv(graph)
     E = ne(graph)
     check_num_node(N, nf)
-    check_num_node(E, ef)
+    check_num_edge(E, ef)
 
     mask = Fill(zero(ET), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix)
@@ -105,7 +105,7 @@ function FeaturedGraph(graph::AbstractMatrix{T}, nf::S, ef::R, gf::Q) where {T<:
     N = nv(graph)
     E = ne(graph)
     check_num_node(N, nf)
-    check_num_node(E, ef)
+    check_num_edge(E, ef)
 
     mask = Fill(zero(T), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :adjm)
@@ -121,12 +121,19 @@ end
 function check_num_edge(graph_ne::Real, ef)
     E = size(ef, 2)
     if graph_ne != E
-        throw(DimensionMismatch("number of nodes must match between graph ($graph_ne) and edge features ($E)"))
+        throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
     end
 end
 
 check_num_node(g, nf) = check_num_node(nv(g), nf)
 check_num_edge(g, ef) = check_num_edge(ne(g), ef)
+function check_num_edge(g::AbstractMatrix, ef)
+    if issymmetric(g)
+        return check_num_edge(2*ne(g), ef)
+    else
+        return check_num_edge(ne(g), ef)
+    end
+end
 
 function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
     if prop == :graph
