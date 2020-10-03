@@ -68,6 +68,18 @@ gf = rand(7)
     @test mask(fg) == zeros(N, N)
 
 
+    fg = FeaturedGraph(ug, nf, ef ,gf)
+    @test has_graph(fg)
+    @test has_node_feature(fg)
+    @test has_edge_feature(fg)
+    @test has_global_feature(fg)
+    @test graph(fg) == ug
+    @test node_feature(fg) == nf
+    @test edge_feature(fg) == ef
+    @test global_feature(fg) == gf
+    @test mask(fg) == zeros(N, N)
+
+
     fg = FeaturedGraph(adj, nf, ef ,gf)
     @test has_graph(fg)
     @test has_node_feature(fg)
