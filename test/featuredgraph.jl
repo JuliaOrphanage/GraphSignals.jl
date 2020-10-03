@@ -68,6 +68,18 @@ gf = rand(7)
     @test mask(fg) == zeros(N, N)
 
 
+    fg = FeaturedGraph(ug, nf, ef ,gf)
+    @test has_graph(fg)
+    @test has_node_feature(fg)
+    @test has_edge_feature(fg)
+    @test has_global_feature(fg)
+    @test graph(fg) == ug
+    @test node_feature(fg) == nf
+    @test edge_feature(fg) == ef
+    @test global_feature(fg) == gf
+    @test mask(fg) == zeros(N, N)
+
+
     fg = FeaturedGraph(adj, nf, ef ,gf)
     @test has_graph(fg)
     @test has_node_feature(fg)
@@ -94,10 +106,10 @@ gf = rand(7)
     nf_ = rand(10, N)
     fg.nf = nf_
     @test fg.nf == nf_
-    @test_throws DimensionMismatch fg.nf = rand(10, 10)
+    @test_throws DimensionMismatch fg.nf = rand(10, 11)
     
     ef_ = rand(10, E)
     fg.ef = ef_
     @test fg.ef == ef_
-    @test_throws DimensionMismatch fg.ef = rand(10, 10)
+    @test_throws DimensionMismatch fg.ef = rand(10, 11)
 end

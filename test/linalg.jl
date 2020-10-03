@@ -23,6 +23,9 @@ scaled_lap =   [0 -0.5 0 -0.5;
     fg = FeaturedGraph(adj)
     @test fg.matrix_type == :adjm
     for T in [Int8, Int16, Int32, Int64, Int128]
+        @test GraphSignals.adjacency_matrix(adj, T) == T.(adj)
+        @test GraphSignals.adjacency_matrix(fg, T) == T.(adj)
+        @test GraphSignals.degrees(fg; dir=:both) == [2, 2, 2, 2]
         dm = GraphSignals.degree_matrix(fg, T; dir=:out)
         @test dm == T.(deg)
         @test GraphSignals.degree_matrix(adj, T; dir=:in) == dm
