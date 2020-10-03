@@ -128,10 +128,16 @@ end
 check_num_node(g, nf) = check_num_node(nv(g), nf)
 check_num_edge(g, ef) = check_num_edge(ne(g), ef)
 function check_num_edge(g::AbstractMatrix, ef)
+    graph_ne = ne(g)
+    E = size(ef, 2)
     if issymmetric(g)
-        return check_num_edge(2*ne(g), ef)
+        if graph_ne != E && 2*graph_ne != E
+            throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
+        end
     else
-        return check_num_edge(ne(g), ef)
+        if graph_ne != E
+            throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
+        end
     end
 end
 

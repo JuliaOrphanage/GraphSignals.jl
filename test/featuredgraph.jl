@@ -94,10 +94,10 @@ gf = rand(7)
     nf_ = rand(10, N)
     fg.nf = nf_
     @test fg.nf == nf_
-    @test_throws DimensionMismatch fg.nf = rand(10, 10)
+    @test_throws DimensionMismatch fg.nf = rand(10, 11)
     
     ef_ = rand(10, E)
     fg.ef = ef_
     @test fg.ef == ef_
-    @test_throws DimensionMismatch fg.ef = rand(10, 10)
+    @test_throws DimensionMismatch fg.ef = rand(10, 11)
 end
