@@ -11,7 +11,7 @@ using Zygote
 
 import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
     normalized_laplacian, scaled_laplacian
-import LightGraphs: nv, ne, adjacency_matrix
+import LightGraphs: nv, ne, adjacency_matrix, is_directed
 
 export
     # featuredgraph

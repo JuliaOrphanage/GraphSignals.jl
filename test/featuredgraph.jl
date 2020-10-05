@@ -92,7 +92,7 @@ gf = rand(7)
     @test mask(fg) == zeros(N, N)
 
     T = Matrix{Float32}
-    fg = FeaturedGraph{T,T,T,Vector{Float32}}(adj, nf, ef ,gf, zeros(N, N), :adjm)
+    fg = FeaturedGraph{T,T,T,Vector{Float32}}(adj, nf, ef ,gf, zeros(N, N), :adjm, true)
     @test typeof(graph(fg)) == T
     @test typeof(node_feature(fg)) == T
     @test typeof(edge_feature(fg)) == T
