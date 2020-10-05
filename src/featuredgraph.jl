@@ -255,6 +255,7 @@ Check if graph is available or not.
 """
 has_graph(::NullGraph) = false
 has_graph(fg::FeaturedGraph) = fg.graph != Fill(0., (0,0))
+Zygote.@nograd has_graph
 
 """
     has_node_feature(::AbstractFeaturedGraph)
@@ -263,6 +264,7 @@ Check if node feature is available or not.
 """
 has_node_feature(::NullGraph) = false
 has_node_feature(fg::FeaturedGraph) = !isempty(fg.nf)
+Zygote.@nograd has_node_feature
 
 """
     has_edge_feature(::AbstractFeaturedGraph)
@@ -271,6 +273,7 @@ Check if edge feature is available or not.
 """
 has_edge_feature(::NullGraph) = false
 has_edge_feature(fg::FeaturedGraph) = !isempty(fg.ef)
+Zygote.@nograd has_edge_feature
 
 """
     has_global_feature(::AbstractFeaturedGraph)
@@ -279,3 +282,4 @@ Check if global feature is available or not.
 """
 has_global_feature(::NullGraph) = false
 has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
+Zygote.@nograd has_global_feature
