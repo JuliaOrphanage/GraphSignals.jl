@@ -63,6 +63,14 @@ function ne(g::AbstractMatrix; self_loop::Bool=false)
     end
 end
 
+function ne(g::AbstractVector{T}, directed::Bool) where {T<:AbstractVector}
+    for i in 1:length(g)
+        filter!(x -> x != i, g[i])
+    end
+    s = map(x -> count(x .== x), g)
+    return directed ? sum(s) : div(sum(s), 2)
+end
+
 """
     fetch_graph(g1, g2)
 
