@@ -69,7 +69,7 @@ function FeaturedGraph(graph, nf::S) where {S<:AbstractMatrix}
     z = zero(eltype(nf))
     N = nv(graph)
     E = ne(graph)
-    check_num_node(N, nf)
+    # check_num_node(N, nf)
 
     ef = Fill(z, (0, E))
     gf = Fill(z, 0)
@@ -81,7 +81,7 @@ function FeaturedGraph(graph::T, nf::S) where {T<:AbstractMatrix,S<:AbstractMatr
     z = zero(eltype(nf))
     N = nv(graph)
     E = ne(graph)
-    check_num_node(N, nf)
+    # check_num_node(N, nf)
 
     graph = convert(typeof(nf), graph)
     ef = Fill(z, (0, E))
@@ -94,8 +94,8 @@ function FeaturedGraph(graph, nf::S, ef::R, gf::Q) where {S<:AbstractMatrix,R<:A
     ET = eltype(graph)
     N = nv(graph)
     E = ne(graph)
-    check_num_node(N, nf)
-    check_num_edge(E, ef)
+    # check_num_node(N, nf)
+    # check_num_edge(E, ef)
 
     mask = Fill(zero(ET), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix)
@@ -104,8 +104,8 @@ end
 function FeaturedGraph(graph::AbstractMatrix{T}, nf::S, ef::R, gf::Q) where {T<:Real,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
     N = nv(graph)
     E = ne(graph)
-    check_num_node(N, nf)
-    check_num_edge(E, ef)
+    # check_num_node(N, nf)
+    # check_num_edge(E, ef)
 
     mask = Fill(zero(T), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :adjm)
@@ -141,17 +141,17 @@ function check_num_edge(g::AbstractMatrix, ef)
     end
 end
 
-function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
-    if prop == :graph
-        check_num_node(x, fg.nf)
-        check_num_edge(x, fg.ef)
-    elseif prop == :nf
-        check_num_node(fg.graph, x)
-    elseif prop == :ef
-        check_num_edge(fg.graph, x)
-    end
-    setfield!(fg, prop, x)
-end
+# function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
+#     if prop == :graph
+#         check_num_node(x, fg.nf)
+#         check_num_edge(x, fg.ef)
+#     elseif prop == :nf
+#         check_num_node(fg.graph, x)
+#     elseif prop == :ef
+#         check_num_edge(fg.graph, x)
+#     end
+#     setfield!(fg, prop, x)
+# end
 
 """
     graph(::AbstractFeaturedGraph)
