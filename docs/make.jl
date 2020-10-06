@@ -8,14 +8,15 @@ makedocs(;
     sitename="GraphSignals.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://yuehhua.github.io/GraphSignals.jl",
+        canonical="https://yuehhua.github.io/GraphSignals.jl/stable",
         assets=String[],
     ),
     pages=[
         "Home" => "index.md",
+        "Manual" =>
+               ["FeaturedGraph" => "manual/featuredgraph.md",
+               ]
     ],
 )
 
-deploydocs(;
-    repo="github.com/yuehhua/GraphSignals.jl",
-)
+deploydocs(repo="github.com/yuehhua/GraphSignals.jl")

@@ -24,6 +24,7 @@ add_edge!(ug, 2, 3); add_edge!(ug, 3, 4)
     fg1 = FeaturedGraph(adj1)
     fg2 = FeaturedGraph(adj2)
     fg3 = FeaturedGraph(ug)
+    fg4 = FeaturedGraph(adjl)
 
     @test adjacency_list(ng) == [zeros(0)]
     @test adjacency_list(fg1) == adjl
@@ -38,13 +39,16 @@ add_edge!(ug, 2, 3); add_edge!(ug, 3, 4)
     @test nv(adjl) == 4
 
     @test ne(ng) == 0
-    @test ne(fg1) == 8
-    @test ne(fg2) == 16
+    @test ne(fg1) == 4
+    @test ne(fg2) == 11
     @test ne(adj2) == 11
     @test ne(adj2, self_loop=true) == 16
     @test ne(adj3) == 5
     @test ne(adj3, self_loop=true) == 10
     @test ne(fg3) == 5
+    @test ne(adjl, false) == 4
+    @test ne(adjl, true) == 8
+    @test ne(fg4) == 4
 
     @test fetch_graph(ng, fg1) == adj1
     @test fetch_graph(fg1, ng) == adj1
