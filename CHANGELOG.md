@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.5]
+
+- Add ne for adjacency list
+
 ## [0.1.4]
 
 - Take off dimension check
