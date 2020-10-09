@@ -11,9 +11,9 @@ nf = rand(3, 4)
     @test has_edge_feature(fg) == false
     @test has_global_feature(fg) == false
     @test typeof(graph(fg)) == CuMatrix{Int64}
-    @test typeof(node_feature(fg)) == CuMatrix{Int64}
-    @test typeof(edge_feature(fg)) == CuMatrix{Int64}
-    @test typeof(global_feature(fg)) == CuVector{Int64}
+    @test typeof(node_feature(fg)) == Fill{Int64,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
+    @test typeof(edge_feature(fg)) == Fill{Int64,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
+    @test typeof(global_feature(fg)) == Fill{Int64,1,Tuple{Base.OneTo{Int64}}}
 
 
     fg = FeaturedGraph(adj, cu(nf))
@@ -23,6 +23,6 @@ nf = rand(3, 4)
     @test has_global_feature(fg) == false
     @test typeof(graph(fg)) == CuMatrix{Float32}
     @test typeof(node_feature(fg)) == CuMatrix{Float32}
-    @test typeof(edge_feature(fg)) == CuMatrix{Float32}
-    @test typeof(global_feature(fg)) == CuVector{Float32}
+    @test typeof(edge_feature(fg)) == Fill{Float32,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
+    @test typeof(global_feature(fg)) == Fill{Float32,1,Tuple{Base.OneTo{Int64}}}
 end
