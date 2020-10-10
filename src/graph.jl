@@ -79,7 +79,7 @@ Zygote.@nograd ne
 function is_directed(g::AbstractVector{T}) where {T<:AbstractVector}
     edges = Set{Tuple{Int64,Int64}}()
     for (i, js) in enumerate(g)
-        for j in js
+        for j in Set(js)
             if i != j
                 e = (i,j)
                 if e in edges
