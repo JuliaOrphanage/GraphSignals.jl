@@ -76,6 +76,8 @@ end
 
 Zygote.@nograd ne
 
+is_directed(fg::FeaturedGraph) = fg.directed
+
 function is_directed(g::AbstractVector{T}) where {T<:AbstractVector}
     edges = Set{Tuple{Int64,Int64}}()
     for (i, js) in enumerate(g)
