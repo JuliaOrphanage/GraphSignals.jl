@@ -50,6 +50,10 @@ add_edge!(ug, 2, 3); add_edge!(ug, 3, 4)
     @test ne(adjl, true) == 8
     @test ne(fg4) == 4
 
+    @test !is_directed(fg1)
+    @test is_directed(fg2)
+    @test !is_directed(adjl)
+
     @test fetch_graph(ng, fg1) == adj1
     @test fetch_graph(fg1, ng) == adj1
     @test fetch_graph(fg1, fg2) == adj1
