@@ -66,7 +66,7 @@ function ne(g::AbstractMatrix; self_loop::Bool=false)
     end
 end
 
-function ne(g::AbstractVector{T}, directed::Bool) where {T<:AbstractVector}
+function ne(g::AbstractVector{T}, directed::Bool=is_directed(g)) where {T<:AbstractVector}
     for i in 1:length(g)
         filter!(x -> x != i, g[i])
     end

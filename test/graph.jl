@@ -46,6 +46,7 @@ add_edge!(ug, 2, 3); add_edge!(ug, 3, 4)
     @test ne(adj3) == 5
     @test ne(adj3, self_loop=true) == 10
     @test ne(fg3) == 5
+    @test ne(adjl) == 4
     @test ne(adjl, false) == 4
     @test ne(adjl, true) == 8
     @test ne(fg4) == 4
