@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7]
+
+- Support ne for adjacency list
+
 ## [0.1.6]
 
 - Support is_directed for FeaturedGraph
