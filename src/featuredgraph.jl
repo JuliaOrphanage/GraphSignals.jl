@@ -126,7 +126,10 @@ function FeaturedGraph(graph::T, nf::S; directed::Symbol=:auto) where {T<:Abstra
     E = ne(graph)
     # check_num_node(N, nf)
 
-    graph = convert(typeof(nf), graph)
+    if isa(nf, CuArray)
+        graph = convert(typeof(nf), graph)  # ensure graph has the same type as nf, especially X::CuArray
+    end
+
     ef = Fill(z, (0, E))
     gf = Fill(z, 0)
     mask = Fill(z, (N, N))
