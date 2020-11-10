@@ -55,6 +55,18 @@ gf = rand(7)
     @test global_feature(fg) == zeros(0)
     @test mask(fg) == zeros(N, N)
 
+    # Test with transposed features
+    fg = FeaturedGraph(adj, transpose(nf))
+    @test has_graph(fg)
+    @test has_node_feature(fg)
+    @test has_edge_feature(fg) == false
+    @test has_global_feature(fg) == false
+    @test graph(fg) == adj
+    @test node_feature(fg) == transpose(nf)
+    @test edge_feature(fg) == Fill(0., (0, E))
+    @test global_feature(fg) == zeros(0)
+    @test mask(fg) == zeros(N, N)
+
 
     fg = FeaturedGraph(ug, nf)
     @test has_graph(fg)
