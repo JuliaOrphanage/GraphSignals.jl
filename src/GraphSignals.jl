@@ -1,6 +1,6 @@
 module GraphSignals
 
-using LinearAlgebra: issymmetric, diag, diagm
+using LinearAlgebra: issymmetric, diag, diagm, Transpose
 
 using FillArrays
 using GraphLaplacians
