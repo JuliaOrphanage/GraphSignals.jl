@@ -126,11 +126,15 @@ function FeaturedGraph(graph::T, nf::S; directed::Symbol=:auto) where {T<:Abstra
     E = ne(graph)
     # check_num_node(N, nf)
 
+    graph = convert(S, graph)
     ef = Fill(z, (0, E))
     gf = Fill(z, 0)
     mask = Fill(z, (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :adjm, dir)
 end
+
+FeaturedGraph(graph::T, nf::Transpose{S,R}, args...; kwargs...) where {T<:AbstractMatrix,S,R<:AbstractMatrix} =
+    FeaturedGraph(graph, R(nf), args...; kwargs...)
 
 function FeaturedGraph(graph, nf::S, ef::R, gf::Q; directed::Symbol=:auto) where {S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
