@@ -52,16 +52,13 @@ FeaturedGraph() = NullGraph()
 
 function FeaturedGraph(graph; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph))
     nf = Fill(zero(T), (0, N))
+    FeaturedGraph(graph, nf; directed=directed, T=T, N=N, E=E)
+end
+
+function FeaturedGraph(graph, nf::S; directed::Symbol=:auto, T=eltype(nf), N=nv(graph), E=ne(graph)) where {S<:AbstractMatrix}
     ef = Fill(zero(T), (0, E))
     gf = Fill(zero(T), 0)
     FeaturedGraph(graph, nf, ef, gf; directed=directed, T=T, N=N, E=E)
-end
-
-function FeaturedGraph(graph, nf::S; directed::Symbol=:auto, N=nv(graph), E=ne(graph)) where {S<:AbstractMatrix}
-    z = zero(eltype(nf))
-    ef = Fill(z, (0, E))
-    gf = Fill(z, 0)
-    FeaturedGraph(graph, nf, ef, gf; directed=directed, N=N, E=E)
 end
 
 function FeaturedGraph(graph, nf::S, ef::R, gf::Q; directed::Symbol=:auto, T=eltype(graph),
@@ -90,23 +87,21 @@ end
 
 ## Graph in adjacency matrix
 
-function FeaturedGraph(graph::T; directed::Symbol=:auto, N=nv(graph), E=ne(graph)) where {T<:AbstractMatrix}
-    z = zero(eltype(graph))
-    nf = Fill(z, (0, N))
-    ef = Fill(z, (0, E))
-    gf = Fill(z, 0)
+function FeaturedGraph(graph::AbstractMatrix{T}; directed::Symbol=:auto, N=nv(graph), E=ne(graph)) where {T}
+    nf = Fill(zero(T), (0, N))
+    ef = Fill(zero(T), (0, E))
+    gf = Fill(zero(T), 0)
     FeaturedGraph(graph, nf, ef, gf; directed=directed, N=N, E=E)
 end
 
-function FeaturedGraph(graph::T, nf::S; directed::Symbol=:auto, N=nv(graph), E=ne(graph)) where {T<:AbstractMatrix,S<:AbstractMatrix}
-    z = zero(eltype(nf))
+function FeaturedGraph(graph::AbstractMatrix{T}, nf::S; directed::Symbol=:auto, N=nv(graph), E=ne(graph)) where {T,S<:AbstractMatrix}
     graph = convert(S, graph)
-    ef = Fill(z, (0, E))
-    gf = Fill(z, 0)
+    ef = Fill(zero(T), (0, E))
+    gf = Fill(zero(T), 0)
     FeaturedGraph(graph, nf, ef, gf; directed=directed, N=N, E=E)
 end
 
-FeaturedGraph(graph::T, nf::Transpose{S,R}, args...; kwargs...) where {T<:AbstractMatrix,S,R<:AbstractMatrix} =
+FeaturedGraph(graph::AbstractMatrix{T}, nf::Transpose{S,R}, args...; kwargs...) where {T,S,R<:AbstractMatrix} =
     FeaturedGraph(graph, R(nf), args...; kwargs...)
 
 function FeaturedGraph(graph::AbstractMatrix{T}, nf::S, ef::R, gf::Q; directed::Symbol=:auto,
