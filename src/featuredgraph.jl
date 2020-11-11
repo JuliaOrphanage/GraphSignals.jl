@@ -48,16 +48,28 @@ end
 
 FeaturedGraph() = NullGraph()
 
-function FeaturedGraph(graph; directed::Symbol=:auto)
-    @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
-    dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    T = eltype(graph)
-    N = nv(graph)
-    E = ne(graph)
+## Graph from JuliaGraphs
 
+function FeaturedGraph(graph; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph))
     nf = Fill(zero(T), (0, N))
     ef = Fill(zero(T), (0, E))
     gf = Fill(zero(T), 0)
+    FeaturedGraph(graph, nf, ef, gf; directed=directed, T=T, N=N, E=E)
+end
+
+function FeaturedGraph(graph, nf::S; directed::Symbol=:auto, N=nv(graph), E=ne(graph)) where {S<:AbstractMatrix}
+    z = zero(eltype(nf))
+    ef = Fill(z, (0, E))
+    gf = Fill(z, 0)
+    FeaturedGraph(graph, nf, ef, gf; directed=directed, N=N, E=E)
+end
+
+function FeaturedGraph(graph, nf::S, ef::R, gf::Q; directed::Symbol=:auto, T=eltype(graph),
+                       N=nv(graph), E=ne(graph)) where {S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+    @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
+    dir = (directed == :auto) ? is_directed(graph) : directed == :directed
+    # check_num_node(N, nf)
+    # check_num_edge(E, ef)
     mask = Fill(zero(T), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
 end
@@ -107,20 +119,6 @@ function FeaturedGraph(graph::AbstractMatrix{T}, nf::S, ef::R, gf::Q; directed::
     FeaturedGraph(graph, nf, ef, gf, mask, :adjm, dir)
 end
 
-function FeaturedGraph(graph, nf::S; directed::Symbol=:auto) where {S<:AbstractMatrix}
-    @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
-    dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    z = zero(eltype(nf))
-    N = nv(graph)
-    E = ne(graph)
-    # check_num_node(N, nf)
-
-    ef = Fill(z, (0, E))
-    gf = Fill(z, 0)
-    mask = Fill(z, (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
-end
-
 function FeaturedGraph(graph::AbstractVector{T}, nf::S; directed::Symbol=:auto) where {T<:AbstractVector,S<:AbstractMatrix}
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
@@ -132,19 +130,6 @@ function FeaturedGraph(graph::AbstractVector{T}, nf::S; directed::Symbol=:auto) 
     ef = Fill(z, (0, E))
     gf = Fill(z, 0)
     mask = Fill(z, (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
-end
-
-function FeaturedGraph(graph, nf::S, ef::R, gf::Q; directed::Symbol=:auto) where {S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
-    @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
-    dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    ET = eltype(graph)
-    N = nv(graph)
-    E = ne(graph)
-    # check_num_node(N, nf)
-    # check_num_edge(E, ef)
-
-    mask = Fill(zero(ET), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
 end
 
