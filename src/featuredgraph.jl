@@ -115,7 +115,7 @@ end
 function FeaturedGraph(graph::AbstractMatrix{T}, nf::Transpose{S,R}, args...; kwargs...) where {T,S,R<:AbstractMatrix}
     # This very weird way of approximately doing nothing (transposing then transposing again) is because of some weird behaviours of Zygote
     nf = transpose(nf)
-    nf = reshape(nf, size(nf, 2), :)
+    nf = permutedims(nf, [2, 1])
 
     FeaturedGraph(graph, nf, args...; kwargs...)
 end
