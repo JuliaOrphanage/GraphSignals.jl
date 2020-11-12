@@ -112,8 +112,13 @@ function FeaturedGraph(graph::AbstractMatrix{T}, nf::S; directed::Symbol=:auto, 
     FeaturedGraph(graph, nf, ef, gf; directed=directed, N=N, E=E)
 end
 
-FeaturedGraph(graph::AbstractMatrix{T}, nf::Transpose{S,R}, args...; kwargs...) where {T,S,R<:AbstractMatrix} =
-    FeaturedGraph(graph, R(nf), args...; kwargs...)
+function FeaturedGraph(graph::AbstractMatrix{T}, nf::Transpose{S,R}, args...; kwargs...) where {T,S,R<:AbstractMatrix}
+    # This very weird way of approximately doing nothing (transposing then transposing again) is because of some weird behaviours of Zygote
+    nf = transpose(nf)
+    nf = reshape(nf, size(node_f, 2), :)
+
+    FeaturedGraph(graph, nf, args...; kwargs...)
+end
 
 function FeaturedGraph(graph::AbstractMatrix{T}, nf::S, ef::R, gf::Q; directed::Symbol=:auto,
                        N=nv(graph), E=ne(graph)) where {T<:Real,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
