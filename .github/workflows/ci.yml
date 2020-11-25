@@ -60,8 +60,8 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
-            using Foo
-            doctest(Foo)'
+            using GraphSignals
+            doctest(GraphSignals)'
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
