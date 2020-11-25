@@ -44,7 +44,7 @@ gf = rand(7)
     @test mask(fg) == zeros(N, N)
 
 
-    fg = FeaturedGraph(adj, nf)
+    fg = FeaturedGraph(adj; nf=nf)
     @test has_graph(fg)
     @test has_node_feature(fg)
     @test has_edge_feature(fg) == false
@@ -56,7 +56,7 @@ gf = rand(7)
     @test mask(fg) == zeros(N, N)
 
     # Test with transposed features
-    fg = FeaturedGraph(adj, transpose(nf))
+    fg = FeaturedGraph(adj; nf=transpose(nf))
     @test has_graph(fg)
     @test has_node_feature(fg)
     @test has_edge_feature(fg) == false
@@ -68,7 +68,7 @@ gf = rand(7)
     @test mask(fg) == zeros(N, N)
 
 
-    fg = FeaturedGraph(ug, nf)
+    fg = FeaturedGraph(ug; nf=nf)
     @test has_graph(fg)
     @test has_node_feature(fg)
     @test has_edge_feature(fg) == false
@@ -80,7 +80,7 @@ gf = rand(7)
     @test mask(fg) == zeros(N, N)
 
 
-    fg = FeaturedGraph(ug, nf, ef ,gf)
+    fg = FeaturedGraph(ug; nf=nf, ef=ef ,gf=gf)
     @test has_graph(fg)
     @test has_node_feature(fg)
     @test has_edge_feature(fg)
@@ -92,7 +92,7 @@ gf = rand(7)
     @test mask(fg) == zeros(N, N)
 
 
-    fg = FeaturedGraph(adj, nf, ef ,gf)
+    fg = FeaturedGraph(adj; nf=nf, ef=ef ,gf=gf)
     @test has_graph(fg)
     @test has_node_feature(fg)
     @test has_edge_feature(fg)
