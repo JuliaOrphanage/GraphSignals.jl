@@ -54,8 +54,8 @@ function FeaturedGraph(graph; directed::Symbol=:auto, T=eltype(graph), N=nv(grap
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    # check_num_node(N, nf)
-    # check_num_edge(E, ef)
+    check_num_node(N, nf)
+    check_num_edge(E, ef)
     mask = Fill(zero(T), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
 end
@@ -66,8 +66,8 @@ function FeaturedGraph(graph::AbstractVector{T}; directed::Symbol=:auto, ET=elty
                        nf=Fill(zero(ET), (0, N)), ef=Fill(zero(ET), (0, E)), gf=Fill(zero(ET), 0)) where {T<:AbstractVector}
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    # check_num_node(N, nf)
-    # check_num_edge(E, ef)
+    check_num_node(N, nf)
+    check_num_edge(E, ef)
     mask = Fill(zero(ET), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
 end
@@ -78,8 +78,8 @@ function FeaturedGraph(graph::AbstractMatrix{T}; directed::Symbol=:auto, N=nv(gr
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0)) where {T<:Real}
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? !issymmetric(graph) : directed == :directed
-    # check_num_node(N, nf)
-    # check_num_edge(E, ef)
+    check_num_node(N, nf)
+    check_num_edge(E, ef)
     mask = Fill(zero(T), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :adjm, dir)
 end
@@ -103,14 +103,8 @@ check_num_edge(g, ef) = check_num_edge(ne(g), ef)
 function check_num_edge(g::AbstractMatrix, ef)
     graph_ne = ne(g)
     E = size(ef, 2)
-    if issymmetric(g)
-        if 2*graph_ne != E
-            throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
-        end
-    else
-        if graph_ne != E
-            throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
-        end
+    if graph_ne != E || 2*graph_ne != E
+        throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
     end
 end
 

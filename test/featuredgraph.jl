@@ -56,13 +56,14 @@ gf = rand(7)
     @test mask(fg) == zeros(N, N)
 
     # Test with transposed features
-    fg = FeaturedGraph(adj; nf=transpose(nf))
+    nf_t = rand(N, 3)'
+    fg = FeaturedGraph(adj; nf=nf_t)
     @test has_graph(fg)
     @test has_node_feature(fg)
     @test has_edge_feature(fg) == false
     @test has_global_feature(fg) == false
     @test graph(fg) == adj
-    @test node_feature(fg) == transpose(nf)
+    @test node_feature(fg) == nf_t
     @test edge_feature(fg) == Fill(0., (0, E))
     @test global_feature(fg) == zeros(0)
     @test mask(fg) == zeros(N, N)
