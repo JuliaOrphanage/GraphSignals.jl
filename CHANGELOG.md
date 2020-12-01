@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9]
+
+- Add feature dimension check on constructor
+- Refactor FeaturedGraph constructor
+
 ## [0.1.8]
 
 - Accept transposed matrix as node feature
