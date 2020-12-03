@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.10]
+
+- Bug fix
+
 ## [0.1.9]
 
 - Add feature dimension check on constructor
