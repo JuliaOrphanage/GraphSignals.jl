@@ -84,29 +84,24 @@ function FeaturedGraph(graph::AbstractMatrix{T}; directed::Symbol=:auto, N=nv(gr
     FeaturedGraph(graph, nf, ef, gf, mask, :adjm, dir)
 end
 
-function check_num_node(graph_nv::Real, nf)
-    N = size(nf, 2)
+function check_num_node(graph_nv::Real, N::Real)
     if graph_nv != N
         throw(DimensionMismatch("number of nodes must match between graph ($graph_nv) and node features ($N)"))
     end
 end
 
-function check_num_edge(graph_ne::Real, ef)
-    E = size(ef, 2)
-    if graph_ne != E
-        throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
-    end
-end
-
-check_num_node(g, nf) = check_num_node(nv(g), nf)
-check_num_edge(g, ef) = check_num_edge(ne(g), ef)
-function check_num_edge(g::AbstractMatrix, ef)
-    graph_ne = ne(g)
-    E = size(ef, 2)
+function check_num_edge(graph_ne::Real, E::Real)
+    # allow for the number of edge in directed and undirected graph
     if graph_ne != E && 2*graph_ne != E
         throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
     end
 end
+
+check_num_node(graph_nv::Real, nf) = check_num_node(graph_nv, size(nf, 2))
+check_num_edge(graph_ne::Real, ef) = check_num_edge(graph_ne, size(ef, 2))
+
+check_num_node(g, nf) = check_num_node(nv(g), nf)
+check_num_edge(g, ef) = check_num_edge(ne(g), ef)
 
 # function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
 #     if prop == :graph
