@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.12]
+
+- Dimension check should be done in layer but previous to computation
+
 ## [0.1.11]
 
 - Refactor checking feature dimensions
