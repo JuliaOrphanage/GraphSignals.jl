@@ -54,8 +54,6 @@ function FeaturedGraph(graph; directed::Symbol=:auto, T=eltype(graph), N=nv(grap
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    check_num_node(N, nf)
-    check_num_edge(E, ef)
     mask = Fill(zero(T), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
 end
@@ -66,8 +64,6 @@ function FeaturedGraph(graph::AbstractVector{T}; directed::Symbol=:auto, ET=elty
                        nf=Fill(zero(ET), (0, N)), ef=Fill(zero(ET), (0, E)), gf=Fill(zero(ET), 0)) where {T<:AbstractVector}
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    check_num_node(N, nf)
-    check_num_edge(E, ef)
     mask = Fill(zero(ET), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
 end
@@ -78,8 +74,6 @@ function FeaturedGraph(graph::AbstractMatrix{T}; directed::Symbol=:auto, N=nv(gr
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0)) where {T<:Real}
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? !issymmetric(graph) : directed == :directed
-    check_num_node(N, nf)
-    check_num_edge(E, ef)
     graph = promote_graph(graph, nf)
     mask = Fill(zero(T), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :adjm, dir)
@@ -103,18 +97,6 @@ check_num_edge(graph_ne::Real, ef) = check_num_edge(graph_ne, size(ef, 2))
 
 check_num_node(g, nf) = check_num_node(nv(g), nf)
 check_num_edge(g, ef) = check_num_edge(ne(g), ef)
-
-# function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
-#     if prop == :graph
-#         check_num_node(x, fg.nf)
-#         check_num_edge(x, fg.ef)
-#     elseif prop == :nf
-#         check_num_node(fg.graph, x)
-#     elseif prop == :ef
-#         check_num_edge(fg.graph, x)
-#     end
-#     setfield!(fg, prop, x)
-# end
 
 """
     graph(::AbstractFeaturedGraph)
