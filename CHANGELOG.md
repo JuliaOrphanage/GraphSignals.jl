@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.11]
+
+- Refactor checking feature dimensions
+- Support Julia v1.6
+- Fix CuArray promotion
+
 ## [0.1.10]
 
 - Bug fix
