@@ -17,7 +17,7 @@ nf = rand(T, 3, 4)
     @test typeof(global_feature(fg)) == Fill{T,1,Tuple{Base.OneTo{Int64}}}
 
 
-    fg = FeaturedGraph(adj, cu(nf))
+    fg = FeaturedGraph(adj, nf=cu(nf))
     @test has_graph(fg)
     @test has_node_feature(fg)
     @test !has_edge_feature(fg)
