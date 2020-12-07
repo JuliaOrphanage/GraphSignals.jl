@@ -80,6 +80,7 @@ function FeaturedGraph(graph::AbstractMatrix{T}; directed::Symbol=:auto, N=nv(gr
     dir = (directed == :auto) ? !issymmetric(graph) : directed == :directed
     check_num_node(N, nf)
     check_num_edge(E, ef)
+    graph = promote_graph(graph, nf)
     mask = Fill(zero(T), (N, N))
     FeaturedGraph(graph, nf, ef, gf, mask, :adjm, dir)
 end
