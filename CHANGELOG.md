@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.13]
+
+- Support CUDA v2.6
+- Support FillArrays v0.11
+- Support Zygote v0.6
+
 ## [0.1.12]
 
 - Dimension check should be done in layer but previous to computation
