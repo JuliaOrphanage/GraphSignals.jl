@@ -14,7 +14,10 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Manual" =>
-               ["FeaturedGraph" => "manual/featuredgraph.md",
+               [
+                   "FeaturedGraph" => "manual/featuredgraph.md",
+                   "Graph-related APIs" => "manual/graph.md",
+                   "Linear algebraic APIs" => "manual/linearalgebra.md",
                ]
     ],
 )
