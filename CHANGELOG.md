@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0]
+
+- Support Julia v1.6 and CUDA v2.6 only
+
 ## [0.1.13]
 
 - Support CUDA v2.6
