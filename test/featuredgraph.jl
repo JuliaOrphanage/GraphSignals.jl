@@ -111,18 +111,24 @@ gf = rand(7)
     @test typeof(edge_feature(fg)) == T
     @test typeof(global_feature(fg)) == Vector{Float32}
 
-    # fg = FeaturedGraph(adj, nf, ef ,gf)
-    # fg.graph = adj2
-    # @test fg.graph == adj2
-    # @test_throws DimensionMismatch fg.graph = [0 1; 0 1]
-    
-    # nf_ = rand(10, N)
-    # fg.nf = nf_
-    # @test fg.nf == nf_
-    # @test_throws DimensionMismatch fg.nf = rand(10, 11)
-    
-    # ef_ = rand(10, E)
-    # fg.ef = ef_
-    # @test fg.ef == ef_
-    # @test_throws DimensionMismatch fg.ef = rand(10, 11)
+    # Check number of node and edge features in the constructor.
+    @test_throws DimensionMismatch FeaturedGraph(rand(10,11); nf=nf, ef=ef, gf=gf)
+    @test_throws DimensionMismatch FeaturedGraph(adj; nf=rand(10,11), ef=ef, gf=gf)
+    @test_throws DimensionMismatch FeaturedGraph(adj; nf=nf, ef=rand(10,11), gf=gf)
+
+    # Check number of node and edge features before setting properties.
+    fg = FeaturedGraph(adj; nf=nf, ef=ef, gf=gf)
+    fg.graph = adj2
+    @test fg.graph == adj2
+    @test_throws DimensionMismatch fg.graph = [0 1; 0 1]
+
+    nf_ = rand(10, N)
+    fg.nf = nf_
+    @test fg.nf == nf_
+    @test_throws DimensionMismatch fg.nf = rand(10, 11)
+
+    ef_ = rand(10, E)
+    fg.ef = ef_
+    @test fg.ef == ef_
+    @test_throws DimensionMismatch fg.ef = rand(10, 11)
 end
