@@ -116,6 +116,7 @@ gf = rand(7)
     @test_throws DimensionMismatch FeaturedGraph(adj; nf=rand(10,11), ef=ef, gf=gf)
     @test_throws DimensionMismatch FeaturedGraph(adj; nf=nf, ef=rand(10,11), gf=gf)
 
+    # Check number of node and edge features before setting properties.
     fg = FeaturedGraph(adj; nf=nf, ef=ef, gf=gf)
     fg.graph = adj2
     @test fg.graph == adj2

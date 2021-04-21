@@ -36,14 +36,14 @@ mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVe
     matrix_type::Symbol
     directed::Bool
 
-    function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q, mask, mt::Symbol, directed::Bool) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
-        @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :nonmatrix, :adjm, :laplacian, :normalized or :scaled"
-        check_num_edge(ne(graph), ef)
-        check_num_node(nv(graph), nf)
+    function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q, 
+            mask, mt::Symbol, directed::Bool) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+        _check_precondition(graph, nf, ef, mt)
         new{T,S,R,Q}(graph, nf, ef, gf, mask, mt, directed)
     end
-    function FeaturedGraph{T,S,R,Q}(graph, nf, ef, gf, mask, mt, directed) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
-        @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :nonmatrix, :adjm, :laplacian, :normalized or :scaled"
+    function FeaturedGraph{T,S,R,Q}(graph, nf, ef, gf,
+            mask, mt, directed) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+        _check_precondition(graph, nf, ef, mt)
         new{T,S,R,Q}(T(graph), S(nf), R(ef), Q(gf), mask, mt, directed)
     end
 end
@@ -99,6 +99,13 @@ check_num_edge(graph_ne::Real, ef) = check_num_edge(graph_ne, size(ef, 2))
 
 check_num_node(g, nf) = check_num_node(nv(g), nf)
 check_num_edge(g, ef) = check_num_edge(ne(g), ef)
+
+function _check_precondition(graph, nf, ef, mt)
+    @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :nonmatrix, :adjm, :laplacian, :normalized or :scaled"
+    check_num_edge(ne(graph), ef)
+    check_num_node(nv(graph), nf)
+    return
+end
 
 function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
     if prop == :graph
