@@ -100,6 +100,18 @@ check_num_edge(graph_ne::Real, ef) = check_num_edge(graph_ne, size(ef, 2))
 check_num_node(g, nf) = check_num_node(nv(g), nf)
 check_num_edge(g, ef) = check_num_edge(ne(g), ef)
 
+function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
+    if prop == :graph
+        check_num_node(x, fg.nf)
+        check_num_edge(x, fg.ef)
+    elseif prop == :nf
+        check_num_node(fg.graph, x)
+    elseif prop == :ef
+        check_num_edge(fg.graph, x)
+    end
+    setfield!(fg, prop, x)
+end
+
 """
     graph(::AbstractFeaturedGraph)
 
