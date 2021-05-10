@@ -17,7 +17,7 @@ SimpleWeightedGraphs = "47aef6b3-ad0c-573a-a1e2-d07658019622"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
-CUDA = "2.5 - 3.3"
+CUDA = "3"
 ChainRulesCore = "0.10, 1"
 FillArrays = "0.11 - 0.12"
 Functors = "0.2"

@@ -16,8 +16,7 @@ makedocs(;
         "Manual" =>
                [
                    "FeaturedGraph" => "manual/featuredgraph.md",
-                   "Graph-related APIs" => "manual/graph.md",
-                   "Linear algebraic APIs" => "manual/linearalgebra.md",
+                   "Sparse graph strucutre" => "manual/sparsegraph.md"
                ]
     ],
 )

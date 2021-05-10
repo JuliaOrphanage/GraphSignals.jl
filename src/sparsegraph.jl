@@ -288,18 +288,19 @@ end
 
 
 """
-    edge_scatter(aggr, E, sg, direction=:undirected)
+    edge_scatter(aggr, E, sg, direction=:outward)
 
 Scatter operation for aggregating edge feature into vertex feature.
 
 # Arguments
 
 - `aggr`: aggregating operators, e.g. `+`.
-- `E`: Edge features with size of (#feature, #edge).
+- `E`: Edge features of dimension (#feature, #edge).
 - `sg::SparseGraph`: The reference graph.
-- `direction::Symbol`: The direction of an edge to be choose to aggregate. It must be one of `:undirected`, `:inward` and `:outward`.
+- `direction::Symbol`: The direction of an edge to be choose to aggregate.
+    It must be one of `:undirected`, `:inward` and `:outward`.
 """
-function edge_scatter(aggr, E::AbstractArray, sg::SparseGraph{D}; direction::Symbol=:undirected) where {D}
+function edge_scatter(aggr, E::AbstractArray, sg::SparseGraph{D}; direction::Symbol=:outward) where {D}
     if direction == :undirected || !D
         idx1 = aggregate_index(sg, :edge, :outward)
         idx2 = aggregate_index(sg, :edge, :inward)
@@ -314,18 +315,19 @@ function edge_scatter(aggr, E::AbstractArray, sg::SparseGraph{D}; direction::Sym
 end
 
 """
-    neighbor_scatter(aggr, X, sg, direction=:undirected)
+    neighbor_scatter(aggr, X, sg, direction=:outward)
 
 Scatter operation for aggregating neighbor vertex feature together.
 
 # Arguments
 
 - `aggr`: aggregating operators, e.g. `+`.
-- `X`: Vertex features with size of (#feature, #vertex).
+- `X`: Vertex features of dimension (#feature, #vertex).
 - `sg::SparseGraph`: The reference graph.
-- `direction::Symbol`: The direction of an edge to be choose to aggregate. It must be one of `:undirected`, `:inward` and `:outward`.
+- `direction::Symbol`: The direction of an edge to be choose to aggregate.
+    It must be one of `:undirected`, `:inward` and `:outward`.
 """
-function neighbor_scatter(aggr, X::AbstractArray, sg::SparseGraph; direction::Symbol=:undirected)
+function neighbor_scatter(aggr, X::AbstractArray, sg::SparseGraph; direction::Symbol=:outward)
     direction == :undirected && (direction = :outward)
     idx = aggregate_index(sg, :vertex, direction)
     Ys = [neighbor_features(aggr, X, idx[i]) for i = 1:length(idx)]
