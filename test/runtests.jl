@@ -13,6 +13,7 @@ tests = [
     "simplegraph",
     "weightedgraph",
     "edgeindex",
+    "mask",
 ]
 
 if CUDA.functional()

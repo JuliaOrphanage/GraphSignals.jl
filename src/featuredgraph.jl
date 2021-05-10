@@ -32,19 +32,18 @@ mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVe
     nf::S
     ef::R
     gf::Q
-    mask
     matrix_type::Symbol
     directed::Bool
 
     function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q, 
-            mask, mt::Symbol, directed::Bool) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+            mt::Symbol, directed::Bool) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
         _check_precondition(graph, nf, ef, mt)
-        new{T,S,R,Q}(graph, nf, ef, gf, mask, mt, directed)
+        new{T,S,R,Q}(graph, nf, ef, gf, mt, directed)
     end
     function FeaturedGraph{T,S,R,Q}(graph, nf, ef, gf,
-            mask, mt, directed) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+            mt, directed) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
         _check_precondition(graph, nf, ef, mt)
-        new{T,S,R,Q}(T(graph), S(nf), R(ef), Q(gf), mask, mt, directed)
+        new{T,S,R,Q}(T(graph), S(nf), R(ef), Q(gf), mt, directed)
     end
 end
 
@@ -56,8 +55,7 @@ function FeaturedGraph(graph; directed::Symbol=:auto, T=eltype(graph), N=nv(grap
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    mask = Fill(zero(T), (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
+    FeaturedGraph(graph, nf, ef, gf, :nonmatrix, dir)
 end
 
 ## Graph in adjacency list
@@ -66,8 +64,7 @@ function FeaturedGraph(graph::AbstractVector{T}; directed::Symbol=:auto, ET=elty
                        nf=Fill(zero(ET), (0, N)), ef=Fill(zero(ET), (0, E)), gf=Fill(zero(ET), 0)) where {T<:AbstractVector}
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    mask = Fill(zero(ET), (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask, :nonmatrix, dir)
+    FeaturedGraph(graph, nf, ef, gf, :nonmatrix, dir)
 end
 
 ## Graph in adjacency matrix
@@ -77,8 +74,7 @@ function FeaturedGraph(graph::AbstractMatrix{T}; directed::Symbol=:auto, N=nv(gr
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? !issymmetric(graph) : directed == :directed
     graph = promote_graph(graph, nf)
-    mask = Fill(zero(T), (N, N))
-    FeaturedGraph(graph, nf, ef, gf, mask, :adjm, dir)
+    FeaturedGraph(graph, nf, ef, gf, :adjm, dir)
 end
 
 function check_num_node(graph_nv::Real, N::Real)
@@ -150,9 +146,6 @@ Get global feature attached to graph.
 """
 global_feature(::NullGraph) = nothing
 global_feature(fg::FeaturedGraph) = fg.gf
-
-mask(::NullGraph) = nothing
-mask(fg::FeaturedGraph) = fg.mask
 
 """
     has_graph(::AbstractFeaturedGraph)
