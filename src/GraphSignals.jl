@@ -63,12 +63,9 @@ include("graph.jl")
 include("linalg.jl")
 include("utils.jl")
 
-<<<<<<< HEAD
 include("edgeindex.jl")
 include("cuda.jl")
-=======
 include("sampling.jl")
 include("mask.jl")
->>>>>>> 8ef9c42 (add mask)
 
 end

@@ -10,8 +10,6 @@ tests = [
     "featuredgraph",
     "graph",
     "linalg",
-    "simplegraph",
-    "weightedgraph",
     "edgeindex",
     "mask",
 ]

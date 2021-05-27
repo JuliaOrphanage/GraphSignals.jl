@@ -24,6 +24,11 @@ end
 
 adjacency_list(adj::AbstractVector{<:AbstractVector{<:Integer}}) = adj
 
+function adjacency_list(g::AbstractGraph)
+    N = nv(g)
+    Vector{Int}[outneighbors(g, i) for i = 1:N]
+end
+
 Zygote.@nograd adjacency_list
 
 """
