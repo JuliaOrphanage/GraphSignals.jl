@@ -10,9 +10,10 @@ using LightGraphs: AbstractSimpleGraph, outneighbors
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, outneighbors
 using Zygote
 
+import Base: get
 import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
     normalized_laplacian, scaled_laplacian
-import LightGraphs: nv, ne, adjacency_matrix, is_directed
+import LightGraphs: nv, ne, adjacency_matrix, is_directed, neighbors
 
 export
     # featuredgraph
@@ -36,6 +37,11 @@ export
     is_directed,
     fetch_graph,
 
+    # edgeindex
+    EdgeIndex,
+    neighbors,
+    get,
+
     # linalg
     adjacency_matrix,
     degrees,
@@ -55,5 +61,7 @@ include("linalg.jl")
 include("simplegraph.jl")
 include("weightedgraph.jl")
 include("utils.jl")
+
+include("edgeindex.jl")
 
 end
