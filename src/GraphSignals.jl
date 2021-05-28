@@ -2,7 +2,7 @@ module GraphSignals
 
 using LinearAlgebra: issymmetric, diag, diagm, Transpose
 
-using CUDA: CuArray, cu
+using CUDA: AnyCuVector, CuArray, CuVector, cu
 using FillArrays
 using GraphLaplacians
 using LightGraphs
@@ -54,7 +54,6 @@ export
     normalized_laplacian!,
     scaled_laplacian!
 
-include("cuda.jl")
 include("featuredgraph.jl")
 include("graph.jl")
 include("linalg.jl")
@@ -63,5 +62,6 @@ include("weightedgraph.jl")
 include("utils.jl")
 
 include("edgeindex.jl")
+include("cuda.jl")
 
 end

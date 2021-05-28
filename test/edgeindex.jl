@@ -18,7 +18,7 @@ adjl2 = [
 
 @testset "EdgeIndex" begin
     ei1 = EdgeIndex(adjl1)
-    @test ei1.adjl isa Vector{Vector{NTuple{2}}}
+    @test ei1.adjl isa Vector{Vector{Tuple{Int64, Int64}}}
     @test nv(ei1) == 5
     @test ne(ei1) == 4
     @test neighbors(ei1, 1) == [(2, 1), (4, 2), (5, 3)]
