@@ -29,7 +29,9 @@ E2 = rand(10, 8)
     @test neighbors(ei1, 3) == []
     @test get(ei1, (1, 5)) == 3
     @test isnothing(get(ei1, (2, 3)))
-    @test generate_cluster_index(E1, ei1) == ([2, 4, 5, 5], [1, 1, 1, 4])
+    @test GraphSignals.generate_cluster_index(E1, ei1) == ([2, 4, 5, 5], [1, 1, 1, 4])
+    @test_throws ArgumentError GraphSignals.generate_cluster_index(E1, ei1, direction=:in)
+    @test size(edge_scatter(+, E1, ei1)) == (10, 5)
 
     ei2 = EdgeIndex(adjl2)
     @test nv(ei2) == 5
@@ -38,6 +40,8 @@ E2 = rand(10, 8)
     @test neighbors(ei2, 2) == []
     @test get(ei2, (3, 1)) == 4
     @test isnothing(get(ei2, (1, 3)))
-    @test generate_cluster_index(E2, ei2; direction=:inward) == [2, 5, 5, 1, 4, 4, 1, 4]
-    @test generate_cluster_index(E2, ei2; direction=:outward) == [1, 1, 1, 3, 3, 4, 5, 5]
+    @test GraphSignals.generate_cluster_index(E2, ei2, direction=:inward) == [2, 5, 5, 1, 4, 4, 1, 4]
+    @test GraphSignals.generate_cluster_index(E2, ei2, direction=:outward) == [1, 1, 1, 3, 3, 4, 5, 5]
+    @test size(edge_scatter(+, E2, ei2, direction=:inward)) == (10, 5)
+    @test size(edge_scatter(+, E2, ei2, direction=:outward)) == (10, 5)
 end

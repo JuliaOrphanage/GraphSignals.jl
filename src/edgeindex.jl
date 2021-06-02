@@ -25,7 +25,7 @@ function _get(ei::EdgeIndex, i, j, default=nothing)
     return default
 end
 
-function generate_cluster_index(E::AbstractArray, ei::EdgeIndex; direction=:undirected)
+function generate_cluster_index(E::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
     if direction == :undirected
         return undirected_generate_clst_idx(E, ei, ne(ei))
     elseif direction == :inward
@@ -76,10 +76,13 @@ function outward_generate_clst_idx(E::AbstractArray, ei::EdgeIndex, num_E::Int=n
     clst_idx
 end
 
-# function edge_scatter(aggr, E::AbstractArray, clst_idx)
-    
-
-# end
-
-# clst_idx = generate_cluster_index(E, ei; direction=:undirected)
-# edge_scatter(aggr, E, clst_idx)
+function edge_scatter(aggr, E::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
+    if direction == :undirected
+        clst_idx1, clst_idx2 = generate_cluster_index(E, ei, direction=direction)
+        dst = NNlib.scatter(aggr, E, clst_idx1)
+        return NNlib.scatter!(aggr, dst, E, clst_idx2)
+    else
+        clst_idx = generate_cluster_index(E, ei, direction=direction)
+        return NNlib.scatter(aggr, E, clst_idx)
+    end
+end

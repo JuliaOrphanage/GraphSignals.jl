@@ -7,6 +7,7 @@ using FillArrays
 using GraphLaplacians
 using LightGraphs
 using LightGraphs: AbstractSimpleGraph, outneighbors
+using NNlib
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, outneighbors
 using Zygote
 
@@ -41,7 +42,7 @@ export
     EdgeIndex,
     neighbors,
     get,
-    generate_cluster_index,
+    edge_scatter,
 
     # linalg
     adjacency_matrix,
