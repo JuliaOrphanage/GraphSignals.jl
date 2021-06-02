@@ -41,6 +41,7 @@ export
     EdgeIndex,
     neighbors,
     get,
+    generate_cluster_index,
 
     # linalg
     adjacency_matrix,

@@ -24,3 +24,62 @@ function _get(ei::EdgeIndex, i, j, default=nothing)
     end
     return default
 end
+
+function generate_cluster_index(E::AbstractArray, ei::EdgeIndex; direction=:undirected)
+    if direction == :undirected
+        return undirected_generate_clst_idx(E, ei, ne(ei))
+    elseif direction == :inward
+        return inward_generate_clst_idx(E, ei, ne(ei))
+    elseif direction == :outward
+        return outward_generate_clst_idx(E, ei, ne(ei))
+    else
+        throw(ArgumentError("direction must be one of :undirected, :outward or :inward."))
+    end
+end
+
+function undirected_generate_clst_idx(E::AbstractArray, ei::EdgeIndex, num_E::Int=ne(ei))
+    clst_idx1 = similar(E, Int, num_E)
+    clst_idx2 = similar(E, Int, num_E)
+    viewed = Set{Int}()
+    for i = 1:nv(ei)
+        for (vidx, eidx) in ei.adjl[i]
+            if eidx in viewed
+                clst_idx2[eidx] = vidx
+            else
+                clst_idx1[eidx] = vidx
+                push!(viewed, eidx)
+            end
+        end
+    end
+    clst_idx1, clst_idx2
+end
+
+function inward_generate_clst_idx(E::AbstractArray, ei::EdgeIndex, num_E::Int=ne(ei))
+    clst_idx = similar(E, Int, num_E)
+    # inward vertex index and edge index
+    for i = 1:nv(ei)
+        for (vidx, eidx) in ei.adjl[i]
+            clst_idx[eidx] = vidx
+        end
+    end
+    clst_idx
+end
+
+function outward_generate_clst_idx(E::AbstractArray, ei::EdgeIndex, num_E::Int=ne(ei))
+    clst_idx = similar(E, Int, num_E)
+    # outward vertex index and edge index
+    for vidx = 1:nv(ei)
+        for (_, eidx) in ei.adjl[vidx]
+            clst_idx[eidx] = vidx
+        end
+    end
+    clst_idx
+end
+
+# function edge_scatter(aggr, E::AbstractArray, clst_idx)
+    
+
+# end
+
+# clst_idx = generate_cluster_index(E, ei; direction=:undirected)
+# edge_scatter(aggr, E, clst_idx)
