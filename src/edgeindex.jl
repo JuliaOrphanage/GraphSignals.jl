@@ -1,3 +1,6 @@
+"""
+A indexing structure for accessing neighbors of a vertex. 
+"""
 struct EdgeIndex{T<:AbstractVector{<:AbstractVector}}
     adjl::T
 end
@@ -25,6 +28,11 @@ function _get(ei::EdgeIndex, i, j, default=nothing)
     return default
 end
 
+"""
+    generate_cluster_index(E, ei; direction=:undirected)
+
+Generate index structure for scatter operation.
+"""
 function generate_cluster_index(E::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
     if direction == :undirected
         return undirected_generate_clst_idx(E, ei, ne(ei))
@@ -76,6 +84,11 @@ function outward_generate_clst_idx(E::AbstractArray, ei::EdgeIndex, num_E::Int=n
     clst_idx
 end
 
+"""
+    edge_scatter(aggr, E, ei, direction=:undirected)
+
+Scatter operation for aggregating edge feature into vertex feature.
+"""
 function edge_scatter(aggr, E::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
     if direction == :undirected
         clst_idx1, clst_idx2 = generate_cluster_index(E, ei, direction=direction)
