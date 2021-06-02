@@ -2,17 +2,19 @@ module GraphSignals
 
 using LinearAlgebra: issymmetric, diag, diagm, Transpose
 
-using CUDA: CuArray, cu
+using CUDA: AnyCuVector, CuArray, CuVector, cu
 using FillArrays
 using GraphLaplacians
 using LightGraphs
 using LightGraphs: AbstractSimpleGraph, outneighbors
+using NNlib
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, outneighbors
 using Zygote
 
+import Base: get
 import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
     normalized_laplacian, scaled_laplacian
-import LightGraphs: nv, ne, adjacency_matrix, is_directed
+import LightGraphs: nv, ne, adjacency_matrix, is_directed, neighbors
 
 export
     # featuredgraph
@@ -36,6 +38,12 @@ export
     is_directed,
     fetch_graph,
 
+    # edgeindex
+    EdgeIndex,
+    neighbors,
+    get,
+    edge_scatter,
+
     # linalg
     adjacency_matrix,
     degrees,
@@ -48,12 +56,14 @@ export
     normalized_laplacian!,
     scaled_laplacian!
 
-include("cuda.jl")
 include("featuredgraph.jl")
 include("graph.jl")
 include("linalg.jl")
 include("simplegraph.jl")
 include("weightedgraph.jl")
 include("utils.jl")
+
+include("edgeindex.jl")
+include("cuda.jl")
 
 end

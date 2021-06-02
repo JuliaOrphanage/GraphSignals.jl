@@ -12,6 +12,7 @@ tests = [
     "linalg",
     "simplegraph",
     "weightedgraph",
+    "edgeindex",
 ]
 
 if CUDA.functional()
