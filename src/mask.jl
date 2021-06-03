@@ -18,7 +18,11 @@ mask(fg::AbstractFeaturedGraph, m::AbstractArray) = GraphMask(fg, m)
 """
 graph(gm::GraphMask) = adjacency_matrix(gm.fg) .* gm.mask
 
-# node_feature(gm::GraphMask)
+function node_feature(gm::GraphMask)
+    M = gm.mask .!= 0
+    m = [.|(M[:, i]...) for i = 1:size(M, 2)]
+    return node_feature(gm.fg) .* m'
+end
 
 # edge_feature(gm::GraphMask)
 
