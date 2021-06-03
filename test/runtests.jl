@@ -3,6 +3,7 @@ using CUDA
 using FillArrays
 using GraphLaplacians
 using LightGraphs
+using LinearAlgebra
 using SimpleWeightedGraphs
 using Test
 
