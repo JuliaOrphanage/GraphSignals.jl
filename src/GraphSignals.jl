@@ -59,9 +59,10 @@ export
     GraphMask,
     mask
 
-include("featuredgraph.jl")
 include("graph.jl")
 include("linalg.jl")
+
+include("featuredgraph.jl")
 include("utils.jl")
 
 include("edgeindex.jl")

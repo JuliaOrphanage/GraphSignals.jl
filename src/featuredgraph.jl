@@ -49,32 +49,28 @@ end
 
 FeaturedGraph() = NullGraph()
 
-## Graph from JuliaGraphs
-
-function FeaturedGraph(graph; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph),
+function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph),
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
-    dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    FeaturedGraph(graph, nf, ef, gf, :nonmatrix, dir)
+    dir = (directed == :auto) ? GraphSignals.is_directed(graph) : directed == :directed
+    FeaturedGraph(graph, nf, ef, gf, mat_type, dir)
 end
+
+## Graph from JuliaGraphs
+
+FeaturedGraph(graph; kwargs...) = FeaturedGraph(graph, :nonmatrix; kwargs...)
 
 ## Graph in adjacency list
 
-function FeaturedGraph(graph::AbstractVector{T}; directed::Symbol=:auto, ET=eltype(graph[1]), N=nv(graph), E=ne(graph),
-                       nf=Fill(zero(ET), (0, N)), ef=Fill(zero(ET), (0, E)), gf=Fill(zero(ET), 0)) where {T<:AbstractVector}
-    @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
-    dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    FeaturedGraph(graph, nf, ef, gf, :nonmatrix, dir)
+function FeaturedGraph(graph::AbstractVector{T}; ET=eltype(graph[1]), kwargs...) where {T<:AbstractVector}
+    FeaturedGraph(graph, :nonmatrix; T=ET, kwargs...)
 end
 
 ## Graph in adjacency matrix
 
-function FeaturedGraph(graph::AbstractMatrix{T}; directed::Symbol=:auto, N=nv(graph), E=ne(graph),
-                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0)) where {T<:Real}
-    @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
-    dir = (directed == :auto) ? !issymmetric(graph) : directed == :directed
+function FeaturedGraph(graph::AbstractMatrix{T}; N=nv(graph), nf=Fill(zero(T), (0, N)), kwargs...) where {T<:Real}
     graph = promote_graph(graph, nf)
-    FeaturedGraph(graph, nf, ef, gf, :adjm, dir)
+    FeaturedGraph(graph, :adjm; N=N, nf=nf, kwargs...)
 end
 
 function check_num_node(graph_nv::Real, N::Real)
@@ -102,6 +98,9 @@ function _check_precondition(graph, nf, ef, mt)
     check_num_node(nv(graph), nf)
     return
 end
+
+
+## Accessing
 
 function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
     if prop == :graph
@@ -182,3 +181,97 @@ Check if global feature is available or not.
 has_global_feature(::NullGraph) = false
 has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
 Zygote.@nograd has_global_feature
+
+"""
+    fetch_graph(g1, g2)
+
+Fetch graph from `g1` or `g2`. If there is only one graph available, fetch that one.
+Otherwise, fetch the first one.
+"""
+fetch_graph(::NullGraph, fg::FeaturedGraph) = graph(fg)
+fetch_graph(fg::FeaturedGraph, ::NullGraph) = graph(fg)
+fetch_graph(fg1::FeaturedGraph, fg2::FeaturedGraph) = has_graph(fg1) ? graph(fg1) : graph(fg2)
+
+
+## Graph property
+
+"""
+    nv(::AbstractFeaturedGraph)
+
+Get node number of graph.
+"""
+nv(::NullGraph) = 0
+nv(fg::FeaturedGraph) = nv(graph(fg))
+nv(fg::FeaturedGraph{T}) where {T<:AbstractMatrix} = size(graph(fg), 1)
+
+"""
+    ne(::AbstractFeaturedGraph)
+
+Get edge number of graph.
+"""
+ne(::NullGraph) = 0
+ne(fg::FeaturedGraph) = ne(graph(fg))
+ne(fg::FeaturedGraph{T}) where {T<:AbstractMatrix} = ne(graph(fg))
+ne(fg::FeaturedGraph{T}) where {T<:AbstractVector} = ne(graph(fg), fg.directed)
+
+is_directed(fg::FeaturedGraph) = fg.directed
+
+
+## Graph representations
+
+"""
+adjacency_list(::AbstractFeaturedGraph)
+
+Get adjacency list of graph.
+"""
+adjacency_list(::NullGraph) = [zeros(0)]
+adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
+
+adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adjacency_matrix(graph(fg), T)
+
+
+## Linear algebra
+
+degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+    degrees(graph(fg), T; dir=dir)
+
+degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+    degree_matrix(graph(fg), T; dir=dir)
+
+inv_sqrt_degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+    inv_sqrt_degree_matrix(graph(fg), T; dir=dir)
+
+laplacian_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+    laplacian_matrix(graph(fg), T; dir=dir)
+
+normalized_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false) =
+    normalized_laplacian(graph(fg), T; selfloop=selfloop)
+
+scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_laplacian(graph(fg), T)
+
+
+## Inplace operations
+
+function laplacian_matrix!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out)
+    if fg.matrix_type == :adjm
+        fg.graph .= laplacian_matrix(graph(fg), T; dir=dir)
+        fg.matrix_type = :laplacian
+    end
+    fg
+end
+
+function normalized_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false)
+    if fg.matrix_type == :adjm
+        fg.graph .= normalized_laplacian(graph(fg), T; selfloop=selfloop)
+        fg.matrix_type = :normalized
+    end
+    fg
+end
+
+function scaled_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)))
+    if fg.matrix_type == :adjm
+        fg.graph .= scaled_laplacian(graph(fg), T)
+        fg.matrix_type = :scaled
+    end
+    fg
+end
