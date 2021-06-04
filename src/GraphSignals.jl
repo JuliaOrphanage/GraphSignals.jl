@@ -1,5 +1,6 @@
 module GraphSignals
 
+using NNlib
 using LinearAlgebra: issymmetric, diag, diagm, Transpose
 
 using CUDA: AnyCuVector, CuArray, CuVector, cu

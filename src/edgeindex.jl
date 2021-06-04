@@ -10,6 +10,12 @@ function EdgeIndex(adjl::AbstractVector{T}) where {T<:Vector}
     EdgeIndex{typeof(a)}(a)
 end
 
+# function EdgeIndex(fg::FeaturedGraph)
+#     adjl = adjacency_list(fg)
+#     dir = fg.directed
+
+# end
+
 nv(ei::EdgeIndex) = length(ei.adjl)
 
 ne(ei::EdgeIndex) = length(unique(map(x -> x[2], vcat(ei.adjl...))))
@@ -26,6 +32,53 @@ function _get(ei::EdgeIndex, i, j, default=nothing)
         nbs_j == j && return v
     end
     return default
+end
+
+"""
+Order the edges in a graph by giving a unique integer to each edge.
+"""
+function order_edges(adjl::AbstractVector{<:AbstractVector}; directed::Bool=false)
+    T = Vector{Tuple{Int64, Int64}}
+    res = similar(adjl, T)
+    for i = 1:length(res)
+        res[i] = T[]
+    end
+    if directed
+        directed_order_edges!(res, adjl)
+    else
+        undirected_order_edges!(res, adjl)
+    end
+    return res
+end
+
+function undirected_order_edges!(res, adjl::AbstractVector{<:AbstractVector})
+    viewed = Set{Tuple{Int64, Int64}}()
+    k = 1
+    for i = 1:length(adjl)
+        for j = adjl[i]
+            if i == j
+                push!(res[i], (j, k))
+                k += 1
+            elseif !((i, j) in viewed)
+                push!(res[i], (j, k))
+                push!(res[j], (i, k))
+                push!(viewed, (j, i))
+                k += 1
+            end
+        end
+    end
+    res
+end
+
+function directed_order_edges!(res, adjl::AbstractVector{<:AbstractVector})
+    k = 1
+    for i = 1:length(adjl)
+        for j = adjl[i]
+            push!(res[i], (j, k))
+            k += 1
+        end
+    end
+    res
 end
 
 """
