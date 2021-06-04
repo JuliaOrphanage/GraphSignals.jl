@@ -1,5 +1,5 @@
 # undirected simple graph
-adjl1 = [
+adjl1 = Vector{Int64}[
     [2, 4, 5],
     [1],
     [],
@@ -18,7 +18,7 @@ iadjl1 = [
 E1 = rand(10, 4)
 
 # directed graph with self loop and multiple edges
-adjl2 = [
+adjl2 = Vector{Int64}[
     [2, 5, 5],
     [],
     [1, 4],
@@ -63,4 +63,9 @@ E2 = rand(10, 8)
 
     @test GraphSignals.order_edges(adjl1, directed=false) == iadjl1
     @test GraphSignals.order_edges(adjl2, directed=true) == iadjl2
+    
+    fg1 = FeaturedGraph(adjl1, directed=:undirected)
+    @test EdgeIndex(fg1).adjl == iadjl1
+    fg2 = FeaturedGraph(adjl2, directed=:directed)
+    @test EdgeIndex(fg2).adjl == iadjl2
 end

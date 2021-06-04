@@ -10,11 +10,10 @@ function EdgeIndex(adjl::AbstractVector{T}) where {T<:Vector}
     EdgeIndex{typeof(a)}(a)
 end
 
-# function EdgeIndex(fg::FeaturedGraph)
-#     adjl = adjacency_list(fg)
-#     dir = fg.directed
-
-# end
+function EdgeIndex(fg::FeaturedGraph)
+    iadjl = order_edges(adjacency_list(fg), directed=fg.directed)
+    EdgeIndex(iadjl)
+end
 
 nv(ei::EdgeIndex) = length(ei.adjl)
 
