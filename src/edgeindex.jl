@@ -5,6 +5,8 @@ struct EdgeIndex{T<:AbstractVector{<:AbstractVector}}
     adjl::T
 end
 
+# make it support `iterate` to be a iterator
+# need support for indexed adjlist, adjmat and juliagraphs
 function EdgeIndex(adjl::AbstractVector{T}) where {T<:Vector}
     a = convert(Vector{Vector{Tuple{Int64, Int64}}}, adjl)
     EdgeIndex{typeof(a)}(a)

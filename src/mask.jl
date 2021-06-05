@@ -27,6 +27,7 @@ function node_feature(gm::GraphMask)
 end
 
 function edge_feature(gm::GraphMask)
+    # need refactoring
     M = binarize_mask(gm)
     g = graph(gm.fg)
     iadjl = order_edges(adjacency_list(g), directed=is_directed(gm.fg))
