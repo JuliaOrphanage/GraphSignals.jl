@@ -3,6 +3,7 @@ using CUDA
 using FillArrays
 using GraphLaplacians
 using LightGraphs
+using LinearAlgebra
 using SimpleWeightedGraphs
 using Test
 
@@ -10,9 +11,8 @@ tests = [
     "featuredgraph",
     "graph",
     "linalg",
-    "simplegraph",
-    "weightedgraph",
     "edgeindex",
+    "mask",
 ]
 
 if CUDA.functional()

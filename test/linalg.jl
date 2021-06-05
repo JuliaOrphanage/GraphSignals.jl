@@ -6,6 +6,7 @@ deg = [2 0 0 0;
        0 2 0 0;
        0 0 2 0;
        0 0 0 2]
+isd = [√2, √2, √2, √2]
 lap = [2 -1 0 -1;
        -1 2 -1 0;
        0 -1 2 -1;
@@ -40,6 +41,7 @@ scaled_lap =   [0 -0.5 0 -0.5;
         @test dm == T.(deg)
         @test GraphSignals.degree_matrix(adj, T; dir=:in) == dm
         @test GraphSignals.degree_matrix(adj, T; dir=:both) == dm
+        @test GraphSignals.inv_sqrt_degree_matrix(fg, T) == T.(diagm(1 ./ isd))
         @test GraphSignals.laplacian_matrix(fg, T) == T.(lap)
         @test GraphSignals.normalized_laplacian(fg, T) ≈ T.(norm_lap)
         @test GraphSignals.scaled_laplacian(fg, T) ≈ T.(scaled_lap)

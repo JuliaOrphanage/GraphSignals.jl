@@ -1,14 +1,14 @@
 module GraphSignals
 
+using NNlib
 using LinearAlgebra: issymmetric, diag, diagm, Transpose
 
 using CUDA: AnyCuVector, CuArray, CuVector, cu
 using FillArrays
 using GraphLaplacians
 using LightGraphs
-using LightGraphs: AbstractSimpleGraph, outneighbors
+using LightGraphs: AbstractGraph, outneighbors
 using NNlib
-using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, outneighbors
 using Zygote
 
 import Base: get
@@ -25,7 +25,6 @@ export
     node_feature,
     edge_feature,
     global_feature,
-    mask,
     has_graph,
     has_node_feature,
     has_edge_feature,
@@ -54,16 +53,21 @@ export
     scaled_laplacian,
     laplacian_matrix!,
     normalized_laplacian!,
-    scaled_laplacian!
+    scaled_laplacian!,
 
-include("featuredgraph.jl")
+    # mask
+    GraphMask,
+    mask
+
 include("graph.jl")
 include("linalg.jl")
-include("simplegraph.jl")
-include("weightedgraph.jl")
+
+include("featuredgraph.jl")
 include("utils.jl")
 
 include("edgeindex.jl")
 include("cuda.jl")
+include("sampling.jl")
+include("mask.jl")
 
 end

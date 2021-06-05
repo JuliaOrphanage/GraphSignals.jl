@@ -29,7 +29,6 @@ gf = rand(7)
     @test isnothing(node_feature(ng))
     @test isnothing(edge_feature(ng))
     @test isnothing(global_feature(ng))
-    @test isnothing(mask(ng))
 
 
     fg = FeaturedGraph(adj)
@@ -41,7 +40,6 @@ gf = rand(7)
     @test node_feature(fg) == Fill(0, (0, N))
     @test edge_feature(fg) == Fill(0, (0, E))
     @test global_feature(fg) == Fill(0, 0)
-    @test mask(fg) == zeros(N, N)
 
 
     fg = FeaturedGraph(adj; nf=nf)
@@ -53,7 +51,6 @@ gf = rand(7)
     @test node_feature(fg) == nf
     @test edge_feature(fg) == Fill(0., (0, E))
     @test global_feature(fg) == zeros(0)
-    @test mask(fg) == zeros(N, N)
 
     # Test with transposed features
     nf_t = rand(N, 3)'
@@ -66,7 +63,6 @@ gf = rand(7)
     @test node_feature(fg) == nf_t
     @test edge_feature(fg) == Fill(0., (0, E))
     @test global_feature(fg) == zeros(0)
-    @test mask(fg) == zeros(N, N)
 
 
     fg = FeaturedGraph(ug; nf=nf)
@@ -78,7 +74,6 @@ gf = rand(7)
     @test node_feature(fg) == nf
     @test edge_feature(fg) == Fill(0., (0, E))
     @test global_feature(fg) == zeros(0)
-    @test mask(fg) == zeros(N, N)
 
 
     fg = FeaturedGraph(ug; nf=nf, ef=ef ,gf=gf)
@@ -90,7 +85,6 @@ gf = rand(7)
     @test node_feature(fg) == nf
     @test edge_feature(fg) == ef
     @test global_feature(fg) == gf
-    @test mask(fg) == zeros(N, N)
 
 
     fg = FeaturedGraph(adj; nf=nf, ef=ef ,gf=gf)
@@ -102,10 +96,12 @@ gf = rand(7)
     @test node_feature(fg) == nf
     @test edge_feature(fg) == ef
     @test global_feature(fg) == gf
-    @test mask(fg) == zeros(N, N)
+    @test GraphSignals.nf_dims_repr(fg) == 3
+    @test GraphSignals.ef_dims_repr(fg) == 5
+    @test GraphSignals.gf_dims_repr(fg) == 7
 
     T = Matrix{Float32}
-    fg = FeaturedGraph{T,T,T,Vector{Float32}}(adj, nf, ef ,gf, zeros(N, N), :adjm, true)
+    fg = FeaturedGraph{T,T,T,Vector{Float32}}(adj, nf, ef ,gf, :adjm, true)
     @test typeof(graph(fg)) == T
     @test typeof(node_feature(fg)) == T
     @test typeof(edge_feature(fg)) == T
