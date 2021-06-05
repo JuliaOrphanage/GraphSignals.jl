@@ -58,7 +58,7 @@ end
 
 ## Graph from JuliaGraphs
 
-FeaturedGraph(graph; kwargs...) = FeaturedGraph(graph, :nonmatrix; kwargs...)
+FeaturedGraph(graph::AbstractGraph; kwargs...) = FeaturedGraph(graph, :nonmatrix; kwargs...)
 
 ## Graph in adjacency list
 
@@ -98,6 +98,25 @@ function _check_precondition(graph, nf, ef, mt)
     check_num_node(nv(graph), nf)
     return
 end
+
+function Base.show(io::IO, fg::FeaturedGraph)
+    direct = fg.directed ? "Directed" : "Undirected"
+    println(io, "FeaturedGraph(")
+    print(io, "\t", direct, " graph with (#V=", nv(fg), ", #E=", ne(fg), ") in ")
+    println(io, graphrepr(fg.graph), " <", typeof(fg.graph), ">,")
+    has_node_feature(fg) && println(io, "\tNode feature:\tℝ^", nf_dims_repr(fg), " <", typeof(fg.nf), ">,")
+    has_edge_feature(fg) && println(io, "\tEdge feature:\tℝ^", ef_dims_repr(fg), " <", typeof(fg.ef), ">,")
+    has_global_feature(fg) && println(io, "\tGlobal feature:\tℝ^", gf_dims_repr(fg), " <", typeof(fg.gf), ">,")
+    print(io, ")")
+end
+
+graphrepr(g::AbstractMatrix) = "adjacency matrix"
+graphrepr(g::AbstractVector{<:AbstractVector}) = "adjacency list"
+graphrepr(g::T) where {T<:AbstractGraph} = string(T)
+
+nf_dims_repr(fg::FeaturedGraph) = size(fg.nf, 1)
+ef_dims_repr(fg::FeaturedGraph) = size(fg.ef, 1)
+gf_dims_repr(fg::FeaturedGraph) = size(fg.gf, 1)
 
 
 ## Accessing
