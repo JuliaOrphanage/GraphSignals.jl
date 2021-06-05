@@ -1,5 +1,6 @@
 module GraphSignals
 
+using Base: Integer
 using NNlib
 using LinearAlgebra: issymmetric, diag, diagm, Transpose
 

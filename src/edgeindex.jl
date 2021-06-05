@@ -2,26 +2,25 @@
 A indexing structure for accessing neighbors of a vertex. 
 """
 struct EdgeIndex{T<:AbstractVector{<:AbstractVector}}
-    adjl::T
+    iadjl::T
 end
 
 # make it support `iterate` to be a iterator
-# need support for indexed adjlist, adjmat and juliagraphs
-function EdgeIndex(adjl::AbstractVector{T}) where {T<:Vector}
-    a = convert(Vector{Vector{Tuple{Int64, Int64}}}, adjl)
+function EdgeIndex(iadjl::AbstractVector{<:Vector{T}}) where {T<:Integer}
+    a = convert(Vector{Vector{Tuple{Int64, Int64}}}, iadjl)
     EdgeIndex{typeof(a)}(a)
 end
 
-function EdgeIndex(fg::FeaturedGraph)
-    iadjl = order_edges(adjacency_list(fg), directed=fg.directed)
+function EdgeIndex(g)
+    iadjl = order_edges(adjacency_list(g), directed=is_directed(g))
     EdgeIndex(iadjl)
 end
 
-nv(ei::EdgeIndex) = length(ei.adjl)
+nv(ei::EdgeIndex) = length(ei.iadjl)
 
-ne(ei::EdgeIndex) = length(unique(map(x -> x[2], vcat(ei.adjl...))))
+ne(ei::EdgeIndex) = length(unique(map(x -> x[2], vcat(ei.iadjl...))))
 
-neighbors(ei::EdgeIndex, i) = ei.adjl[i]
+neighbors(ei::EdgeIndex, i) = ei.iadjl[i]
 
 get(ei::EdgeIndex, key::NTuple{2}, default=nothing) = _get(ei, key..., default)
 get(ei::EdgeIndex, key::CartesianIndex{2}, default=nothing) = _get(ei, key[1], key[2], default)
@@ -88,6 +87,7 @@ end
 Generate index structure for scatter operation.
 """
 function generate_cluster_index(ei::EdgeIndex; direction::Symbol=:undirected)
+    # TODO: support CUDA
     if direction == :undirected
         return undirected_generate_clst_idx(ei)
     elseif direction == :inward
@@ -100,7 +100,7 @@ function generate_cluster_index(ei::EdgeIndex; direction::Symbol=:undirected)
 end
 
 function undirected_generate_clst_idx(ei::EdgeIndex)
-    el = [map(x -> (i, x...), ei.adjl[i]) for i = 1:length(ei.adjl)]
+    el = [map(x -> (i, x...), ei.iadjl[i]) for i = 1:length(ei.iadjl)]
     el = vcat(el...)
     sort!(el, by=x->x[3])
     unique!(x->x[3], el)
@@ -110,10 +110,10 @@ function undirected_generate_clst_idx(ei::EdgeIndex)
 end
 
 function inward_generate_clst_idx(ei::EdgeIndex)
-    clst_idx = similar(ei.adjl, Int, ne(ei))
+    clst_idx = similar(ei.iadjl, Int, ne(ei))
     # inward vertex index and edge index
     for i = 1:nv(ei)
-        for (vidx, eidx) in ei.adjl[i]
+        for (vidx, eidx) in ei.iadjl[i]
             clst_idx[eidx] = vidx
         end
     end
@@ -121,10 +121,10 @@ function inward_generate_clst_idx(ei::EdgeIndex)
 end
 
 function outward_generate_clst_idx(ei::EdgeIndex)
-    clst_idx = similar(ei.adjl, Int, ne(ei))
+    clst_idx = similar(ei.iadjl, Int, ne(ei))
     # outward vertex index and edge index
     for vidx = 1:nv(ei)
-        for (_, eidx) in ei.adjl[vidx]
+        for (_, eidx) in ei.iadjl[vidx]
             clst_idx[eidx] = vidx
         end
     end
@@ -145,4 +145,13 @@ function edge_scatter(aggr, E::AbstractArray, ei::EdgeIndex; direction::Symbol=:
         clst_idx = generate_cluster_index(ei, direction=direction)
         return NNlib.scatter(aggr, E, clst_idx)
     end
+end
+
+"""
+    neighbor_scatter(aggr, X, ei, direction=:undirected)
+
+Scatter operation for aggregating neighbor vertex feature together.
+"""
+function neighbor_scatter(aggr, X::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
+
 end
