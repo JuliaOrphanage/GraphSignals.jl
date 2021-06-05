@@ -16,12 +16,7 @@ function adjacency_list(adj::AbstractMatrix{T}) where {T}
 end
 
 adjacency_list(adj::AbstractVector{<:AbstractVector{<:Integer}}) = adj
-
-
-function adjacency_list(g::AbstractGraph)
-    N = nv(g)
-    Vector{Int}[outneighbors(g, i) for i = 1:N]
-end
+adjacency_list(g::AbstractGraph) = Vector{Int}[outneighbors(g, i) for i = 1:nv(g)]
 
 Zygote.@nograd adjacency_list
 
@@ -34,25 +29,16 @@ function GraphSignals.ne(g::AbstractMatrix; self_loop::Bool=false)
     g = Matrix(g .!= 0)
 
     if issymmetric(g)
-        if self_loop
-            return div(sum(g .+ diagm(diag(g))), 2)
-        else
-            return div(sum(g .- diagm(diag(g))), 2)
-        end
+        g = self_loop ? g .+ diagm(diag(g)) : g .- diagm(diag(g))
+        return div(sum(g), 2)
     else
-        if self_loop
-            return sum(g)
-        else
-            return sum(g .- diagm(diag(g)))
-        end
+        g = self_loop ? g : g .- diagm(diag(g))
+        return sum(g)
     end
 end
 
 function ne(g::AbstractVector{T}, directed::Bool=is_directed(g)) where {T<:AbstractVector}
-    for i in 1:length(g)
-        filter!(x -> x != i, g[i])
-    end
-    s = map(x -> count(x .== x), g)
+    s = [count(g[i] .!= i) for i in 1:length(g)]
     return directed ? sum(s) : div(sum(s), 2)
 end
 
