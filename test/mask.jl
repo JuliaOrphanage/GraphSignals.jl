@@ -39,6 +39,6 @@ gf = rand(7)
                          0 0 1 1 0;
                          0 0 0 0 0]
     @test node_feature(gm1) == hcat(zeros(3), nf[:,2], nf[:,3], nf[:,4])
-#     @test edge_feature(gm1)
+    @test edge_feature(gm1) == hcat(zeros(5), zeros(5), ef[:,3], ef[:,4])
     @test global_feature(gm1) == gf
 end
