@@ -1,8 +1,8 @@
-# undirected simple graph
+# undirected simple graph with self loop
 adjl1 = Vector{Int64}[
     [2, 4, 5],
     [1],
-    [],
+    [3],
     [1, 5],
     [1, 4]
 ]
@@ -10,12 +10,12 @@ adjl1 = Vector{Int64}[
 iadjl1 = [
     [(2, 1), (4, 2), (5, 3)],
     [(1, 1)],
-    [],
-    [(1, 2), (5, 4)],
-    [(1, 3), (4, 4)]
+    [(3, 4)],
+    [(1, 2), (5, 5)],
+    [(1, 3), (4, 5)]
 ]
 
-E1 = rand(10, 4)
+E1 = rand(10, 5)
 
 # directed graph with self loop and multiple edges
 adjl2 = Vector{Int64}[
@@ -40,13 +40,13 @@ E2 = rand(10, 8)
     ei1 = EdgeIndex(iadjl1)
     @test ei1.adjl isa Vector{Vector{Tuple{Int64, Int64}}}
     @test nv(ei1) == 5
-    @test ne(ei1) == 4
+    @test ne(ei1) == 5
     @test neighbors(ei1, 1) == [(2, 1), (4, 2), (5, 3)]
-    @test neighbors(ei1, 3) == []
+    @test neighbors(ei1, 3) == [(3, 4)]
     @test get(ei1, (1, 5)) == 3
     @test isnothing(get(ei1, (2, 3)))
-    @test GraphSignals.generate_cluster_index(E1, ei1) == ([2, 4, 5, 5], [1, 1, 1, 4])
-    @test_throws ArgumentError GraphSignals.generate_cluster_index(E1, ei1, direction=:in)
+    @test GraphSignals.generate_cluster_index(ei1) == ([1, 1, 1, 3, 4], [2, 4, 5, 3, 5])
+    @test_throws ArgumentError GraphSignals.generate_cluster_index(ei1, direction=:in)
     @test size(edge_scatter(+, E1, ei1)) == (10, 5)
 
     ei2 = EdgeIndex(iadjl2)
@@ -56,8 +56,8 @@ E2 = rand(10, 8)
     @test neighbors(ei2, 2) == []
     @test get(ei2, (3, 1)) == 4
     @test isnothing(get(ei2, (1, 3)))
-    @test GraphSignals.generate_cluster_index(E2, ei2, direction=:inward) == [2, 5, 5, 1, 4, 4, 1, 4]
-    @test GraphSignals.generate_cluster_index(E2, ei2, direction=:outward) == [1, 1, 1, 3, 3, 4, 5, 5]
+    @test GraphSignals.generate_cluster_index(ei2, direction=:inward) == [2, 5, 5, 1, 4, 4, 1, 4]
+    @test GraphSignals.generate_cluster_index(ei2, direction=:outward) == [1, 1, 1, 3, 3, 4, 5, 5]
     @test size(edge_scatter(+, E2, ei2, direction=:inward)) == (10, 5)
     @test size(edge_scatter(+, E2, ei2, direction=:outward)) == (10, 5)
 

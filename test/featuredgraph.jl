@@ -96,6 +96,9 @@ gf = rand(7)
     @test node_feature(fg) == nf
     @test edge_feature(fg) == ef
     @test global_feature(fg) == gf
+    @test GraphSignals.nf_dims_repr(fg) == 3
+    @test GraphSignals.ef_dims_repr(fg) == 5
+    @test GraphSignals.gf_dims_repr(fg) == 7
 
     T = Matrix{Float32}
     fg = FeaturedGraph{T,T,T,Vector{Float32}}(adj, nf, ef ,gf, :adjm, true)

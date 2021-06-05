@@ -85,37 +85,30 @@ end
 
 Generate index structure for scatter operation.
 """
-function generate_cluster_index(E::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
+function generate_cluster_index(ei::EdgeIndex; direction::Symbol=:undirected)
     if direction == :undirected
-        return undirected_generate_clst_idx(E, ei, ne(ei))
+        return undirected_generate_clst_idx(ei)
     elseif direction == :inward
-        return inward_generate_clst_idx(E, ei, ne(ei))
+        return inward_generate_clst_idx(ei)
     elseif direction == :outward
-        return outward_generate_clst_idx(E, ei, ne(ei))
+        return outward_generate_clst_idx(ei)
     else
         throw(ArgumentError("direction must be one of :undirected, :outward or :inward."))
     end
 end
 
-function undirected_generate_clst_idx(E::AbstractArray, ei::EdgeIndex, num_E::Int=ne(ei))
-    clst_idx1 = similar(E, Int, num_E)
-    clst_idx2 = similar(E, Int, num_E)
-    viewed = Set{Int}()
-    for i = 1:nv(ei)
-        for (vidx, eidx) in ei.adjl[i]
-            if eidx in viewed
-                clst_idx2[eidx] = vidx
-            else
-                clst_idx1[eidx] = vidx
-                push!(viewed, eidx)
-            end
-        end
-    end
+function undirected_generate_clst_idx(ei::EdgeIndex)
+    el = [map(x -> (i, x...), ei.adjl[i]) for i = 1:length(ei.adjl)]
+    el = vcat(el...)
+    sort!(el, by=x->x[3])
+    unique!(x->x[3], el)
+    clst_idx1 = map(x -> x[1], el)
+    clst_idx2 = map(x -> x[2], el)
     clst_idx1, clst_idx2
 end
 
-function inward_generate_clst_idx(E::AbstractArray, ei::EdgeIndex, num_E::Int=ne(ei))
-    clst_idx = similar(E, Int, num_E)
+function inward_generate_clst_idx(ei::EdgeIndex)
+    clst_idx = similar(ei.adjl, Int, ne(ei))
     # inward vertex index and edge index
     for i = 1:nv(ei)
         for (vidx, eidx) in ei.adjl[i]
@@ -125,8 +118,8 @@ function inward_generate_clst_idx(E::AbstractArray, ei::EdgeIndex, num_E::Int=ne
     clst_idx
 end
 
-function outward_generate_clst_idx(E::AbstractArray, ei::EdgeIndex, num_E::Int=ne(ei))
-    clst_idx = similar(E, Int, num_E)
+function outward_generate_clst_idx(ei::EdgeIndex)
+    clst_idx = similar(ei.adjl, Int, ne(ei))
     # outward vertex index and edge index
     for vidx = 1:nv(ei)
         for (_, eidx) in ei.adjl[vidx]
@@ -143,11 +136,11 @@ Scatter operation for aggregating edge feature into vertex feature.
 """
 function edge_scatter(aggr, E::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
     if direction == :undirected
-        clst_idx1, clst_idx2 = generate_cluster_index(E, ei, direction=direction)
-        dst = NNlib.scatter(aggr, E, clst_idx1)
-        return NNlib.scatter!(aggr, dst, E, clst_idx2)
+        clst_idx1, clst_idx2 = generate_cluster_index(ei, direction=direction)
+        dst = NNlib.scatter(aggr, E, clst_idx2)
+        return NNlib.scatter!(aggr, dst, E, clst_idx1)
     else
-        clst_idx = generate_cluster_index(E, ei, direction=direction)
+        clst_idx = generate_cluster_index(ei, direction=direction)
         return NNlib.scatter(aggr, E, clst_idx)
     end
 end
