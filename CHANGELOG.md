@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1]
+
+- Support CUDA up to v3.2
+- FeaturedGraph checks feature dimensions in constructors and before setting property
+- add Base.show for FeaturedGraph
+- add EdgeIndex and edge_scatter for providing an indexing strucutre to message-passing
+- add GraphMask for masking FeaturedGraph
+
 ## [0.2.0]
 
 - Support Julia v1.6 and CUDA v2.6 only
