@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2]
+
+- EdgeIndex support adjacency matrix and juliagraphs
+- add `neighbor_scatter` for scatter across neighbors
+
 ## [0.2.1]
 
 - Support CUDA up to v3.2
