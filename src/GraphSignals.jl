@@ -1,5 +1,6 @@
 module GraphSignals
 
+using Base: Integer
 using NNlib
 using LinearAlgebra: issymmetric, diag, diagm, Transpose
 
@@ -42,6 +43,7 @@ export
     neighbors,
     get,
     edge_scatter,
+    neighbor_scatter,
 
     # linalg
     adjacency_matrix,
