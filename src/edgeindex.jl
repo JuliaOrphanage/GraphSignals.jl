@@ -92,45 +92,35 @@ Generate index structure for scatter operation.
 - `direction::Symbol`: The direction of an edge to be choose to aggregate. It must be one of `:undirected`, `:inward` and `:outward`.
 - `kind::Symbol`: To aggregate feature upon edge or vertex. It must be one of `:edge` and `:vertex`.
 """
-function aggregate_index(ei::EdgeIndex; direction::Symbol=:undirected, kind::Symbol=:edge)
+function aggregate_index(ei::EdgeIndex, kind::Symbol=:edge, direction::Symbol=:outward)
     # TODO: support CUDA
-    N = if kind == :edge
-        ne(ei)
+    if !(direction in [:inward, :outward])
+        throw(ArgumentError("direction must be one of :outward or :inward."))
+    end
+
+    if kind == :edge
+        idx = similar(ei.iadjl, Int, ne(ei))
     elseif kind == :vertex
-        nv(ei)
+        idx = similar(ei.iadjl, Vector{Int}, nv(ei))
+        for i = 1:length(idx)
+            idx[i] = Int[]
+        end
     else
         throw(ArgumentError("kind must be one of :edge or :vertex."))
     end
-
-    if direction == :undirected
-        return undirected_aggregate_idx(ei)
-    elseif direction in [:inward, :outward]
-        clst_idx = similar(ei.iadjl, Int, N)
-        for src_idx = 1:nv(ei)
-            for (sink_idx, eidx) in ei.iadjl[src_idx]
-                assign_aggr_idx!(Val(kind), Val(direction), clst_idx, src_idx, sink_idx, eidx)
-            end
+    
+    for src_idx = 1:nv(ei)
+        for (sink_idx, eidx) in ei.iadjl[src_idx]
+            assign_aggr_idx!(Val(kind), Val(direction), idx, src_idx, sink_idx, eidx)
         end
-        return clst_idx
-    else
-        throw(ArgumentError("direction must be one of :undirected, :outward or :inward."))
     end
-end
-
-function undirected_aggregate_idx(ei::EdgeIndex)
-    el = [map(x -> (i, x...), ei.iadjl[i]) for i = 1:length(ei.iadjl)]
-    el = vcat(el...)
-    sort!(el, by=x->x[3])
-    unique!(x->x[3], el)
-    idx1 = map(x -> x[1], el)
-    idx2 = map(x -> x[2], el)
-    idx1, idx2
+    return idx
 end
 
 assign_aggr_idx!(::Val{:edge}, ::Val{:inward}, idx, src, sink, edge) = (idx[edge] = sink)
 assign_aggr_idx!(::Val{:edge}, ::Val{:outward}, idx, src, sink, edge) = (idx[edge] = src)
-assign_aggr_idx!(::Val{:vertex}, ::Val{:inward}, idx, src, sink, edge) = (idx[src] = sink)
-assign_aggr_idx!(::Val{:vertex}, ::Val{:outward}, idx, src, sink, edge) = (idx[sink] = src)
+assign_aggr_idx!(::Val{:vertex}, ::Val{:inward}, idx, src, sink, edge) = push!(idx[src], sink)
+assign_aggr_idx!(::Val{:vertex}, ::Val{:outward}, idx, src, sink, edge) = push!(idx[sink], src)
 
 """
     edge_scatter(aggr, E, ei, direction=:undirected)
@@ -146,13 +136,14 @@ Scatter operation for aggregating edge feature into vertex feature.
 """
 function edge_scatter(aggr, E::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
     if direction == :undirected
-        idx1, idx2 = aggregate_index(ei, direction=direction)
+        idx1 = aggregate_index(ei, :edge, :outward)
+        idx2 = aggregate_index(ei, :edge, :inward)
         # idx may be incomplelely cover all index, this may cause some bug which makes dst shorter than expect
-        # currently, scatter idx2 first can avoid this condition
-        dst = NNlib.scatter(aggr, E, idx2)
-        return NNlib.scatter!(aggr, dst, E, idx1)
+        # currently, scatter idx1 first can avoid this condition
+        dst = NNlib.scatter(aggr, E, idx1)
+        return NNlib.scatter!(aggr, dst, E, idx2)
     else
-        idx = aggregate_index(ei, direction=direction)
+        idx = aggregate_index(ei, :edge, direction)
         return NNlib.scatter(aggr, E, idx)
     end
 end
@@ -169,13 +160,21 @@ Scatter operation for aggregating neighbor vertex feature together.
 - `ei::EdgeIndex`: The reference graph.
 - `direction::Symbol`: The direction of an edge to be choose to aggregate. It must be one of `:undirected`, `:inward` and `:outward`.
 """
-function neighbor_scatter(aggr, X::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
+function neighbor_scatter(aggr, X::AbstractArray{T}, ei::EdgeIndex; direction::Symbol=:undirected) where T
     if direction == :undirected
-        idx1, idx2 = aggregate_index(ei, direction=direction, kind=:vertex)
+        idx1, idx2 = aggregate_index(ei, :vertex, direction)
         dst = NNlib.scatter(aggr, X, idx2)
         return NNlib.scatter!(aggr, dst, X, idx1)
     else
-        idx = aggregate_index(ei, direction=direction, kind=:vertex)
-        return NNlib.scatter(aggr, X, idx)
+        idx = aggregate_index(ei, :vertex, direction)
+        Y = similar(X)
+        for i = 1:length(idx)
+            if isempty(idx[i])
+                fill!(view(Y, :, i), NNlib.scatter_empty(aggr, T))
+            else
+                view(Y, :, i) .= mapreduce(j -> view(X,:,j), aggr, idx[i])
+            end
+        end
+        return Y
     end
 end
