@@ -43,6 +43,7 @@ export
     neighbors,
     get,
     edge_scatter,
+    neighbor_scatter,
 
     # linalg
     adjacency_matrix,
