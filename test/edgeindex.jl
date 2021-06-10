@@ -15,6 +15,7 @@ iadjl1 = [
     [(1, 3), (4, 5)]
 ]
 
+V1 = rand(10, 5)
 E1 = rand(10, 5)
 
 # directed graph with self loop and multiple edges
@@ -62,6 +63,9 @@ add_edge!(wug, 3, 3, 5); add_edge!(wug, 4, 5, 2)
     @test isnothing(get(ei1, (2, 3)))
     @test_throws ArgumentError GraphSignals.aggregate_index(ei1, :edge, :in)
     @test size(edge_scatter(+, E1, ei1)) == (10, 5)
+    X = neighbor_scatter(+, V1, ei1, direction=:undirected)
+    @test size(X) == (10, 5)
+    @test X[:,1] == vec(sum(V1[:, [2, 4, 5]], dims=2))
 
     ei2 = EdgeIndex(iadjl2)
     @test nv(ei2) == 5

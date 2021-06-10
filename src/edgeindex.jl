@@ -161,20 +161,15 @@ Scatter operation for aggregating neighbor vertex feature together.
 - `direction::Symbol`: The direction of an edge to be choose to aggregate. It must be one of `:undirected`, `:inward` and `:outward`.
 """
 function neighbor_scatter(aggr, X::AbstractArray{T}, ei::EdgeIndex; direction::Symbol=:undirected) where T
-    if direction == :undirected
-        idx1, idx2 = aggregate_index(ei, :vertex, direction)
-        dst = NNlib.scatter(aggr, X, idx2)
-        return NNlib.scatter!(aggr, dst, X, idx1)
-    else
-        idx = aggregate_index(ei, :vertex, direction)
-        Y = similar(X)
-        for i = 1:length(idx)
-            if isempty(idx[i])
-                fill!(view(Y, :, i), NNlib.scatter_empty(aggr, T))
-            else
-                view(Y, :, i) .= mapreduce(j -> view(X,:,j), aggr, idx[i])
-            end
+    direction == :undirected && (direction = :outward)
+    idx = aggregate_index(ei, :vertex, direction)
+    Y = similar(X)
+    for i = 1:length(idx)
+        if isempty(idx[i])
+            fill!(view(Y, :, i), NNlib.scatter_empty(aggr, T))
+        else
+            view(Y, :, i) .= mapreduce(j -> view(X,:,j), aggr, idx[i])
         end
-        return Y
     end
+    return Y
 end
