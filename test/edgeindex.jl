@@ -97,4 +97,11 @@ add_edge!(wug, 3, 3, 5); add_edge!(wug, 4, 5, 2)
     @test EdgeIndex(adjm).iadjl == iadjl1
     @test EdgeIndex(ug).iadjl == iadjl1
     @test EdgeIndex(wug).iadjl == iadjl1
+
+    gradtest(x -> edge_scatter(+, x, ei1), E1)
+    gradtest(x -> edge_scatter(+, x, ei2, direction=:inward), E2)
+    gradtest(x -> edge_scatter(+, x, ei2, direction=:outward), E2)
+    gradtest(x -> neighbor_scatter(+, x, ei1, direction=:undirected), V1)
+    gradtest(x -> neighbor_scatter(+, x, ei2, direction=:inward), V2)
+    gradtest(x -> neighbor_scatter(+, x, ei2, direction=:outward), V2)
 end

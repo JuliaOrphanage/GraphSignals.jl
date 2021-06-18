@@ -7,6 +7,8 @@ using LinearAlgebra
 using SimpleWeightedGraphs
 using Test
 
+include("test_utils.jl")
+
 tests = [
     "featuredgraph",
     "graph",
