@@ -117,6 +117,8 @@ function aggregate_index(ei::EdgeIndex, kind::Symbol=:edge, direction::Symbol=:o
     return idx
 end
 
+Zygote.@nograd aggregate_index
+
 assign_aggr_idx!(::Val{:edge}, ::Val{:inward}, idx, src, sink, edge) = (idx[edge] = sink)
 assign_aggr_idx!(::Val{:edge}, ::Val{:outward}, idx, src, sink, edge) = (idx[edge] = src)
 assign_aggr_idx!(::Val{:vertex}, ::Val{:inward}, idx, src, sink, edge) = push!(idx[src], sink)
@@ -160,10 +162,14 @@ Scatter operation for aggregating neighbor vertex feature together.
 - `ei::EdgeIndex`: The reference graph.
 - `direction::Symbol`: The direction of an edge to be choose to aggregate. It must be one of `:undirected`, `:inward` and `:outward`.
 """
-function neighbor_scatter(aggr, X::AbstractArray{T}, ei::EdgeIndex; direction::Symbol=:undirected) where T
+function neighbor_scatter(aggr, X::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
     direction == :undirected && (direction = :outward)
     idx = aggregate_index(ei, :vertex, direction)
     Y = similar(X)
+    return neighbor_scatter!(aggr, Y, X, idx)
+end
+
+function neighbor_scatter!(aggr, Y::AbstractArray{T}, X::AbstractArray, idx) where T
     for i = 1:length(idx)
         if isempty(idx[i])
             fill!(view(Y, :, i), NNlib.scatter_empty(aggr, T))
