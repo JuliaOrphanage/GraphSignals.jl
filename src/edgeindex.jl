@@ -165,17 +165,14 @@ Scatter operation for aggregating neighbor vertex feature together.
 function neighbor_scatter(aggr, X::AbstractArray, ei::EdgeIndex; direction::Symbol=:undirected)
     direction == :undirected && (direction = :outward)
     idx = aggregate_index(ei, :vertex, direction)
-    Y = similar(X)
-    return neighbor_scatter!(aggr, Y, X, idx)
+    Ys = [neighbor_features(aggr, X, idx[i]) for i = 1:length(idx)]
+    return hcat(Ys...)
 end
 
-function neighbor_scatter!(aggr, Y::AbstractArray{T}, X::AbstractArray, idx) where T
-    for i = 1:length(idx)
-        if isempty(idx[i])
-            fill!(view(Y, :, i), NNlib.scatter_empty(aggr, T))
-        else
-            view(Y, :, i) .= mapreduce(j -> view(X,:,j), aggr, idx[i])
-        end
+function neighbor_features(aggr, X::AbstractArray{T}, idx) where {T}
+    if isempty(idx)
+        return fill(NNlib.scatter_empty(aggr, T), size(X, 1))
+    else
+        return mapreduce(j -> view(X,:,j), aggr, idx)
     end
-    return Y
 end
