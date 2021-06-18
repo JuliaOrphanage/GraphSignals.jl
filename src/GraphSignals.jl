@@ -4,7 +4,7 @@ using Base: Integer
 using NNlib
 using LinearAlgebra: issymmetric, diag, diagm, Transpose
 
-using CUDA: AnyCuVector, CuArray, CuVector, cu
+using CUDA: AnyCuArray, AnyCuVector, CuArray, CuVector, cu
 using FillArrays
 using GraphLaplacians
 using LightGraphs

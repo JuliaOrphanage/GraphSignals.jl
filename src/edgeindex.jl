@@ -18,7 +18,7 @@ end
 
 nv(ei::EdgeIndex) = length(ei.iadjl)
 
-ne(ei::EdgeIndex) = length(unique(map(x -> x[2], vcat(ei.iadjl...))))
+ne(ei::EdgeIndex) = length(unique(Array(map(x -> x[2], vcat(ei.iadjl...)))))
 
 neighbors(ei::EdgeIndex, i) = ei.iadjl[i]
 

@@ -43,7 +43,7 @@ nf = cu(rand(T, 3, 4))
         E1 = cu(rand(10, 5))
 
         # directed graph with self loop and multiple edges
-        iadjl2 = [
+        iadjl2 = T[
             [(2, 1), (5, 2), (5, 3)],
             [],
             [(1, 4), (4, 5)],
@@ -59,8 +59,7 @@ nf = cu(rand(T, 3, 4))
         @test ne(ei1) == 5
         @test neighbors(ei1, 1) == iadjl1[1]
         @test neighbors(ei1, 2) == iadjl1[2]
-        @test get(ei1, (1, 5)) == 3
-        @test isnothing(get(ei1, (2, 3)))
+        @test_throws ErrorException get(ei1, (1, 5))
         # @test GraphSignals.aggregate_index(ei1) == ([1, 1, 1, 3, 4], [2, 4, 5, 3, 5])
         # @test_throws ArgumentError GraphSignals.aggregate_index(ei1, direction=:in)
         # @test size(edge_scatter(+, E1, ei1)) == (10, 5)
@@ -70,8 +69,7 @@ nf = cu(rand(T, 3, 4))
         @test ne(ei2) == 8
         @test neighbors(ei2, 1) == iadjl2[1]
         @test neighbors(ei2, 3) == iadjl2[3]
-        @test get(ei2, (3, 1)) == 4
-        @test isnothing(get(ei2, (1, 3)))
+        @test_throws ErrorException get(ei2, (3, 1))
         # @test GraphSignals.aggregate_index(ei2, direction=:inward) == [2, 5, 5, 1, 4, 4, 1, 4]
         # @test GraphSignals.aggregate_index(ei2, direction=:outward) == [1, 1, 1, 3, 3, 4, 5, 5]
         # @test size(edge_scatter(+, E2, ei2, direction=:inward)) == (10, 5)
