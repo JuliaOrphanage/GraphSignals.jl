@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3]
+
+- Support gradient for neighbor_scatter and edge_scatter
+- Support CUDA up to v3.3
+
 ## [0.2.2]
 
 - EdgeIndex support adjacency matrix and juliagraphs
