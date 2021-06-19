@@ -16,6 +16,10 @@ function EdgeIndex(g)
     EdgeIndex(iadjl)
 end
 
+Zygote.@nograd EdgeIndex
+
+Base.show(io::IO, ei::EdgeIndex) = print(io, "EdgeIndex(Graph with (#V=", nv(ei), ", #E=", ne(ei), "))")
+
 nv(ei::EdgeIndex) = length(ei.iadjl)
 
 ne(ei::EdgeIndex) = length(unique(map(x -> x[2], vcat(Array.(ei.iadjl)...))))
@@ -54,6 +58,8 @@ function order_edges(adjl::AbstractVector{<:AbstractVector}; directed::Bool=fals
     end
     return res
 end
+
+Zygote.@nograd order_edges
 
 function undirected_order_edges!(res, adjl::AbstractVector{<:AbstractVector})
     viewed = Set{Tuple{Int64, Int64}}()
