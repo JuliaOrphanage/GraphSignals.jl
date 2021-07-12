@@ -6,5 +6,4 @@ function EdgeIndex(adjl::AbstractVector{<:AnyCuVector{T}}) where {T<:NTuple{2}}
     EdgeIndex{typeof(a)}(a)
 end
 
-get(ei::EdgeIndex{<:AbstractArray{T}}, key, default=nothing) where {T<:AnyCuArray} =
-    throw(ErrorException("scalar indexing is not supported for cuarray."))
+_get(ei::AnyCuArray, j, default) = throw(ErrorException("scalar indexing is not supported for cuarray."))

@@ -18,18 +18,22 @@ end
 
 nv(ei::EdgeIndex) = length(ei.iadjl)
 
-ne(ei::EdgeIndex) = length(unique(Array(map(x -> x[2], vcat(ei.iadjl...)))))
+ne(ei::EdgeIndex) = length(unique(map(x -> x[2], vcat(Array.(ei.iadjl)...))))
 
 neighbors(ei::EdgeIndex, i) = ei.iadjl[i]
 
-get(ei::EdgeIndex, key::NTuple{2}, default=nothing) = _get(ei, key..., default)
-get(ei::EdgeIndex, key::CartesianIndex{2}, default=nothing) = _get(ei, key[1], key[2], default)
+get(ei::EdgeIndex, key::NTuple{2}, default=nothing) = get(ei, key..., default)
+get(ei::EdgeIndex, key::CartesianIndex{2}, default=nothing) = get(ei, key[1], key[2], default)
 
-function _get(ei::EdgeIndex, i, j, default=nothing)
+function get(ei::EdgeIndex, i, j, default=nothing)
     nbs = neighbors(ei, i)
+    return _get(nbs, j, default)
+end
+
+function _get(x::AbstractVector, j, default)
     # linear search (O(n)) here can be optimized with hash table (O(1))
-    for (nbs_j, v) in nbs
-        nbs_j == j && return v
+    for (x_j, v) in x
+        x_j == j && return v
     end
     return default
 end
