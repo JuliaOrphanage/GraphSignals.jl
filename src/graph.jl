@@ -26,7 +26,7 @@ nv(g::AbstractVector{T}) where {T<:AbstractVector} = size(g, 1)
 Zygote.@nograd nv
 
 function GraphSignals.ne(g::AbstractMatrix; self_loop::Bool=false)
-    g = Matrix(g .!= 0)
+    g = Matrix(g) .!= 0
 
     if issymmetric(g)
         g = self_loop ? g .+ diagm(diag(g)) : g .- diagm(diag(g))
@@ -61,6 +61,6 @@ function is_directed(g::AbstractVector{T}) where {T<:AbstractVector}
     !isempty(edges)
 end
 
-GraphSignals.is_directed(g::AbstractMatrix) = !issymmetric(g)
+GraphSignals.is_directed(g::AbstractMatrix) = !issymmetric(Matrix(g))
 
 Zygote.@nograd is_directed
