@@ -47,6 +47,8 @@ mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVe
     end
 end
 
+@functor FeaturedGraph
+
 FeaturedGraph() = NullGraph()
 
 function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph),

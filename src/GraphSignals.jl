@@ -1,11 +1,10 @@
 module GraphSignals
 
-using Base: Integer
-using NNlib
 using LinearAlgebra: issymmetric, diag, diagm, Transpose
 
 using CUDA: AnyCuArray, AnyCuVector, CuArray, CuVector, cu
 using FillArrays
+using Functors: @functor
 using GraphLaplacians
 using LightGraphs
 using LightGraphs: AbstractGraph, outneighbors

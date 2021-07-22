@@ -27,6 +27,13 @@ nf = cu(rand(T, 3, 4))
         @test node_feature(fg) isa CuMatrix{T}
         @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
         @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
+
+        adjm_cpu = T[0 1 0 1;
+                    1 0 1 0;
+                    0 1 0 1;
+                    1 0 1 0]
+        fg = FeaturedGraph(adj) |> cu
+        @test graph(fg) isa CuMatrix{T}
     end
 
     @testset "EdgeIndex" begin
