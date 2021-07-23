@@ -6,7 +6,7 @@ struct EdgeIndex{T<:AbstractVector{<:AbstractVector}}
 end
 
 # make it support `iterate` to be a iterator
-function EdgeIndex(iadjl::AbstractVector{<:Vector{T}}) where {T<:Integer}
+function EdgeIndex(iadjl::AbstractVector{<:Vector})
     a = convert(Vector{Vector{Tuple{Int64, Int64}}}, iadjl)
     EdgeIndex{typeof(a)}(a)
 end

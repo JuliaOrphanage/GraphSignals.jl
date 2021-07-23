@@ -60,8 +60,10 @@ add_edge!(wug, 3, 3, 5); add_edge!(wug, 4, 5, 2)
     @test neighbors(ei1, 1) == [(2, 1), (4, 2), (5, 3)]
     @test neighbors(ei1, 3) == [(3, 4)]
     @test get(ei1, (1, 5)) == 3
+    @test get(ei1, CartesianIndex((1, 5))) == 3
     @test isnothing(get(ei1, (2, 3)))
     @test_throws ArgumentError GraphSignals.aggregate_index(ei1, :edge, :in)
+    @test_throws ArgumentError GraphSignals.aggregate_index(ei1, :foo, :inward)
     @test size(edge_scatter(+, E1, ei1)) == (10, 5)
     X = neighbor_scatter(+, V1, ei1, direction=:undirected)
     @test size(X) == (10, 5)
@@ -73,6 +75,7 @@ add_edge!(wug, 3, 3, 5); add_edge!(wug, 4, 5, 2)
     @test neighbors(ei2, 1) == [(2, 1), (5, 2), (5, 3)]
     @test neighbors(ei2, 2) == []
     @test get(ei2, (3, 1)) == 4
+    @test get(ei2, CartesianIndex((3, 1))) == 4
     @test isnothing(get(ei2, (1, 3)))
     @test GraphSignals.aggregate_index(ei2, :edge, :inward) == [2, 5, 5, 1, 4, 4, 1, 4]
     @test GraphSignals.aggregate_index(ei2, :edge, :outward) == [1, 1, 1, 3, 3, 4, 5, 5]
