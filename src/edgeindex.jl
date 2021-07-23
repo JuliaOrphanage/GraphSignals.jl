@@ -6,7 +6,7 @@ struct EdgeIndex{T<:AbstractVector{<:AbstractVector}}
 end
 
 # make it support `iterate` to be a iterator
-function EdgeIndex(iadjl::AbstractVector{<:Vector{T}}) where {T<:Integer}
+function EdgeIndex(iadjl::AbstractVector{<:Vector})
     a = convert(Vector{Vector{Tuple{Int64, Int64}}}, iadjl)
     EdgeIndex{typeof(a)}(a)
 end
@@ -15,6 +15,8 @@ function EdgeIndex(g)
     iadjl = order_edges(adjacency_list(g), directed=is_directed(g))
     EdgeIndex(iadjl)
 end
+
+Base.show(io::IO, ei::EdgeIndex) = print(io, "EdgeIndex(Graph with (#V=", nv(ei), ", #E=", ne(ei), "))")
 
 nv(ei::EdgeIndex) = length(ei.iadjl)
 
@@ -120,8 +122,6 @@ function aggregate_index(ei::EdgeIndex, kind::Symbol=:edge, direction::Symbol=:o
     end
     return idx
 end
-
-Zygote.@nograd aggregate_index
 
 assign_aggr_idx!(::Val{:edge}, ::Val{:inward}, idx, src, sink, edge) = (idx[edge] = sink)
 assign_aggr_idx!(::Val{:edge}, ::Val{:outward}, idx, src, sink, edge) = (idx[edge] = src)

@@ -18,12 +18,8 @@ end
 adjacency_list(adj::AbstractVector{<:AbstractVector{<:Integer}}) = adj
 adjacency_list(g::AbstractGraph) = Vector{Int}[outneighbors(g, i) for i = 1:nv(g)]
 
-Zygote.@nograd adjacency_list
-
 GraphSignals.nv(g::AbstractMatrix) = size(g, 1)
 nv(g::AbstractVector{T}) where {T<:AbstractVector} = size(g, 1)
-
-Zygote.@nograd nv
 
 function GraphSignals.ne(g::AbstractMatrix; self_loop::Bool=false)
     g = Matrix(g) .!= 0
@@ -41,8 +37,6 @@ function ne(g::AbstractVector{T}, directed::Bool=is_directed(g)) where {T<:Abstr
     s = [count(g[i] .!= i) for i in 1:length(g)]
     return directed ? sum(s) : div(sum(s), 2)
 end
-
-Zygote.@nograd ne
 
 function is_directed(g::AbstractVector{T}) where {T<:AbstractVector}
     edges = Set{Tuple{Int64,Int64}}()
@@ -62,5 +56,3 @@ function is_directed(g::AbstractVector{T}) where {T<:AbstractVector}
 end
 
 GraphSignals.is_directed(g::AbstractMatrix) = !issymmetric(Matrix(g))
-
-Zygote.@nograd is_directed
