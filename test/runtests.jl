@@ -5,6 +5,7 @@ using GraphLaplacians
 using LightGraphs
 using LinearAlgebra
 using SimpleWeightedGraphs
+using SparseArrays
 using Test
 
 include("test_utils.jl")
@@ -13,7 +14,7 @@ tests = [
     "featuredgraph",
     "graph",
     "linalg",
-    "edgeindex",
+    "sparsegraph",
     "mask",
 ]
 

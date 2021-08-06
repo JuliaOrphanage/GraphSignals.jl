@@ -1,6 +1,8 @@
 module GraphSignals
 
 using LinearAlgebra: issymmetric, diag, diagm, Transpose
+using SparseArrays
+using SparseArrays: AbstractSparseMatrixCSC
 
 using CUDA: AnyCuArray, AnyCuVector, CuArray, CuVector, cu
 using ChainRulesCore: @non_differentiable
@@ -11,10 +13,9 @@ using LightGraphs
 using LightGraphs: AbstractGraph, outneighbors
 using NNlib
 
-import Base: get
 import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
     normalized_laplacian, scaled_laplacian
-import LightGraphs: nv, ne, adjacency_matrix, is_directed, neighbors
+import LightGraphs: nv, ne, adjacency_matrix, is_directed, neighbors, outneighbors, inneighbors
 
 export
     # featuredgraph
@@ -37,10 +38,11 @@ export
     is_directed,
     fetch_graph,
 
-    # edgeindex
-    EdgeIndex,
+    # sparsegraph
+    SparseGraph,
     neighbors,
-    get,
+    incident_edges,
+    edge_index,
     edge_scatter,
     neighbor_scatter,
 
@@ -66,7 +68,7 @@ include("linalg.jl")
 include("featuredgraph.jl")
 include("utils.jl")
 
-include("edgeindex.jl")
+include("sparsegraph.jl")
 include("cuda.jl")
 include("sampling.jl")
 include("mask.jl")
@@ -82,8 +84,9 @@ include("mask.jl")
 @non_differentiable has_node_feature(x...)
 @non_differentiable has_edge_feature(x...)
 @non_differentiable has_global_feature(x...)
-@non_differentiable EdgeIndex(x...)
+@non_differentiable SparseGraph(x...)
 @non_differentiable neighbors(x...)
+@non_differentiable incident_edges(x...)
 @non_differentiable order_edges(x...)
 @non_differentiable aggregate_index(x...)
 
