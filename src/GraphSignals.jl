@@ -10,7 +10,8 @@ using FillArrays
 using Functors: @functor
 using GraphLaplacians
 using LightGraphs
-using LightGraphs: AbstractGraph, outneighbors
+using LightGraphs: AbstractGraph, AbstractSimpleGraph, outneighbors
+using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, weights
 using NNlib
 
 import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
@@ -64,11 +65,11 @@ export
 
 include("graph.jl")
 include("linalg.jl")
+include("sparsegraph.jl")
 
 include("featuredgraph.jl")
 include("utils.jl")
 
-include("sparsegraph.jl")
 include("cuda.jl")
 include("sampling.jl")
 include("mask.jl")

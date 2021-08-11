@@ -1,4 +1,4 @@
-const MATRIX_TYPES = [:nonmatrix, :adjm, :laplacian, :normalized, :scaled]
+const MATRIX_TYPES = [:adjm, :laplacian, :normalized, :scaled]
 const DIRECTEDS = [:auto, :directed, :undirected]
 
 abstract type AbstractFeaturedGraph end
@@ -17,33 +17,30 @@ A feature-equipped graph structure for passing graph to layer in order to provid
 References to graph or features are hold in this type.
 
 # Arguments
+
 - `graph`: should be a adjacency matrix, `SimpleGraph`, `SimpleDiGraph` (from LightGraphs) or `SimpleWeightedGraph`,
 `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
 - `node_feature`: node features attached to graph.
 - `edge_feature`: edge features attached to graph.
 - `gloabl_feature`: gloabl graph features attached to graph.
-- `mask`: mask for `graph`.
 - `mt`: matrix type for `graph` in matrix form. if `graph` is in matrix form, `mt` is recorded as one of `:adjm`,
 `:laplacian`, `:normalized` or `:scaled`. Otherwise, `:nonmatrix` is recorded.
-- `directed`: the direction of `graph`. it is `true` for directed graph; it is `false` for undirected graph.
 """
-mutable struct FeaturedGraph{T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector} <: AbstractFeaturedGraph
+mutable struct FeaturedGraph{T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector} <: AbstractFeaturedGraph
     graph::T
-    nf::S
-    ef::R
-    gf::Q
+    nf::Tn
+    ef::Te
+    gf::Tg
     matrix_type::Symbol
-    directed::Bool
 
-    function FeaturedGraph(graph::T, nf::S, ef::R, gf::Q, 
-            mt::Symbol, directed::Bool) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+    function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg,
+                           mt::Symbol) where {Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
         check_precondition(graph, nf, ef, mt)
-        new{T,S,R,Q}(graph, nf, ef, gf, mt, directed)
+        new{typeof(graph),Tn,Te,Tg}(graph, nf, ef, gf, mt)
     end
-    function FeaturedGraph{T,S,R,Q}(graph, nf, ef, gf,
-            mt, directed) where {T,S<:AbstractMatrix,R<:AbstractMatrix,Q<:AbstractVector}
+    function FeaturedGraph{T,Tn,Te,Tg}(graph, nf, ef, gf, mt) where {T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
         check_precondition(graph, nf, ef, mt)
-        new{T,S,R,Q}(T(graph), S(nf), R(ef), Q(gf), mt, directed)
+        new{T,Tn,Te,Tg}(T(graph), Tn(nf), Te(ef), Tg(gf), mt)
     end
 end
 
@@ -55,25 +52,27 @@ function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? GraphSignals.is_directed(graph) : directed == :directed
-    FeaturedGraph(graph, nf, ef, gf, mat_type, dir)
+    return FeaturedGraph(SparseGraph(graph, dir), nf, ef, gf, mat_type)
 end
 
 ## Graph from JuliaGraphs
 
-FeaturedGraph(graph::AbstractGraph; kwargs...) = FeaturedGraph(graph, :nonmatrix; kwargs...)
+FeaturedGraph(graph::AbstractGraph; kwargs...) = FeaturedGraph(graph, :adjm; kwargs...)
 
 ## Graph in adjacency list
 
 function FeaturedGraph(graph::AbstractVector{T}; ET=eltype(graph[1]), kwargs...) where {T<:AbstractVector}
-    FeaturedGraph(graph, :nonmatrix; T=ET, kwargs...)
+    return FeaturedGraph(graph, :adjm; T=ET, kwargs...)
 end
 
 ## Graph in adjacency matrix
 
-function FeaturedGraph(graph::AbstractMatrix{T}; N=nv(graph), nf=Fill(zero(T), (0, N)), kwargs...) where {T<:Real}
+function FeaturedGraph(graph::AbstractMatrix{T}; N=nv(graph), nf=Fill(zero(T), (0, N)), kwargs...) where T
     graph = promote_graph(graph, nf)
-    FeaturedGraph(graph, :adjm; N=N, nf=nf, kwargs...)
+    return FeaturedGraph(graph, :adjm; N=N, nf=nf, kwargs...)
 end
+
+FeaturedGraph(fg::AbstractFeaturedGraph) = fg
 
 function check_num_node(graph_nv::Real, N::Real)
     if graph_nv != N
@@ -94,15 +93,15 @@ check_num_edge(graph_ne::Real, ef) = check_num_edge(graph_ne, size(ef, 2))
 check_num_node(g, nf) = check_num_node(nv(g), nf)
 check_num_edge(g, ef) = check_num_edge(ne(g), ef)
 
-function check_precondition(graph, nf, ef, mt)
-    @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :nonmatrix, :adjm, :laplacian, :normalized or :scaled"
+function check_precondition(graph, nf, ef, mt::Symbol)
+    @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :adjm, :laplacian, :normalized or :scaled"
     check_num_edge(ne(graph), ef)
     check_num_node(nv(graph), nf)
     return
 end
 
 function Base.show(io::IO, fg::FeaturedGraph)
-    direct = fg.directed ? "Directed" : "Undirected"
+    direct = GraphSignals.is_directed(fg.graph) ? "Directed" : "Undirected"
     println(io, "FeaturedGraph(")
     print(io, "\t", direct, " graph with (#V=", nv(fg), ", #E=", ne(fg), ") in ")
     println(io, graphrepr(fg.graph), " <", typeof(fg.graph), ">,")
@@ -122,6 +121,8 @@ gf_dims_repr(fg::FeaturedGraph) = size(fg.gf, 1)
 
 
 ## Accessing
+
+GraphSignals.is_directed(fg::FeaturedGraph) = is_directed(fg.graph)
 
 function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
     if prop == :graph
@@ -271,7 +272,7 @@ scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_lapl
 
 function laplacian_matrix!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out)
     if fg.matrix_type == :adjm
-        fg.graph .= laplacian_matrix(graph(fg), T; dir=dir)
+        fg.graph.S .= laplacian_matrix(graph(fg), T; dir=dir)
         fg.matrix_type = :laplacian
     end
     fg
@@ -279,7 +280,7 @@ end
 
 function normalized_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false)
     if fg.matrix_type == :adjm
-        fg.graph .= normalized_laplacian(graph(fg), T; selfloop=selfloop)
+        fg.graph.S .= normalized_laplacian(graph(fg), T; selfloop=selfloop)
         fg.matrix_type = :normalized
     end
     fg
@@ -287,7 +288,7 @@ end
 
 function scaled_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)))
     if fg.matrix_type == :adjm
-        fg.graph .= scaled_laplacian(graph(fg), T)
+        fg.graph.S .= scaled_laplacian(graph(fg), T)
         fg.matrix_type = :scaled
     end
     fg

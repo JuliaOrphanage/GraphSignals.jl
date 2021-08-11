@@ -1,53 +1,60 @@
-# undirected graph with self loop
-
-adjm1 = [0 1 0 1 1;
-         1 0 0 0 0;
-         0 0 1 0 0;
-         1 0 0 0 1;
-         1 0 0 1 0]
-
-adjl1 = Vector{Int64}[
-    [2, 4, 5],
-    [1],
-    [3],
-    [1, 5],
-    [1, 4]
-]
-
-V1 = rand(10, 5)
-E1 = rand(10, 5)
-
-# directed graph with self loop
-
-adjm2 = [0 0 1 0 1;
-         1 0 0 0 0;
-         0 0 0 0 0;
-         0 0 1 1 1;
-         1 0 0 0 0]
-
-adjl2 = Vector{Int64}[
-    [2, 5],
-    [],
-    [1, 4],
-    [4],
-    [1, 4],
-]
-
-V2 = rand(10, 5)
-E2 = rand(10, 7)
-
-ug = SimpleGraph(5)
-add_edge!(ug, 1, 2); add_edge!(ug, 1, 4); add_edge!(ug, 1, 5)
-add_edge!(ug, 3, 3); add_edge!(ug, 4, 5)
-
-wug = SimpleWeightedGraph(5)
-add_edge!(wug, 1, 2, 2); add_edge!(wug, 1, 4, 2); add_edge!(wug, 1, 5, 1)
-add_edge!(wug, 3, 3, 5); add_edge!(wug, 4, 5, 2)
-
 @testset "SparseGraph" begin
+    # undirected graph with self loop
+
+    adjm1 = [0 1 0 1 1;
+            1 0 0 0 0;
+            0 0 1 0 0;
+            1 0 0 0 1;
+            1 0 0 1 0]
+
+    adjl1 = Vector{Int64}[
+        [2, 4, 5],
+        [1],
+        [3],
+        [1, 5],
+        [1, 4]
+    ]
+
+    V1 = rand(10, 5)
+    E1 = rand(10, 5)
+
+    # directed graph with self loop
+
+    adjm2 = [0 0 1 0 1;
+            1 0 0 0 0;
+            0 0 0 0 0;
+            0 0 1 1 1;
+            1 0 0 0 0]
+
+    adjl2 = Vector{Int64}[
+        [2, 5],
+        [],
+        [1, 4],
+        [4],
+        [1, 4],
+    ]
+
+    V2 = rand(10, 5)
+    E2 = rand(10, 7)
+
+    ug = SimpleGraph(5)
+    add_edge!(ug, 1, 2); add_edge!(ug, 1, 4); add_edge!(ug, 1, 5)
+    add_edge!(ug, 3, 3); add_edge!(ug, 4, 5)
+
+    wug = SimpleWeightedGraph(5)
+    add_edge!(wug, 1, 2, 2); add_edge!(wug, 1, 4, 2); add_edge!(wug, 1, 5, 1)
+    add_edge!(wug, 3, 3, 5); add_edge!(wug, 4, 5, 2)
+
+    adjm3 = [0 2 0 2 1;
+             2 0 0 0 0;
+             0 0 5 0 0;
+             2 0 0 0 2;
+             1 0 0 2 0]
+
     sg1 = SparseGraph(adjm1, false)
     @test sg1.S isa SparseMatrixCSC
     @test sg1.edges == [1, 3, 4, 1, 2, 3, 5, 4, 5]
+    @test sg1 == SparseGraph(adjm1, false)
     @test nv(sg1) == 5
     @test ne(sg1) == 5
     @test !is_directed(sg1)
@@ -95,8 +102,12 @@ add_edge!(wug, 3, 3, 5); add_edge!(wug, 4, 5, 2)
     @test size(X) == (10, 5)
     @test X[:,1] == vec(sum(V2[:, [3, 5]], dims=2))
 
-    # @test SparseGraph(ug).S == adjm1
-    # @test SparseGraph(wug).S == adjm1
+    sg1 = SparseGraph(adjl1, false)
+    @test sg1.S == adjm1
+    sg2 = SparseGraph(adjl2, true)
+    @test sg2.S == adjm2
+    @test SparseGraph(ug).S == adjm1
+    @test SparseGraph(wug).S == adjm3
 
     gradtest(x -> edge_scatter(+, x, sg1), E1)
     gradtest(x -> edge_scatter(+, x, sg2, direction=:inward), E2)

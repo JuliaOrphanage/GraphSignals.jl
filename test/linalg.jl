@@ -47,13 +47,13 @@ scaled_lap =   [0 -0.5 0 -0.5;
         @test GraphSignals.scaled_laplacian(fg, T) ≈ T.(scaled_lap)
 
         fg_ = GraphSignals.laplacian_matrix!(deepcopy(fg), T)
-        @test fg_.graph == T.(lap)
+        @test fg_.graph.S == T.(lap)
         @test fg_.matrix_type == :laplacian
         fg_ = GraphSignals.normalized_laplacian!(deepcopy(fg), T)
-        @test fg_.graph ≈ T.(norm_lap)
+        @test fg_.graph.S ≈ T.(norm_lap)
         @test fg_.matrix_type == :normalized
         fg_ = GraphSignals.scaled_laplacian!(deepcopy(fg), T)
-        @test fg_.graph ≈ T.(scaled_lap)
+        @test fg_.graph.S ≈ T.(scaled_lap)
         @test fg_.matrix_type == :scaled
     end
 end

@@ -11,16 +11,16 @@ using Test
 include("test_utils.jl")
 
 tests = [
-    "featuredgraph",
     "graph",
     "linalg",
     "sparsegraph",
-    "mask",
+    "featuredgraph",
+    # "mask",
 ]
 
-if CUDA.functional()
-    push!(tests, "cuda")
-end
+# if CUDA.functional()
+#     push!(tests, "cuda")
+# end
 
 @testset "GraphSignals.jl" begin
     for t in tests

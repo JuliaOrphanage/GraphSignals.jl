@@ -1,11 +1,15 @@
 SparseArrays.getcolptr(S::SparseMatrixCSC, col::Integer) = S.colptr[col]:(S.colptr[col+1]-1)
 SparseArrays.getcolptr(S::SparseMatrixCSC, I::UnitRange) = S.colptr[I.start]:(S.colptr[I.stop+1]-1)
 
-SparseArrays.rowvals(S::SparseMatrixCSC, col::Integer) = view(S.rowval, SparseArrays.getcolptr(S, col))
-SparseArrays.rowvals(S::SparseMatrixCSC, I::UnitRange) = view(S.rowval, SparseArrays.getcolptr(S, I))
+SparseArrays.rowvals(S::SparseMatrixCSC, col::Integer) = S.rowval[SparseArrays.getcolptr(S, col)]
+SparseArrays.rowvals(S::SparseMatrixCSC, I::UnitRange) = S.rowval[SparseArrays.getcolptr(S, I)]
+rowvalview(S::SparseMatrixCSC, col::Integer) = view(S.rowval, SparseArrays.getcolptr(S, col))
+rowvalview(S::SparseMatrixCSC, I::UnitRange) = view(S.rowval, SparseArrays.getcolptr(S, I))
 
-SparseArrays.nonzeros(S::SparseMatrixCSC, col::Integer) = view(S.nzval, SparseArrays.getcolptr(S, col))
-SparseArrays.nonzeros(S::SparseMatrixCSC, I::UnitRange) = view(S.nzval, SparseArrays.getcolptr(S, I))
+SparseArrays.nonzeros(S::SparseMatrixCSC, col::Integer) = S.nzval[SparseArrays.getcolptr(S, col)]
+SparseArrays.nonzeros(S::SparseMatrixCSC, I::UnitRange) = S.nzval[SparseArrays.getcolptr(S, I)]
+SparseArrays.nzvalview(S::SparseMatrixCSC, col::Integer) = view(S.nzval, SparseArrays.getcolptr(S, col))
+SparseArrays.nzvalview(S::SparseMatrixCSC, I::UnitRange) = view(S.nzval, SparseArrays.getcolptr(S, I))
 
 
 """
@@ -30,11 +34,47 @@ end
 SparseGraph(A::SparseMatrixCSC, directed::Bool) = SparseGraph(A, order_edges(A, directed=directed), directed)
 SparseGraph(A::AbstractMatrix, directed::Bool) = SparseGraph(sparse(A), directed)
 
+function SparseGraph(adjl::AbstractVector{T}, directed::Bool) where {T<:AbstractVector}
+    n = length(adjl)
+    colptr, rowval, nzval = to_csc(adjl)
+    spA = SparseMatrixCSC(n, n, colptr, rowval, nzval)
+    return SparseGraph(spA, directed)
+end
+
+function SparseGraph(g::G, directed::Bool=is_directed(G)) where {G<:AbstractSimpleGraph}
+    return SparseGraph(g.fadjlist, directed)
+end
+
+function SparseGraph(g::G, directed::Bool=is_directed(G)) where {G<:AbstractSimpleWeightedGraph}
+    return SparseGraph(weights(g)', directed)
+end
+
+function to_csc(adjl::AbstractVector{T}) where {T<:AbstractVector}
+    ET = eltype(adjl[1])
+    colptr = ET[1, ]
+    rowval = ET[]
+    for nbs in adjl
+        r = sort!(unique(nbs))
+        push!(colptr, colptr[end] + length(r))
+        append!(rowval, r)
+    end
+    nzval = ones(ET, length(rowval))
+
+    return colptr, rowval, nzval
+end
+
 Base.show(io::IO, sg::SparseGraph) = print(io, "SparseGraph(#V=", nv(sg), ", #E=", ne(sg), ")")
 
 nv(sg::SparseGraph) = size(sg.S, 1)
 ne(sg::SparseGraph) = sg.E
 is_directed(::SparseGraph{D}) where {D} = D
+is_directed(::Type{SparseGraph{D}}) where {D} = D
+Base.eltype(sg::SparseGraph) = eltype(sg.S)
+
+Base.:(==)(sg1::SparseGraph, sg2::SparseGraph) =
+sg1.E == sg2.E &&
+sg1.edges == sg2.edges &&
+sg1.S == sg2.S
 
 edgevals(sg::SparseGraph, col::Integer) = view(sg.edges, SparseArrays.getcolptr(sg.S, col))
 edgevals(sg::SparseGraph, I::UnitRange) = view(sg.edges, SparseArrays.getcolptr(sg.S, I))
@@ -49,7 +89,7 @@ Return the neighbors of vertex `i` in sparse graph `sg`.
 - `sg::SparseGraph`: sparse graph to query.
 - `i`: vertex index.
 """
-neighbors(sg::SparseGraph{false}, i; dir::Symbol=:out) = SparseArrays.rowvals(sg.S, i)
+neighbors(sg::SparseGraph{false}, i; dir::Symbol=:out) = rowvalview(sg.S, i)
 
 function neighbors(sg::SparseGraph{true}, i; dir::Symbol=:out)
     if dir == :out
@@ -63,10 +103,10 @@ function neighbors(sg::SparseGraph{true}, i; dir::Symbol=:out)
     end
 end
 
-outneighbors(sg::SparseGraph{true}, i) = SparseArrays.rowvals(sg.S, i)
+outneighbors(sg::SparseGraph{true}, i) = rowvalview(sg.S, i)
 
 function inneighbors(sg::SparseGraph{true}, i)
-    mask = [i in SparseArrays.rowvals(sg.S, j) for j in 1:size(sg.S, 2)]
+    mask = [i in rowvalview(sg.S, j) for j in 1:size(sg.S, 2)]
     return findall(mask)
 end
 
@@ -99,7 +139,7 @@ incident_outedges(sg::SparseGraph{true}, i) = edgevals(sg, i)
 function incident_inedges(sg::SparseGraph{true,M,V}, i) where {M,V}
     inedges = V()
     for j in 1:size(sg.S, 2)
-        mask = i in SparseArrays.rowvals(sg.S, j)
+        mask = i in rowvalview(sg.S, j)
         edges = edgevals(sg, j)
         append!(inedges, edges[findall(mask)])
     end
@@ -121,7 +161,7 @@ function order_edges!(edges, S::SparseMatrixCSC, directed::Val{false})
     k = 1
     for j in axes(S, 2)
         idx1 = SparseArrays.getcolptr(S, j)
-        row = SparseArrays.rowvals(S, j)
+        row = rowvalview(S, j)
         for idx2 in 1:length(row)
             idx = idx1[idx2]
             i = row[idx2]
@@ -285,4 +325,37 @@ function neighbor_features(aggr, X::AbstractArray{T}, idx) where {T}
     else
         return mapreduce(j -> view(X,:,j), aggr, idx)
     end
+end
+
+
+## Graph representations
+
+adjacency_list(sg::SparseGraph) = [SparseArrays.rowvals(sg.S, j) for j in 1:size(sg.S, 2)]
+adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg)) = T.(sg.S)
+
+
+## Linear algebra
+
+function degrees(sg::SparseGraph, T::DataType=eltype(sg.S); dir::Symbol=:out)
+    return degrees(sg.S, T; dir=dir)
+end
+
+function degree_matrix(sg::SparseGraph, T::DataType=eltype(sg.S); dir::Symbol=:out)
+    return degree_matrix(sg.S, T; dir=dir)
+end
+
+function inv_sqrt_degree_matrix(sg::SparseGraph, T::DataType=eltype(sg.S); dir::Symbol=:out)
+    return inv_sqrt_degree_matrix(sg.S, T; dir=dir)
+end
+
+function laplacian_matrix(sg::SparseGraph, T::DataType=eltype(sg.S); dir::Symbol=:out)
+    return laplacian_matrix(sg.S, T; dir=dir)
+end
+
+function normalized_laplacian(sg::SparseGraph, T::DataType=eltype(sg.S); selfloop::Bool=false)
+    return normalized_laplacian(sg.S, T; selfloop=selfloop)
+end
+
+function scaled_laplacian(sg::SparseGraph, T::DataType=eltype(sg.S))
+    return scaled_laplacian(sg.S, T)
 end
