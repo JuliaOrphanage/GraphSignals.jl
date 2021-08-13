@@ -22,6 +22,7 @@
 
     ng = NullGraph()
     @test FeaturedGraph() == ng
+    @test FeaturedGraph(ng) == ng
     @test has_graph(ng) == false
     @test has_node_feature(ng) == false
     @test has_edge_feature(ng) == false
@@ -33,6 +34,7 @@
 
 
     fg = FeaturedGraph(adjm1)
+    @test FeaturedGraph(fg) == fg
     @test has_graph(fg)
     @test has_node_feature(fg) == false
     @test has_edge_feature(fg) == false

@@ -58,6 +58,7 @@
     @test nv(sg1) == 5
     @test ne(sg1) == 5
     @test !is_directed(sg1)
+    @test repr(sg1) == "SparseGraph(#V=5, #E=5)"
 
     @test neighbors(sg1, 1) == adjl1[1]
     @test neighbors(sg1, 3) == adjl1[3]
@@ -93,11 +94,14 @@
     @test nv(sg2) == 5
     @test ne(sg2) == 7
     @test is_directed(sg2)
+    @test repr(sg2) == "SparseGraph(#V=5, #E=7)"
 
     @test neighbors(sg2, 1) == adjl2[1]
     @test neighbors(sg2, 2) == adjl2[2]
+    @test_throws ArgumentError neighbors(sg2, 2, dir=:none)
     @test incident_edges(sg2, 1, dir=:out) == [1, 2]
     @test incident_edges(sg2, 1, dir=:in) == [3, 6]
+    @test_throws ArgumentError incident_edges(sg2, 2, dir=:none)
 
     @test sg2[1, 3] == 1
     @test sg2[CartesianIndex((1, 3))] == 1

@@ -24,6 +24,7 @@ export
     NullGraph,
     FeaturedGraph,
     graph,
+    matrixtype,
     node_feature,
     edge_feature,
     global_feature,

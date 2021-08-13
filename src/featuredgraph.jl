@@ -74,6 +74,8 @@ end
 
 FeaturedGraph(fg::AbstractFeaturedGraph) = fg
 
+matrixtype(fg::FeaturedGraph) = fg.matrix_type
+
 function check_num_node(graph_nv::Real, N::Real)
     if graph_nv != N
         throw(DimensionMismatch("number of nodes must match between graph ($graph_nv) and node features ($N)"))
@@ -104,16 +106,18 @@ function Base.show(io::IO, fg::FeaturedGraph)
     direct = GraphSignals.is_directed(fg.graph) ? "Directed" : "Undirected"
     println(io, "FeaturedGraph(")
     print(io, "\t", direct, " graph with (#V=", nv(fg), ", #E=", ne(fg), ") in ")
-    println(io, graphrepr(fg.graph), " <", typeof(fg.graph), ">,")
+    println(io, matrixrepr(fg.graph), " <", typeof(fg.graph), ">,")
     has_node_feature(fg) && println(io, "\tNode feature:\tℝ^", nf_dims_repr(fg), " <", typeof(fg.nf), ">,")
     has_edge_feature(fg) && println(io, "\tEdge feature:\tℝ^", ef_dims_repr(fg), " <", typeof(fg.ef), ">,")
     has_global_feature(fg) && println(io, "\tGlobal feature:\tℝ^", gf_dims_repr(fg), " <", typeof(fg.gf), ">,")
     print(io, ")")
 end
 
-graphrepr(g::AbstractMatrix) = "adjacency matrix"
-graphrepr(g::AbstractVector{<:AbstractVector}) = "adjacency list"
-graphrepr(g::T) where {T<:AbstractGraph} = string(T)
+matrixrepr(fg::FeaturedGraph) = matrixrepr(Val(matrixtype(fg)))
+matrixrepr(::Val{:adjm}) = "adjacency matrix"
+matrixrepr(::Val{:laplacian}) = "Laplacian matrix"
+matrixrepr(::Val{:normalized}) = "normalized Laplacian"
+matrixrepr(::Val{:scaled}) = "scaled Laplacian"
 
 nf_dims_repr(fg::FeaturedGraph) = size(fg.nf, 1)
 ef_dims_repr(fg::FeaturedGraph) = size(fg.ef, 1)
