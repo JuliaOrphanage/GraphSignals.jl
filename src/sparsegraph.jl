@@ -76,6 +76,7 @@ sg1.E == sg2.E &&
 sg1.edges == sg2.edges &&
 sg1.S == sg2.S
 
+edgevals(sg::SparseGraph) = sg.edges
 edgevals(sg::SparseGraph, col::Integer) = view(sg.edges, SparseArrays.getcolptr(sg.S, col))
 edgevals(sg::SparseGraph, I::UnitRange) = view(sg.edges, SparseArrays.getcolptr(sg.S, I))
 
@@ -150,6 +151,16 @@ Base.getindex(sg::SparseGraph, ind...) = getindex(sg.S, ind...)
 edge_index(sg::SparseGraph, i, j) = sg.edges[_to_csc_index(sg.S, i, j)]
 
 """
+Transform a regular cartesian index `A[i, j]` into a CSC-compatible index `spA.nzval[idx]`.
+"""
+function _to_csc_index(S::SparseMatrixCSC, i::Integer, j::Integer)
+    idx1 = SparseArrays.getcolptr(S, j)
+    row = view(S.rowval, idx1)
+    idx2 = findfirst(row .== i)
+    return idx1[idx2]
+end
+
+"""
 Order the edges in a graph by giving a unique integer to each edge.
 """
 function order_edges(S::SparseMatrixCSC; directed::Bool=false)
@@ -183,16 +194,6 @@ function order_edges!(edges, S::SparseMatrixCSC, directed::Val{true})
         edges[i] = i
     end
     edges
-end
-
-"""
-Transform a regular cartesian index `A[i, j]` into a CSC-compatible index `spA.nzval[idx]`.
-"""
-function _to_csc_index(S::SparseMatrixCSC, i::Integer, j::Integer)
-    idx1 = SparseArrays.getcolptr(S, j)
-    row = view(S.rowval, idx1)
-    idx2 = findfirst(row .== i)
-    return idx1[idx2]
 end
 
 """
@@ -358,4 +359,51 @@ end
 
 function scaled_laplacian(sg::SparseGraph, T::DataType=eltype(sg.S))
     return scaled_laplacian(sg.S, T)
+end
+
+
+## Edge iterator
+
+struct EdgeIter{G,S}
+    sg::G
+    start::S
+
+    function EdgeIter(sg::SparseGraph)
+        j = 1
+        while 1 > length(SparseArrays.getcolptr(sg.S, 1:j))
+            j += 1
+        end
+        i = rowvals(sg.S)[1]
+        e = edgevals(sg)[1]
+        start = (e, (i, j))
+        return new{typeof(sg),typeof(start)}(sg, start)
+    end
+end
+
+edges(sg::SparseGraph) = EdgeIter(sg)
+Base.length(iter::EdgeIter) = iter.sg.E
+
+function Base.iterate(iter::EdgeIter, (el, i)=(iter.start, 1))
+    next_i = i + 1
+    if next_i <= ne(iter.sg)
+        car_idx = _to_cartesian_index(iter.sg, next_i)
+        next_el = (next_i, car_idx)
+        return (el, (next_el, next_i))
+    elseif next_i == ne(iter.sg) + 1
+        next_el = (0, (0, 0))
+        return (el, (next_el, next_i))
+    else
+        return nothing
+    end
+end
+
+function _to_cartesian_index(sg::SparseGraph, e_idx::Int)
+    r = rowvals(sg.S)
+    idx = findfirst(edgevals(sg) .== e_idx)
+    i = r[idx]
+    j = 1
+    while idx > length(SparseArrays.getcolptr(sg.S, 1:j))
+        j += 1
+    end
+    return (i, j)
 end

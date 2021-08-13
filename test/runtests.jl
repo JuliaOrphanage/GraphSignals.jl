@@ -15,7 +15,7 @@ tests = [
     "linalg",
     "sparsegraph",
     "featuredgraph",
-    # "mask",
+    "mask",
 ]
 
 # if CUDA.functional()

@@ -22,24 +22,19 @@ binarize_mask(gm::GraphMask) = gm.mask .!= 0
 
 function node_feature(gm::GraphMask)
     M = binarize_mask(gm)
-    m = [.|(M[:, i]...) for i = 1:size(M, 2)]
+    m = [.|(M[:, i]...) for i in 1:size(M, 2)]
     return node_feature(gm.fg) .* m'
 end
 
-# function edge_feature(gm::GraphMask)
-#     # need refactoring
-#     M = binarize_mask(gm)
-#     g = graph(gm.fg)
-#     iadjl = order_edges(adjacency_list(g), directed=is_directed(gm.fg))
-#     ei = EdgeIndex(iadjl)
-#     m = similar(M, ne(ei))
-#     for i = 1:length(iadjl)
-#         for (j, eidx) = iadjl[i]
-#             m[eidx] = M[i, j]
-#         end
-#     end
-#     return edge_feature(gm.fg) .* m'
-# end
+function edge_feature(gm::GraphMask)
+    M = binarize_mask(gm)
+    sg = graph(gm.fg)
+    m = similar(M, ne(sg))
+    for (eidx, (i, j)) in edges(sg)
+        m[eidx] = M[i, j]
+    end
+    return edge_feature(gm.fg) .* m'
+end
 
 global_feature(gm::GraphMask) = global_feature(gm.fg)
 

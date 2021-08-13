@@ -58,13 +58,23 @@
     @test nv(sg1) == 5
     @test ne(sg1) == 5
     @test !is_directed(sg1)
+
     @test neighbors(sg1, 1) == adjl1[1]
     @test neighbors(sg1, 3) == adjl1[3]
     @test incident_edges(sg1, 1) == [1, 3, 4]
     @test incident_edges(sg1, 3) == [2]
+
     @test sg1[1, 5] == 1
     @test sg1[CartesianIndex((1, 5))] == 1
     @test edge_index(sg1, 1, 5) == 4
+    @test collect(edges(sg1)) == [
+        (1, (2, 1)),
+        (2, (3, 3)),
+        (3, (4, 1)),
+        (4, (5, 1)),
+        (5, (5, 4)),
+    ]
+
     @test GraphSignals.aggregate_index(sg1, :edge, :inward) == [1, 3, 1, 1, 4]
     @test GraphSignals.aggregate_index(sg1, :edge, :outward) == [2, 3, 4, 5, 5]
     @test GraphSignals.aggregate_index(sg1, :vertex, :inward) == [[2, 4, 5], [1], [3], [1, 5], [1, 4]]
@@ -76,19 +86,32 @@
     @test size(X) == (10, 5)
     @test X[:,1] == vec(sum(V1[:, [2, 4, 5]], dims=2))
 
+
     sg2 = SparseGraph(adjm2, true)
     @test sg2.S isa SparseMatrixCSC
     @test sg2.edges == collect(1:7)
     @test nv(sg2) == 5
     @test ne(sg2) == 7
     @test is_directed(sg2)
+
     @test neighbors(sg2, 1) == adjl2[1]
     @test neighbors(sg2, 2) == adjl2[2]
     @test incident_edges(sg2, 1, dir=:out) == [1, 2]
     @test incident_edges(sg2, 1, dir=:in) == [3, 6]
+
     @test sg2[1, 3] == 1
     @test sg2[CartesianIndex((1, 3))] == 1
     @test edge_index(sg2, 1, 3) == 3
+    @test collect(edges(sg2)) == [
+        (1, (2, 1)),
+        (2, (5, 1)),
+        (3, (1, 3)),
+        (4, (4, 3)),
+        (5, (4, 4)),
+        (6, (1, 5)),
+        (7, (4, 5)),
+    ]
+
     @test GraphSignals.aggregate_index(sg2, :edge, :inward) == [2, 5, 1, 4, 4, 1, 4]
     @test GraphSignals.aggregate_index(sg2, :edge, :outward) == [1, 1, 3, 3, 4, 5, 5]
     @test GraphSignals.aggregate_index(sg2, :vertex, :inward) == [[2, 5], [], [1, 4], [4], [1, 4]]

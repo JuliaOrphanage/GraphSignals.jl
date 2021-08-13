@@ -220,7 +220,6 @@ Get node number of graph.
 """
 nv(::NullGraph) = 0
 nv(fg::FeaturedGraph) = nv(graph(fg))
-nv(fg::FeaturedGraph{T}) where {T<:AbstractMatrix} = size(graph(fg), 1)
 
 """
     ne(::AbstractFeaturedGraph)
@@ -229,10 +228,6 @@ Get edge number of graph.
 """
 ne(::NullGraph) = 0
 ne(fg::FeaturedGraph) = ne(graph(fg))
-ne(fg::FeaturedGraph{T}) where {T<:AbstractMatrix} = ne(graph(fg))
-ne(fg::FeaturedGraph{T}) where {T<:AbstractVector} = ne(graph(fg), fg.directed)
-
-is_directed(fg::FeaturedGraph) = fg.directed
 
 
 ## Graph representations
