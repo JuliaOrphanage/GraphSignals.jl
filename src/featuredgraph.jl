@@ -72,7 +72,12 @@ function FeaturedGraph(graph::AbstractMatrix{T}; N=nv(graph), nf=Fill(zero(T), (
     return FeaturedGraph(graph, :adjm; N=N, nf=nf, kwargs...)
 end
 
-FeaturedGraph(fg::AbstractFeaturedGraph) = fg
+FeaturedGraph(ng::NullGraph) = ng
+
+function FeaturedGraph(fg::FeaturedGraph; T=eltype(graph(fg)), N=nv(fg), E=ne(fg),
+                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
+    return FeaturedGraph(graph(fg), nf, ef, gf, matrixtype(fg))
+end
 
 matrixtype(fg::FeaturedGraph) = fg.matrix_type
 

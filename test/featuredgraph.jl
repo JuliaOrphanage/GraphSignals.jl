@@ -34,7 +34,7 @@
 
 
     fg = FeaturedGraph(adjm1)
-    @test FeaturedGraph(fg) == fg
+    @test graph(FeaturedGraph(fg)).S == adjm1
     @test has_graph(fg)
     @test has_node_feature(fg) == false
     @test has_edge_feature(fg) == false
