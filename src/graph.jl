@@ -16,7 +16,6 @@ function adjacency_list(adj::AbstractMatrix{T}) where {T}
 end
 
 adjacency_list(adj::AbstractVector{<:AbstractVector{<:Integer}}) = adj
-adjacency_list(g::AbstractGraph) = Vector{Int}[outneighbors(g, i) for i = 1:nv(g)]
 
 GraphSignals.nv(g::AbstractMatrix) = size(g, 1)
 nv(g::AbstractVector{T}) where {T<:AbstractVector} = size(g, 1)

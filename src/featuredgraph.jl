@@ -87,7 +87,7 @@ FeaturedGraph() = NullGraph()
 function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph),
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
-    dir = (directed == :auto) ? GraphSignals.is_directed(graph) : directed == :directed
+    dir = (directed == :auto) ? is_directed(graph) : directed == :directed
     return FeaturedGraph(SparseGraph(graph, dir), nf, ef, gf, mat_type)
 end
 
@@ -147,10 +147,10 @@ end
 ## show
 
 function Base.show(io::IO, fg::FeaturedGraph)
-    direct = GraphSignals.is_directed(fg.graph) ? "Directed" : "Undirected"
+    direct = is_directed(fg) ? "Directed" : "Undirected"
     println(io, "FeaturedGraph(")
     print(io, "\t", direct, " graph with (#V=", nv(fg), ", #E=", ne(fg), ") in ")
-    println(io, matrixrepr(fg.graph), " <", typeof(fg.graph), ">,")
+    println(io, matrixrepr(fg), ",")
     has_node_feature(fg) && println(io, "\tNode feature:\tℝ^", nf_dims_repr(fg), " <", typeof(fg.nf), ">,")
     has_edge_feature(fg) && println(io, "\tEdge feature:\tℝ^", ef_dims_repr(fg), " <", typeof(fg.ef), ">,")
     has_global_feature(fg) && println(io, "\tGlobal feature:\tℝ^", gf_dims_repr(fg), " <", typeof(fg.gf), ">,")
@@ -172,7 +172,7 @@ gf_dims_repr(fg::FeaturedGraph) = size(fg.gf, 1)
 
 matrixtype(fg::FeaturedGraph) = fg.matrix_type
 
-GraphSignals.is_directed(fg::FeaturedGraph) = is_directed(fg.graph)
+GraphSignals.is_directed(fg::FeaturedGraph) = is_directed(graph(fg))
 
 function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
     if prop == :graph
