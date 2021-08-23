@@ -11,22 +11,57 @@ Null object for `FeaturedGraph`.
 struct NullGraph <: AbstractFeaturedGraph end
 
 """
-    FeaturedGraph(graph, node_feature, edge_feature, global_feature, mt, directed)
+    FeaturedGraph(g, [mt]; nf, ef, gf, directed)
 
-A feature-equipped graph structure for passing graph to layer in order to provide graph dynamically.
-References to graph or features are hold in this type.
+A type representing a graph structure and storing also arrays 
+that contain features associated to nodes, edges, and the whole graph. 
+
+A `FeaturedGraph` can be constructed out of different objects `g` representing
+the connections inside the graph.
+When constructed from another featured graph `fg`, the internal graph representation
+is preserved and shared. 
 
 # Arguments
 
-- `graph`: should be a adjacency matrix, `SimpleGraph`, `SimpleDiGraph` (from LightGraphs) or `SimpleWeightedGraph`,
-`SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
-- `node_feature`: node features attached to graph.
-- `edge_feature`: edge features attached to graph.
-- `gloabl_feature`: gloabl graph features attached to graph.
-- `mt`: matrix type for `graph` in matrix form. if `graph` is in matrix form, `mt` is recorded as one of `:adjm`,
-`:laplacian`, `:normalized` or `:scaled`. Otherwise, `:nonmatrix` is recorded.
+- `g`: Data representing the graph topology. Possible type are 
+    - An adjacency matrix.
+    - An adjacency list.
+    - A LightGraphs' graph, i.e. `SimpleGraph`, `SimpleDiGraph` from LightGraphs, or `SimpleWeightedGraph`,
+        `SimpleWeightedDiGraph` from SimpleWeightedGraphs.
+    - An `AbstractFeaturedGraph` object.
+- `mt`: matrix type for `g` in matrix form. if `graph` is in matrix form, `mt` is recorded as one of `:adjm`,
+    `:laplacian`, `:normalized` or `:scaled`.
+- `nf`: Node features.
+- `ef`: Edge features.
+- `gf`: Global features.
+
+
+# Usage
+
+```
+using GraphSignals, CUDA
+
+# Construct from adjacency list representation
+g = [[2,3], [1,4,5], [1], [2,5], [2,4]]
+fg = FeaturedGraph(g)
+
+# Number of nodes and edges
+nv(fg)  # 5
+ne(fg)  # 10
+
+# From a LightGraphs' graph
+fg = FeaturedGraph(erdos_renyi(100, 20))
+
+# Copy featured graph while also adding node features
+fg = FeaturedGraph(fg, nf=rand(100, 5))
+
+# Send to gpu
+fg = fg |> cu
+```
+
+See also [`graph`](@ref), [`node_feature`](@ref), [`edge_feature`](@ref), and [`global_feature`](@ref)
 """
-mutable struct FeaturedGraph{T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector} <: AbstractFeaturedGraph
+mutable struct FeaturedGraph{T,Tn,Te,Tg} <: AbstractFeaturedGraph
     graph::T
     nf::Tn
     ef::Te
@@ -38,7 +73,8 @@ mutable struct FeaturedGraph{T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:Abstrac
         check_precondition(graph, nf, ef, mt)
         new{typeof(graph),Tn,Te,Tg}(graph, nf, ef, gf, mt)
     end
-    function FeaturedGraph{T,Tn,Te,Tg}(graph, nf, ef, gf, mt) where {T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
+    function FeaturedGraph{T,Tn,Te,Tg}(graph, nf, ef, gf, mt
+            ) where {T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
         check_precondition(graph, nf, ef, mt)
         new{T,Tn,Te,Tg}(T(graph), Tn(nf), Te(ef), Tg(gf), mt)
     end
@@ -74,12 +110,12 @@ end
 
 FeaturedGraph(ng::NullGraph) = ng
 
-function FeaturedGraph(fg::FeaturedGraph; T=eltype(graph(fg)), N=nv(fg), E=ne(fg),
-                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
+function FeaturedGraph(fg::FeaturedGraph; nf=node_feature(fg), ef=edge_feature(fg), gf=global_feature(fg))
     return FeaturedGraph(graph(fg), nf, ef, gf, matrixtype(fg))
 end
 
-matrixtype(fg::FeaturedGraph) = fg.matrix_type
+
+## dimensional checks
 
 function check_num_node(graph_nv::Real, N::Real)
     if graph_nv != N
@@ -107,6 +143,9 @@ function check_precondition(graph, nf, ef, mt::Symbol)
     return
 end
 
+
+## show
+
 function Base.show(io::IO, fg::FeaturedGraph)
     direct = GraphSignals.is_directed(fg.graph) ? "Directed" : "Undirected"
     println(io, "FeaturedGraph(")
@@ -130,6 +169,8 @@ gf_dims_repr(fg::FeaturedGraph) = size(fg.gf, 1)
 
 
 ## Accessing
+
+matrixtype(fg::FeaturedGraph) = fg.matrix_type
 
 GraphSignals.is_directed(fg::FeaturedGraph) = is_directed(fg.graph)
 
