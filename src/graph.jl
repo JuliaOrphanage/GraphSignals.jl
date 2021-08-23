@@ -32,8 +32,19 @@ function GraphSignals.ne(g::AbstractMatrix, directed::Bool=is_directed(g))
 end
 
 function ne(g::AbstractVector{T}, directed::Bool=is_directed(g)) where {T<:AbstractVector}
-    s = [count(g[i] .!= i) for i in 1:length(g)]
-    return directed ? sum(s) : div(sum(s), 2)
+    if directed
+        return sum(length, g)
+    else
+        e = 0
+        for i in 1:length(g)
+            for j in g[i]
+                if i ≤ j
+                    e += 1
+                end
+            end
+        end
+        return e
+    end
 end
 
 GraphSignals.is_directed(g::AbstractMatrix) = !issymmetric(Matrix(g))
