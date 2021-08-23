@@ -286,19 +286,19 @@ adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adjacency_m
 ## Linear algebra
 
 degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    degrees(graph(fg), T; dir=dir)
+    LightGraphs.degrees(graph(fg), T; dir=dir)
 
 degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    degree_matrix(graph(fg), T; dir=dir)
+    GraphSignals.degree_matrix(graph(fg), T; dir=dir)
 
 inv_sqrt_degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    inv_sqrt_degree_matrix(graph(fg), T; dir=dir)
+    GraphSignals.inv_sqrt_degree_matrix(graph(fg), T; dir=dir)
 
 laplacian_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    laplacian_matrix(graph(fg), T; dir=dir)
+    GraphSignals.laplacian_matrix(graph(fg), T; dir=dir)
 
 normalized_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false) =
-    normalized_laplacian(graph(fg), T; selfloop=selfloop)
+    GraphSignals.normalized_laplacian(graph(fg), T; selfloop=selfloop)
 
 scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_laplacian(graph(fg), T)
 

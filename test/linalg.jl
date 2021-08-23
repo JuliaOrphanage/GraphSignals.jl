@@ -1,59 +1,57 @@
-adj = [0 1 0 1;
-       1 0 1 0;
-       0 1 0 1;
-       1 0 1 0]
-deg = [2 0 0 0;
-       0 2 0 0;
-       0 0 2 0;
-       0 0 0 2]
-isd = [√2, √2, √2, √2]
-lap = [2 -1 0 -1;
-       -1 2 -1 0;
-       0 -1 2 -1;
-       -1 0 -1 2]
-norm_lap = [1. -.5 0. -.5;
-           -.5 1. -.5 0.;
-           0. -.5 1. -.5;
-           -.5 0. -.5 1.]
-scaled_lap =   [0 -0.5 0 -0.5;
-                -0.5 0 -0.5 -0;
-                0 -0.5 0 -0.5;
-                -0.5 0 -0.5 0]
-
 @testset "linalg" begin
-    fg = FeaturedGraph(adj)
-    @test matrixtype(fg) == :adjm
-    for T in [Int8, Int16, Int32, Int64, Int128]
-        @test GraphSignals.adjacency_matrix(adj, T) == T.(adj)
-        @test GraphSignals.adjacency_matrix(fg, T) == T.(adj)
-        @test GraphSignals.degrees(fg; dir=:both) == [2, 2, 2, 2]
-        dm = GraphSignals.degree_matrix(fg, T; dir=:out)
-        @test dm == T.(deg)
-        @test GraphSignals.degree_matrix(adj, T; dir=:in) == dm
-        @test GraphSignals.degree_matrix(adj, T; dir=:both) == dm
-        @test GraphSignals.laplacian_matrix(fg, T) == T.(lap)
-    end
+    @testset "undirected graph" begin
+        adjm = [0 1 0 1;
+                1 0 1 0;
+                0 1 0 1;
+                1 0 1 0]
+        deg = [2 0 0 0;
+               0 2 0 0;
+               0 0 2 0;
+               0 0 0 2]
+        isd = [√2, √2, √2, √2]
+        lap = [2 -1 0 -1;
+               -1 2 -1 0;
+               0 -1 2 -1;
+               -1 0 -1 2]
+        norm_lap = [1. -.5 0. -.5;
+                    -.5 1. -.5 0.;
+                    0. -.5 1. -.5;
+                    -.5 0. -.5 1.]
+        scaled_lap = [0 -0.5 0 -0.5;
+                      -0.5 0 -0.5 -0;
+                      0 -0.5 0 -0.5;
+                      -0.5 0 -0.5 0]
+        
+        fg = FeaturedGraph(adjm)
+        @test matrixtype(fg) == :adjm
+        for T in [Int8, Int16, Int32, Int64, Int128, Float16, Float32, Float64]
+            @test GraphSignals.adjacency_matrix(adjm, T) == T.(adjm)
+            @test GraphSignals.adjacency_matrix(fg, T) == T.(adjm)
+            @test GraphSignals.degrees(fg; dir=:both) == [2, 2, 2, 2]
+            dm = GraphSignals.degree_matrix(fg, T; dir=:out)
+            @test dm == T.(deg)
+            @test GraphSignals.degree_matrix(adjm, T; dir=:in) == dm
+            @test GraphSignals.degree_matrix(adjm, T; dir=:both) == dm
+            @test GraphSignals.laplacian_matrix(fg, T) == T.(lap)
 
-    fg = FeaturedGraph(Float64.(adj))
-    @test matrixtype(fg) == :adjm
-    for T in [Float16, Float32, Float64]
-        dm = GraphSignals.degree_matrix(fg, T; dir=:out)
-        @test dm == T.(deg)
-        @test GraphSignals.degree_matrix(adj, T; dir=:in) == dm
-        @test GraphSignals.degree_matrix(adj, T; dir=:both) == dm
-        @test GraphSignals.inv_sqrt_degree_matrix(fg, T) == T.(diagm(1 ./ isd))
-        @test GraphSignals.laplacian_matrix(fg, T) == T.(lap)
-        @test GraphSignals.normalized_laplacian(fg, T) ≈ T.(norm_lap)
-        @test GraphSignals.scaled_laplacian(fg, T) ≈ T.(scaled_lap)
+            fg_ = GraphSignals.laplacian_matrix!(deepcopy(fg), T)
+            @test graph(fg_).S == T.(lap)
+            @test matrixtype(fg_) == :laplacian
+        end
 
-        fg_ = GraphSignals.laplacian_matrix!(deepcopy(fg), T)
-        @test graph(fg_).S == T.(lap)
-        @test matrixtype(fg_) == :laplacian
-        fg_ = GraphSignals.normalized_laplacian!(deepcopy(fg), T)
-        @test graph(fg_).S ≈ T.(norm_lap)
-        @test matrixtype(fg_) == :normalized
-        fg_ = GraphSignals.scaled_laplacian!(deepcopy(fg), T)
-        @test graph(fg_).S ≈ T.(scaled_lap)
-        @test matrixtype(fg_) == :scaled
+        fg = FeaturedGraph(Float64.(adjm))
+        @test matrixtype(fg) == :adjm
+        for T in [Float16, Float32, Float64]
+            @test GraphSignals.inv_sqrt_degree_matrix(fg, T) == T.(diagm(1 ./ isd))
+            @test GraphSignals.normalized_laplacian(fg, T) ≈ T.(norm_lap)
+            @test GraphSignals.scaled_laplacian(fg, T) ≈ T.(scaled_lap)
+    
+            fg_ = GraphSignals.normalized_laplacian!(deepcopy(fg), T)
+            @test graph(fg_).S ≈ T.(norm_lap)
+            @test matrixtype(fg_) == :normalized
+            fg_ = GraphSignals.scaled_laplacian!(deepcopy(fg), T)
+            @test graph(fg_).S ≈ T.(scaled_lap)
+            @test matrixtype(fg_) == :scaled
+        end
     end
 end

@@ -343,27 +343,27 @@ LightGraphs.adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg)) = T.(sg.S)
 
 ## Linear algebra
 
-function LightGraphs.degree(sg::SparseGraph, T::DataType=eltype(sg.S); dir::Symbol=:out)
-    return degree(sg.S, T; dir=dir)
+function LightGraphs.degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out)
+    return degrees(sg.S, T; dir=dir)
 end
 
-function degree_matrix(sg::SparseGraph, T::DataType=eltype(sg.S); dir::Symbol=:out)
+function degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out)
     return degree_matrix(sg.S, T; dir=dir)
 end
 
-function inv_sqrt_degree_matrix(sg::SparseGraph, T::DataType=eltype(sg.S); dir::Symbol=:out)
+function inv_sqrt_degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out)
     return inv_sqrt_degree_matrix(sg.S, T; dir=dir)
 end
 
-function LightGraphs.laplacian_matrix(sg::SparseGraph, T::DataType=eltype(sg.S); dir::Symbol=:out)
+function laplacian_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out)
     return laplacian_matrix(sg.S, T; dir=dir)
 end
 
-function normalized_laplacian(sg::SparseGraph, T::DataType=eltype(sg.S); selfloop::Bool=false)
+function normalized_laplacian(sg::SparseGraph, T::DataType=eltype(sg); selfloop::Bool=false)
     return normalized_laplacian(sg.S, T; selfloop=selfloop)
 end
 
-function scaled_laplacian(sg::SparseGraph, T::DataType=eltype(sg.S))
+function scaled_laplacian(sg::SparseGraph, T::DataType=eltype(sg))
     return scaled_laplacian(sg.S, T)
 end
 
