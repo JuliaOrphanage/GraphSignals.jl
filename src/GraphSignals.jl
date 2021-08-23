@@ -38,7 +38,6 @@ export
     ne,
     adjacency_list,
     is_directed,
-    fetch_graph,
 
     # sparsegraph
     SparseGraph,

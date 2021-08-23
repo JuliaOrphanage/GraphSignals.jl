@@ -95,8 +95,4 @@
             end
         end
     end
-
-#     @test fetch_graph(ng, fg1).S == adjm1
-#     @test fetch_graph(fg1, ng).S == adjm1
-#     @test fetch_graph(fg1, fg2).S == adjm1
 end

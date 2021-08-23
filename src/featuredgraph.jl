@@ -250,16 +250,6 @@ Check if global feature is available or not.
 has_global_feature(::NullGraph) = false
 has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
 
-"""
-    fetch_graph(g1, g2)
-
-Fetch graph from `g1` or `g2`. If there is only one graph available, fetch that one.
-Otherwise, fetch the first one.
-"""
-fetch_graph(::NullGraph, fg::FeaturedGraph) = graph(fg)
-fetch_graph(fg::FeaturedGraph, ::NullGraph) = graph(fg)
-fetch_graph(fg1::FeaturedGraph, fg2::FeaturedGraph) = has_graph(fg1) ? graph(fg1) : graph(fg2)
-
 
 ## Graph property
 
