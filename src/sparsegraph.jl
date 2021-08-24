@@ -68,7 +68,7 @@ Base.show(io::IO, sg::SparseGraph) = print(io, "SparseGraph(#V=", nv(sg), ", #E=
 LightGraphs.nv(sg::SparseGraph) = size(sg.S, 1)
 LightGraphs.ne(sg::SparseGraph) = sg.E
 LightGraphs.is_directed(::SparseGraph{D}) where {D} = D
-LightGraphs.is_directed(::Type{SparseGraph{D}}) where {D} = D
+LightGraphs.is_directed(::Type{<:SparseGraph{D}}) where {D} = D
 
 Base.eltype(sg::SparseGraph) = eltype(sg.S)
 LightGraphs.has_vertex(sg::SparseGraph, i::Integer) = 1 <= i <= nv(sg)

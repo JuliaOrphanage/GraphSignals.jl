@@ -44,16 +44,16 @@
         end
 
         sg = SparseGraph(adjm, false)
-        @test nv(sg) == 5
-        @test ne(sg) == 5
-        @test !is_directed(sg)
+        @test nv(sg) == V
+        @test ne(sg) == E
+        @test !LightGraphs.is_directed(sg)
+        @test !LightGraphs.is_directed(typeof(sg))
         @test repr(sg) == "SparseGraph(#V=5, #E=5)"
-    
-        @test LightGraphs.neighbors(sg, 1) == adjl[1]
-        @test LightGraphs.neighbors(sg, 3) == adjl[3]
-        @test incident_edges(sg, 1) == [1, 3, 4]
-        @test incident_edges(sg, 3) == [2]
-    
+
+        @test LightGraphs.has_vertex(sg, 3)
+        @test LightGraphs.vertices(sg) == 1:V
+        @test LightGraphs.edgetype(sg) == typeof((1, 5))
+        @test LightGraphs.has_edge(sg, 1, 5)
         @test sg[1, 5] == 1
         @test sg[CartesianIndex((1, 5))] == 1
         @test edge_index(sg, 1, 5) == 4
@@ -64,6 +64,14 @@
             (4, (5, 1)),
             (5, (5, 4)),
         ]
+        @test GraphSignals.edgevals(sg) == sg.edges
+        @test GraphSignals.edgevals(sg, 1) == sg.edges[1:3]
+        @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:4]
+    
+        @test LightGraphs.neighbors(sg, 1) == adjl[1]
+        @test LightGraphs.neighbors(sg, 3) == adjl[3]
+        @test incident_edges(sg, 1) == [1, 3, 4]
+        @test incident_edges(sg, 3) == [2]
     
         @test GraphSignals.aggregate_index(sg, :edge, :inward) == [1, 3, 1, 1, 4]
         @test GraphSignals.aggregate_index(sg, :edge, :outward) == [2, 3, 4, 5, 5]
@@ -135,16 +143,14 @@
         sg = SparseGraph(adjm, true)
         @test nv(sg) == V
         @test ne(sg) == E
-        @test is_directed(sg)
+        @test LightGraphs.is_directed(sg)
+        @test LightGraphs.is_directed(typeof(sg))
         @test repr(sg) == "SparseGraph(#V=5, #E=7)"
 
-        @test LightGraphs.neighbors(sg, 1) == adjl[1]
-        @test LightGraphs.neighbors(sg, 2) == adjl[2]
-        @test_throws ArgumentError LightGraphs.neighbors(sg, 2, dir=:none)
-        @test incident_edges(sg, 1, dir=:out) == [1, 2]
-        @test incident_edges(sg, 1, dir=:in) == [3, 6]
-        @test_throws ArgumentError incident_edges(sg, 2, dir=:none)
-
+        @test LightGraphs.has_vertex(sg, 3)
+        @test LightGraphs.vertices(sg) == 1:V
+        @test LightGraphs.edgetype(sg) == typeof((1, 3))
+        @test LightGraphs.has_edge(sg, 1, 3)
         @test sg[1, 3] == 1
         @test sg[CartesianIndex((1, 3))] == 1
         @test edge_index(sg, 1, 3) == 3
@@ -157,6 +163,17 @@
             (6, (1, 5)),
             (7, (4, 5)),
         ]
+        @test GraphSignals.edgevals(sg) == sg.edges
+        @test GraphSignals.edgevals(sg, 1) == sg.edges[1:2]
+        @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:2]
+
+        @test LightGraphs.neighbors(sg, 1) == adjl[1]
+        @test LightGraphs.neighbors(sg, 2) == adjl[2]
+        @test_throws ArgumentError LightGraphs.neighbors(sg, 2, dir=:none)
+        @test incident_edges(sg, 1, dir=:out) == [1, 2]
+        @test incident_edges(sg, 1, dir=:in) == [3, 6]
+        @test sort!(incident_edges(sg, 1, dir=:both)) == [1, 2, 3, 6]
+        @test_throws ArgumentError incident_edges(sg, 2, dir=:none)
 
         @test GraphSignals.aggregate_index(sg, :edge, :inward) == [2, 5, 1, 4, 4, 1, 4]
         @test GraphSignals.aggregate_index(sg, :edge, :outward) == [1, 1, 3, 3, 4, 5, 5]
