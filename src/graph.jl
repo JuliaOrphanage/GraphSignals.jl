@@ -16,27 +16,37 @@ function adjacency_list(adj::AbstractMatrix{T}) where {T}
 end
 
 adjacency_list(adj::AbstractVector{<:AbstractVector{<:Integer}}) = adj
-adjacency_list(g::AbstractGraph) = Vector{Int}[outneighbors(g, i) for i = 1:nv(g)]
 
 GraphSignals.nv(g::AbstractMatrix) = size(g, 1)
 nv(g::AbstractVector{T}) where {T<:AbstractVector} = size(g, 1)
 
-function GraphSignals.ne(g::AbstractMatrix; self_loop::Bool=false)
+function GraphSignals.ne(g::AbstractMatrix, directed::Bool=is_directed(g))
     g = Matrix(g) .!= 0
 
-    if issymmetric(g)
-        g = self_loop ? g .+ diagm(diag(g)) : g .- diagm(diag(g))
-        return div(sum(g), 2)
-    else
-        g = self_loop ? g : g .- diagm(diag(g))
+    if directed
         return sum(g)
+    else
+        return div(sum(g) + sum(diag(g)), 2)
     end
 end
 
 function ne(g::AbstractVector{T}, directed::Bool=is_directed(g)) where {T<:AbstractVector}
-    s = [count(g[i] .!= i) for i in 1:length(g)]
-    return directed ? sum(s) : div(sum(s), 2)
+    if directed
+        return sum(length, g)
+    else
+        e = 0
+        for i in 1:length(g)
+            for j in g[i]
+                if i ≤ j
+                    e += 1
+                end
+            end
+        end
+        return e
+    end
 end
+
+GraphSignals.is_directed(g::AbstractMatrix) = !issymmetric(Matrix(g))
 
 function is_directed(g::AbstractVector{T}) where {T<:AbstractVector}
     edges = Set{Tuple{Int64,Int64}}()
@@ -54,5 +64,3 @@ function is_directed(g::AbstractVector{T}) where {T<:AbstractVector}
     end
     !isempty(edges)
 end
-
-GraphSignals.is_directed(g::AbstractMatrix) = !issymmetric(Matrix(g))
