@@ -63,7 +63,7 @@
                 1 0 1 0;
                 1 1 0 1;
                 1 0 1 0]
-        @test_throws AssertionError FeaturedGraph(rand(10,11); nf=nf, ef=ef, gf=gf)
+        @test_throws DimensionMismatch FeaturedGraph(rand(10,11); nf=nf, ef=ef, gf=gf)
         @test_throws DimensionMismatch FeaturedGraph(adjm; nf=rand(10,11), ef=ef, gf=gf)
         @test_throws DimensionMismatch FeaturedGraph(adjm; nf=nf, ef=rand(10,11), gf=gf)
     end

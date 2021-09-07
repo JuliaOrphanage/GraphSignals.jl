@@ -1,15 +1,17 @@
+const SparseCSC = Union{SparseMatrixCSC,CuSparseMatrixCSC}
+
 SparseArrays.getcolptr(S::SparseMatrixCSC, col::Integer) = S.colptr[col]:(S.colptr[col+1]-1)
 SparseArrays.getcolptr(S::SparseMatrixCSC, I::UnitRange) = S.colptr[I.start]:(S.colptr[I.stop+1]-1)
 
-SparseArrays.rowvals(S::SparseMatrixCSC, col::Integer) = S.rowval[SparseArrays.getcolptr(S, col)]
-SparseArrays.rowvals(S::SparseMatrixCSC, I::UnitRange) = S.rowval[SparseArrays.getcolptr(S, I)]
-rowvalview(S::SparseMatrixCSC, col::Integer) = view(S.rowval, SparseArrays.getcolptr(S, col))
-rowvalview(S::SparseMatrixCSC, I::UnitRange) = view(S.rowval, SparseArrays.getcolptr(S, I))
+SparseArrays.rowvals(S::SparseCSC, col::Integer) = rowvals(S)[SparseArrays.getcolptr(S, col)]
+SparseArrays.rowvals(S::SparseCSC, I::UnitRange) = rowvals(S)[SparseArrays.getcolptr(S, I)]
+rowvalview(S::SparseCSC, col::Integer) = view(rowvals(S), SparseArrays.getcolptr(S, col))
+rowvalview(S::SparseCSC, I::UnitRange) = view(rowvals(S), SparseArrays.getcolptr(S, I))
 
-SparseArrays.nonzeros(S::SparseMatrixCSC, col::Integer) = S.nzval[SparseArrays.getcolptr(S, col)]
-SparseArrays.nonzeros(S::SparseMatrixCSC, I::UnitRange) = S.nzval[SparseArrays.getcolptr(S, I)]
-SparseArrays.nzvalview(S::SparseMatrixCSC, col::Integer) = view(S.nzval, SparseArrays.getcolptr(S, col))
-SparseArrays.nzvalview(S::SparseMatrixCSC, I::UnitRange) = view(S.nzval, SparseArrays.getcolptr(S, I))
+SparseArrays.nonzeros(S::SparseCSC, col::Integer) = nonzeros(S)[SparseArrays.getcolptr(S, col)]
+SparseArrays.nonzeros(S::SparseCSC, I::UnitRange) = nonzeros(S)[SparseArrays.getcolptr(S, I)]
+SparseArrays.nzvalview(S::SparseCSC, col::Integer) = view(nonzeros(S), SparseArrays.getcolptr(S, col))
+SparseArrays.nzvalview(S::SparseCSC, I::UnitRange) = view(nonzeros(S), SparseArrays.getcolptr(S, I))
 
 
 """
@@ -18,14 +20,18 @@ SparseArrays.nzvalview(S::SparseMatrixCSC, I::UnitRange) = view(S.nzval, SparseA
 A sparse graph structure represents by sparse matrix.
 A directed graph is represented by a sparse matrix, of which column index as source node index and row index as sink node index.
 """
-struct SparseGraph{D,M<:AbstractSparseMatrixCSC,V<:AbstractVector,T} <: AbstractGraph{Int}
+struct SparseGraph{D,M,V,T} <: AbstractGraph{Int}
     S::M
     edges::V
     E::T
 end
 
-function SparseGraph(A::AbstractMatrix{Tv}, edges::AbstractVector{Ti}, directed::Bool) where {Tv,Ti}
+function SparseGraph{D}(A::AbstractMatrix{Tv}, edges::AbstractVector{Ti}, E::Integer) where {D,Tv,Ti}
     @assert size(A, 1) == size(A, 2) "A must be a square matrix."
+    return SparseGraph{D,typeof(A),typeof(edges),typeof(E)}(A, edges, E)
+end
+
+function SparseGraph(A::AbstractMatrix{Tv}, edges::AbstractVector{Ti}, directed::Bool) where {Tv,Ti}
     E = length(unique(edges))
     spA = SparseMatrixCSC{Tv,Ti}(A)
     return SparseGraph{directed,typeof(spA),typeof(edges),typeof(E)}(spA, edges, E)
@@ -62,6 +68,9 @@ function to_csc(adjl::AbstractVector{T}) where {T<:AbstractVector}
 
     return colptr, rowval, nzval
 end
+
+@functor SparseGraph{true}
+@functor SparseGraph{false}
 
 Base.show(io::IO, sg::SparseGraph) = print(io, "SparseGraph(#V=", nv(sg), ", #E=", ne(sg), ")")
 
@@ -161,7 +170,7 @@ Transform a regular cartesian index `A[i, j]` into a CSC-compatible index `spA.n
 """
 function _to_csc_index(S::SparseMatrixCSC, i::Integer, j::Integer)
     idx1 = SparseArrays.getcolptr(S, j)
-    row = view(S.rowval, idx1)
+    row = view(rowvals(S), idx1)
     idx2 = findfirst(row .== i)
     return idx1[idx2]
 end
@@ -169,12 +178,11 @@ end
 """
 Order the edges in a graph by giving a unique integer to each edge.
 """
-function order_edges(S::SparseMatrixCSC; directed::Bool=false)
-    return order_edges!(similar(S.rowval), S, Val(directed))
-end
+order_edges(S::SparseCSC; directed::Bool=false) = order_edges!(similar(rowvals(S)), S, Val(directed))
 
-function order_edges!(edges, S::SparseMatrixCSC, directed::Val{false})
-    @assert issymmetric(S) "Matrix of undirected graph must be symmetric."
+function order_edges!(edges, S::SparseCSC, directed::Val{false})
+    # TODO: symmetric check can be more efficient for cusparse
+    @assert Array(S') == Array(S) "Matrix of undirected graph must be symmetric."
     k = 1
     for j in axes(S, 2)
         idx1 = SparseArrays.getcolptr(S, j)
@@ -196,9 +204,7 @@ function order_edges!(edges, S::SparseMatrixCSC, directed::Val{false})
 end
 
 function order_edges!(edges, S::SparseMatrixCSC, directed::Val{true})
-    for i in 1:length(edges)
-        edges[i] = i
-    end
+    edges .= collect(1:length(edges))
     edges
 end
 

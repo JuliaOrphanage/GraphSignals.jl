@@ -7,6 +7,7 @@ using LinearAlgebra
 using SimpleWeightedGraphs
 using SparseArrays
 using Test
+CUDA.allowscalar(false)
 
 include("test_utils.jl")
 
@@ -18,9 +19,9 @@ tests = [
     "mask",
 ]
 
-# if CUDA.functional()
-#     push!(tests, "cuda")
-# end
+if CUDA.functional()
+    push!(tests, "cuda")
+end
 
 @testset "GraphSignals.jl" begin
     for t in tests
