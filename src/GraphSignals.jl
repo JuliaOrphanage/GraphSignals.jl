@@ -4,7 +4,8 @@ using LinearAlgebra: issymmetric, diag, diagm, Transpose
 using SparseArrays
 using SparseArrays: AbstractSparseMatrixCSC
 
-using CUDA: AnyCuArray, AnyCuVector, CuArray, CuVector, cu
+using CUDA
+using CUDA.CUSPARSE
 using ChainRulesCore: @non_differentiable
 using FillArrays
 using Functors: @functor
@@ -12,7 +13,7 @@ using GraphLaplacians
 using LightGraphs
 using LightGraphs: AbstractGraph, AbstractSimpleGraph, outneighbors
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, weights
-using NNlib
+using NNlib, NNlibCUDA
 
 import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
     normalized_laplacian, scaled_laplacian

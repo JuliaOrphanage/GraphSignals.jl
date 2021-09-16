@@ -104,7 +104,6 @@ end
 ## Graph in adjacency matrix
 
 function FeaturedGraph(graph::AbstractMatrix{T}; N=nv(graph), nf=Fill(zero(T), (0, N)), kwargs...) where T
-    graph = promote_graph(graph, nf)
     return FeaturedGraph(graph, :adjm; N=N, nf=nf, kwargs...)
 end
 
