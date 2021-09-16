@@ -1,5 +1,8 @@
 const SparseCSC = Union{SparseMatrixCSC,CuSparseMatrixCSC}
 
+sparsecsc(A::AbstractMatrix) = sparse(A)
+sparsecsc(A::AnyCuMatrix) = CuSparseMatrixCSC(A)
+
 SparseArrays.getcolptr(S::SparseMatrixCSC, col::Integer) = S.colptr[col]:(S.colptr[col+1]-1)
 SparseArrays.getcolptr(S::SparseMatrixCSC, I::UnitRange) = S.colptr[I.start]:(S.colptr[I.stop+1]-1)
 
@@ -37,8 +40,8 @@ function SparseGraph(A::AbstractMatrix{Tv}, edges::AbstractVector{Ti}, directed:
     return SparseGraph{directed,typeof(spA),typeof(edges),typeof(E)}(spA, edges, E)
 end
 
-SparseGraph(A::SparseMatrixCSC, directed::Bool) = SparseGraph(A, order_edges(A, directed=directed), directed)
-SparseGraph(A::AbstractMatrix, directed::Bool) = SparseGraph(sparse(A), directed)
+SparseGraph(A::SparseCSC, directed::Bool) = SparseGraph(A, order_edges(A, directed=directed), directed)
+SparseGraph(A::AbstractMatrix, directed::Bool) = SparseGraph(sparsecsc(A), directed)
 
 function SparseGraph(adjl::AbstractVector{T}, directed::Bool) where {T<:AbstractVector}
     n = length(adjl)
@@ -47,13 +50,11 @@ function SparseGraph(adjl::AbstractVector{T}, directed::Bool) where {T<:Abstract
     return SparseGraph(spA, directed)
 end
 
-function SparseGraph(g::G, directed::Bool=is_directed(G)) where {G<:AbstractSimpleGraph}
-    return SparseGraph(g.fadjlist, directed)
-end
+SparseGraph(g::G, directed::Bool=is_directed(G)) where {G<:AbstractSimpleGraph} =
+    SparseGraph(g.fadjlist, directed)
 
-function SparseGraph(g::G, directed::Bool=is_directed(G)) where {G<:AbstractSimpleWeightedGraph}
-    return SparseGraph(weights(g)', directed)
-end
+SparseGraph(g::G, directed::Bool=is_directed(G)) where {G<:AbstractSimpleWeightedGraph} =
+    SparseGraph(weights(g)', directed)
 
 function to_csc(adjl::AbstractVector{T}) where {T<:AbstractVector}
     ET = eltype(adjl[1])
@@ -87,9 +88,7 @@ LightGraphs.edgetype(sg::SparseGraph) = Tuple{Int, Int}
 LightGraphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = i ∈ SparseArrays.rowvals(sg.S, j)
 
 Base.:(==)(sg1::SparseGraph, sg2::SparseGraph) =
-sg1.E == sg2.E &&
-sg1.edges == sg2.edges &&
-sg1.S == sg2.S
+    sg1.E == sg2.E && sg1.edges == sg2.edges && sg1.S == sg2.S
 
 edgevals(sg::SparseGraph) = sg.edges
 edgevals(sg::SparseGraph, col::Integer) = view(sg.edges, SparseArrays.getcolptr(sg.S, col))
@@ -168,7 +167,8 @@ edge_index(sg::SparseGraph, i, j) = sg.edges[_to_csc_index(sg.S, i, j)]
 """
 Transform a regular cartesian index `A[i, j]` into a CSC-compatible index `spA.nzval[idx]`.
 """
-function _to_csc_index(S::SparseMatrixCSC, i::Integer, j::Integer)
+function _to_csc_index(S::SparseCSC, i::Integer, j::Integer)
+    # TODO: not efficient for cusparse
     idx1 = SparseArrays.getcolptr(S, j)
     row = view(rowvals(S), idx1)
     idx2 = findfirst(row .== i)
@@ -182,7 +182,7 @@ order_edges(S::SparseCSC; directed::Bool=false) = order_edges!(similar(rowvals(S
 
 function order_edges!(edges, S::SparseCSC, directed::Val{false})
     # TODO: symmetric check can be more efficient for cusparse
-    @assert Array(S') == Array(S) "Matrix of undirected graph must be symmetric."
+    @assert Array(S)' == Array(S) "Matrix of undirected graph must be symmetric."
     k = 1
     for j in axes(S, 2)
         idx1 = SparseArrays.getcolptr(S, j)
@@ -203,8 +203,8 @@ function order_edges!(edges, S::SparseCSC, directed::Val{false})
     return edges
 end
 
-function order_edges!(edges, S::SparseMatrixCSC, directed::Val{true})
-    edges .= collect(1:length(edges))
+function order_edges!(edges::T, S::SparseCSC, directed::Val{true}) where {T}
+    edges .= T(1:length(edges))
     edges
 end
 

@@ -32,7 +32,7 @@
                 [1, 4]
             ]
     
-            sg = SparseGraph(cu(adjm), false)
+            sg = SparseGraph(adjm, false) |> cu
             @test (Array(sg.S) .!= 0) == adjm
             @test collect(sg.edges) == [1, 3, 4, 1, 2, 3, 5, 4, 5]
             @test sg.E == E
@@ -40,9 +40,10 @@
             @test ne(sg) == E
             @test collect(neighbors(sg, 1)) == adjl[1]
             @test collect(neighbors(sg, 2)) == adjl[2]
-            # @test Array(GraphSignals.aggregate_index(sg)) == ([1, 1, 1, 3, 4], [2, 4, 5, 3, 5])
-            # @test_throws ArgumentError GraphSignals.aggregate_index(sg, direction=:in)
-            # @test size(edge_scatter(+, ef, sg)) == (10, V)
+            @test collect(GraphSignals.aggregate_index(sg, :edge, :inward)) == [1, 3, 1, 1, 4]
+            @test collect(GraphSignals.aggregate_index(sg, :edge, :outward)) == [2, 3, 4, 5, 5]
+            @test_throws ArgumentError GraphSignals.aggregate_index(sg, :edge, :in)
+            @test size(edge_scatter(+, ef, sg)) == (10, V)
         end
 
         @testset "directed graph" begin
@@ -65,7 +66,7 @@
                 [1, 4],
             ]
             
-            sg = SparseGraph(cu(adjm), true)
+            sg = SparseGraph(adjm, true) |> cu
             @test (Array(sg.S) .!= 0) == adjm
             @test collect(sg.edges) == collect(1:7)
             @test sg.E == E
@@ -93,18 +94,15 @@
                     1 0 0 0 1;
                     1 0 0 1 0]
     
-            # fg = FeaturedGraph(cu(adjm); directed=:undirected, nf=nf)
-            # @test has_graph(fg)
-            # @test has_node_feature(fg)
-            # @test !has_edge_feature(fg)
-            # @test !has_global_feature(fg)
-            # @test graph(fg) isa SparseGraph
-            # @test node_feature(fg) isa CuMatrix{T}
-            # @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
-            # @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
-
-            # fg = FeaturedGraph(adjm) |> cu
-            # @test graph(fg) isa SparseGraph
+            fg = FeaturedGraph(adjm; directed=:undirected, nf=nf) |> cu
+            @test has_graph(fg)
+            @test has_node_feature(fg)
+            @test !has_edge_feature(fg)
+            @test !has_global_feature(fg)
+            @test graph(fg) isa SparseGraph
+            @test node_feature(fg) isa CuMatrix{T}
+            @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
+            @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
         end
 
         @testset "directed graph" begin
@@ -119,7 +117,7 @@
                     0 0 1 1 1;
                     1 0 0 0 0]
     
-            fg = FeaturedGraph(cu(adjm); directed=:directed, nf=nf)
+            fg = FeaturedGraph(adjm; directed=:directed, nf=nf) |> cu
             @test has_graph(fg)
             @test has_node_feature(fg)
             @test !has_edge_feature(fg)
@@ -128,9 +126,6 @@
             @test node_feature(fg) isa CuMatrix{T}
             @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
             @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
-
-            fg = FeaturedGraph(adjm) |> cu
-            @test graph(fg) isa SparseGraph
         end
     end
 end
