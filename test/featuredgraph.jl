@@ -1,10 +1,13 @@
 @testset "featuredgraph" begin
-    N = 4
+    V = 4
     E = 5
+    vdim = 3
+    edim = 5
+    gdim = 7
 
-    nf = rand(3, N)
-    ef = rand(5, E)
-    gf = rand(7)
+    nf = rand(vdim, V)
+    ef = rand(edim, E)
+    gf = rand(gdim)
 
     @testset "null graph" begin
         ng = NullGraph()
@@ -35,12 +38,12 @@
         @test node_feature(fg) == nf
         @test edge_feature(fg) == ef
         @test global_feature(fg) == gf
-        @test GraphSignals.nf_dims_repr(fg) == 3
-        @test GraphSignals.ef_dims_repr(fg) == 5
-        @test GraphSignals.gf_dims_repr(fg) == 7
+        @test GraphSignals.nf_dims_repr(fg) == vdim
+        @test GraphSignals.ef_dims_repr(fg) == edim
+        @test GraphSignals.gf_dims_repr(fg) == gdim
     
         # Test with transposed features
-        nf_t = rand(N, 3)'
+        nf_t = rand(V, vdim)'
         fg = FeaturedGraph(adjm; nf=nf_t)
         @test has_graph(fg)
         @test has_node_feature(fg)
@@ -82,7 +85,7 @@
         @test fg.graph.S == adjm2
         @test_throws DimensionMismatch fg.graph = [0 1; 0 1]
 
-        nf_ = rand(10, N)
+        nf_ = rand(10, V)
         fg.nf = nf_
         @test fg.nf == nf_
         @test_throws DimensionMismatch fg.nf = rand(10, 11)
@@ -91,5 +94,16 @@
         fg.ef = ef_
         @test fg.ef == ef_
         @test_throws DimensionMismatch fg.ef = rand(10, 11)
+    end
+
+    @testset "scatter" begin
+        adjm = [0 1 1 1;
+                1 0 1 0;
+                1 1 0 1;
+                1 0 1 0]
+
+        fg = FeaturedGraph(adjm; nf=nf, ef=ef, gf=gf)
+        @test size(edge_scatter(fg, +, direction=:undirected)) == (edim, V)
+        @test size(neighbor_scatter(fg, +, direction=:undirected)) == (vdim, V)
     end
 end

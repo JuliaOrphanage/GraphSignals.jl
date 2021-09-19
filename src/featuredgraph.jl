@@ -327,3 +327,16 @@ function scaled_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)))
     end
     fg
 end
+
+
+## scatter
+
+function edge_scatter(fg::FeaturedGraph, aggr; direction::Symbol=:outward)
+    is_directed(fg) || (direction = :undirected)
+    return edge_scatter(aggr, edge_feature(fg), fg.graph, direction=direction)
+end
+
+function neighbor_scatter(fg::FeaturedGraph, aggr; direction::Symbol=:outward)
+    is_directed(fg) || (direction = :undirected)
+    return neighbor_scatter(aggr, node_feature(fg), fg.graph, direction=direction)
+end

@@ -81,12 +81,14 @@
         @test_throws ArgumentError GraphSignals.aggregate_index(sg, :foo, :inward)
 
         @testset "scatter" begin
-            nf = rand(10, 5)
-            ef = rand(10, 5)
+            vdim = 5
+            edim = 7
+            nf = rand(vdim, V)
+            ef = rand(edim, E)
 
-            @test size(edge_scatter(+, ef, sg)) == (10, 5)
+            @test size(edge_scatter(+, ef, sg)) == (edim, V)
             X = neighbor_scatter(+, nf, sg, direction=:undirected)
-            @test size(X) == (10, 5)
+            @test size(X) == (vdim, V)
             @test X[:,1] == vec(sum(nf[:, [2, 4, 5]], dims=2))
 
             gradtest(x -> edge_scatter(+, x, sg), ef)
@@ -181,16 +183,18 @@
         @test GraphSignals.aggregate_index(sg, :vertex, :outward) == [[3, 5], [1], [], [3, 4, 5], [1]]
 
         @testset "scatter" begin
-            nf = rand(10, 5)
-            ef = rand(10, 7)
+            vdim = 5
+            edim = 7
+            nf = rand(vdim, V)
+            ef = rand(edim, E)
 
-            @test size(edge_scatter(+, ef, sg, direction=:inward)) == (10, 5)
-            @test size(edge_scatter(+, ef, sg, direction=:outward)) == (10, 5)
+            @test size(edge_scatter(+, ef, sg, direction=:inward)) == (edim, V)
+            @test size(edge_scatter(+, ef, sg, direction=:outward)) == (edim, V)
             X = neighbor_scatter(+, nf, sg, direction=:inward)
-            @test size(X) == (10, 5)
+            @test size(X) == (vdim, V)
             @test X[:,1] == vec(sum(nf[:, [2, 5]], dims=2))
             X = neighbor_scatter(+, nf, sg, direction=:outward)
-            @test size(X) == (10, 5)
+            @test size(X) == (vdim, V)
             @test X[:,1] == vec(sum(nf[:, [3, 5]], dims=2))
 
             gradtest(x -> edge_scatter(+, x, sg, direction=:inward), ef)
