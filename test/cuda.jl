@@ -32,9 +32,11 @@
                 [1, 4]
             ]
     
-            sg = SparseGraph(adjm, false) |> cu
-            @test (Array(sg.S) .!= 0) == adjm
+            sg = SparseGraph(adjm, false) |> gpu
+            @test (collect(sg.S) .!= 0) == adjm
+            @test sg.S isa CUSPARSE.CuSparseMatrixCSC{T}
             @test collect(sg.edges) == [1, 3, 4, 1, 2, 3, 5, 4, 5]
+            @test sg.edges isa CuVector
             @test sg.E == E
             @test nv(sg) == V
             @test ne(sg) == E
@@ -66,9 +68,11 @@
                 [1, 4],
             ]
             
-            sg = SparseGraph(adjm, true) |> cu
-            @test (Array(sg.S) .!= 0) == adjm
+            sg = SparseGraph(adjm, true) |> gpu
+            @test (collect(sg.S) .!= 0) == adjm
+            @test sg.S isa CUSPARSE.CuSparseMatrixCSC{T}
             @test collect(sg.edges) == collect(1:7)
+            @test sg.edges isa CuVector
             @test sg.E == E
             @test nv(sg) == V
             @test ne(sg) == E
@@ -86,7 +90,7 @@
             # undirected graph with self loop
             V = 5
             E = 5
-            nf = cu(rand(10, V))
+            nf = rand(10, V)
     
             adjm = T[0 1 0 1 1;
                     1 0 0 0 0;
@@ -94,7 +98,7 @@
                     1 0 0 0 1;
                     1 0 0 1 0]
     
-            fg = FeaturedGraph(adjm; directed=:undirected, nf=nf) |> cu
+            fg = FeaturedGraph(adjm; directed=:undirected, nf=nf) |> gpu
             @test has_graph(fg)
             @test has_node_feature(fg)
             @test !has_edge_feature(fg)
@@ -109,7 +113,7 @@
             # directed graph with self loop
             V = 5
             E = 7
-            nf = cu(rand(10, V))
+            nf = rand(10, V)
     
             adjm = T[0 0 1 0 1;
                     1 0 0 0 0;
@@ -117,7 +121,7 @@
                     0 0 1 1 1;
                     1 0 0 0 0]
     
-            fg = FeaturedGraph(adjm; directed=:directed, nf=nf) |> cu
+            fg = FeaturedGraph(adjm; directed=:directed, nf=nf) |> gpu
             @test has_graph(fg)
             @test has_node_feature(fg)
             @test !has_edge_feature(fg)

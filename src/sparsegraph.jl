@@ -239,7 +239,9 @@ function aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:outward})
     res = Int[]
     for j in 1:size(sg.S, 2)
         l = length(SparseArrays.getcolptr(sg.S, j))
-        append!(res, repeat([j], l))
+        c = similar(sg.edges, l)
+        fill!(c, j)
+        append!(res, c)
     end
     return res
 end
@@ -260,7 +262,8 @@ function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward})
     res = Int[]
     for j in 1:size(sg.S, 2)
         l = length(SparseArrays.getcolptr(sg.S, j))
-        c = repeat([j], l)
+        c = similar(sg.edges, l)
+        fill!(c, j)
         r = rowvals(sg.S, j)
         c = view(c, c .≥ r)
         append!(res, c)

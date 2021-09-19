@@ -134,19 +134,7 @@ is_directed
 
 ## Pass `FeaturedGraph` to CUDA
 
-Passing a `FeaturedGraph` to CUDA is easy. Just pipe a `FeaturedGraph` object to `cu`.
-
-```
-julia> using CUDA
-
-julia> fg = fg |> cu
-FeaturedGraph(
-	Undirected graph with (#V=3, #E=3) in adjacency matrix,
-	Node feature:	ℝ^5 <CuArray{Float32, 2, CUDA.Mem.DeviceBuffer}>,
-)
-```
-
-Or you can use `gpu` provided by Flux.
+Passing a `FeaturedGraph` to CUDA is easy. Just pipe a `FeaturedGraph` object to `gpu` provided by Flux.
 
 ```
 julia> using Flux
