@@ -125,6 +125,9 @@ function LightGraphs.inneighbors(sg::SparseGraph{true}, i::Integer)
     return findall(mask)
 end
 
+noutneighbors(sg::SparseGraph, col::Integer) = length(SparseArrays.getcolptr(sg.S, col))
+noutneighbors(sg::SparseGraph, I::UnitRange) = length(SparseArrays.getcolptr(sg.S, I))
+
 """
     incident_edges(sg, i)
 
@@ -162,16 +165,29 @@ function incident_inedges(sg::SparseGraph{true,M,V}, i) where {M,V}
 end
 
 Base.getindex(sg::SparseGraph, ind...) = getindex(sg.S, ind...)
-edge_index(sg::SparseGraph, i, j) = sg.edges[_to_csc_index(sg.S, i, j)]
+edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sg.S, i, j)]
+
+"""
+Transform a CSC-based edge index `edges[eidx]` into a regular cartesian index `A[i, j]`.
+"""
+function get_cartesian_index(sg::SparseGraph, eidx::Int)
+    r = rowvals(sg.S)
+    idx = findfirst(x -> x == eidx, edgevals(sg))
+    i = r[idx]
+    j = 1
+    while idx > noutneighbors(sg, 1:j)
+        j += 1
+    end
+    return (i, j)
+end
 
 """
 Transform a regular cartesian index `A[i, j]` into a CSC-compatible index `spA.nzval[idx]`.
 """
-function _to_csc_index(S::SparseCSC, i::Integer, j::Integer)
-    # TODO: not efficient for cusparse
+function get_csc_index(S::SparseCSC, i::Integer, j::Integer)
     idx1 = SparseArrays.getcolptr(S, j)
     row = view(rowvals(S), idx1)
-    idx2 = findfirst(row .== i)
+    idx2 = findfirst(x -> x == i, row)
     return idx1[idx2]
 end
 
@@ -181,8 +197,7 @@ Order the edges in a graph by giving a unique integer to each edge.
 order_edges(S::SparseCSC; directed::Bool=false) = order_edges!(similar(rowvals(S)), S, Val(directed))
 
 function order_edges!(edges, S::SparseCSC, directed::Val{false})
-    # TODO: symmetric check can be more efficient for cusparse
-    @assert Array(S)' == Array(S) "Matrix of undirected graph must be symmetric."
+    @assert issymmetric(S) "Matrix of undirected graph must be symmetric."
     k = 1
     for j in axes(S, 2)
         idx1 = SparseArrays.getcolptr(S, j)
@@ -192,7 +207,7 @@ function order_edges!(edges, S::SparseCSC, directed::Val{false})
             i = row[idx2]
             if i < j  # upper triangle
                 edges[idx] = k
-                edges[_to_csc_index(S, j, i)] = k
+                edges[get_csc_index(S, j, i)] = k
                 k += 1
             elseif i == j  # diagonal
                 edges[idx] = k
@@ -231,17 +246,17 @@ function aggregate_index(sg::SparseGraph, kind::Symbol=:edge, direction::Symbol=
     return aggregate_index(sg, Val(kind), Val(direction))
 end
 
-function aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:inward})
-    return rowvals(sg.S)
-end
+aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:inward}) = rowvals(sg.S)
 
 function aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:outward})
-    res = Int[]
+    cols = size(sg.S, 2)
+    colptr = collect(SparseArrays.getcolptr(sg.S))
+    ls = view(colptr, 2:(cols+1)) - view(colptr, 1:cols)
+    pushfirst!(ls, 1)
+    cumsum!(ls, ls)
+    res = similar(sg.edges)
     for j in 1:size(sg.S, 2)
-        l = length(SparseArrays.getcolptr(sg.S, j))
-        c = similar(sg.edges, l)
-        fill!(c, j)
-        append!(res, c)
+        fill!(view(res, ls[j]:(ls[j+1]-1)), j)
     end
     return res
 end
@@ -250,7 +265,7 @@ function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:inward})
     # for undirected graph, upper traingle of matrix is considered only.
     res = Int[]
     for j in 1:size(sg.S, 2)
-        r = rowvals(sg.S, j)
+        r = rowvalview(sg.S, j)
         r = view(r, r .≤ j)
         append!(res, r)
     end
@@ -259,14 +274,12 @@ end
 
 function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward})
     # for undirected graph, upper traingle of matrix is considered only.
-    res = Int[]
+    ls = [count(rowvalview(sg.S, j) .≤ j) for j in 1:size(sg.S, 2)]
+    pushfirst!(ls, 1)
+    cumsum!(ls, ls)
+    res = similar(sg.edges, ls[end]-1)
     for j in 1:size(sg.S, 2)
-        l = length(SparseArrays.getcolptr(sg.S, j))
-        c = similar(sg.edges, l)
-        fill!(c, j)
-        r = rowvals(sg.S, j)
-        c = view(c, c .≥ r)
-        append!(res, c)
+        fill!(view(res, ls[j]:(ls[j+1]-1)), j)
     end
     return res
 end
@@ -387,7 +400,7 @@ struct EdgeIter{G,S}
 
     function EdgeIter(sg::SparseGraph)
         j = 1
-        while 1 > length(SparseArrays.getcolptr(sg.S, 1:j))
+        while 1 > noutneighbors(sg, 1:j)
             j += 1
         end
         i = rowvals(sg.S)[1]
@@ -403,7 +416,7 @@ Base.length(iter::EdgeIter) = iter.sg.E
 function Base.iterate(iter::EdgeIter, (el, i)=(iter.start, 1))
     next_i = i + 1
     if next_i <= ne(iter.sg)
-        car_idx = _to_cartesian_index(iter.sg, next_i)
+        car_idx = get_cartesian_index(iter.sg, next_i)
         next_el = (next_i, car_idx)
         return (el, (next_el, next_i))
     elseif next_i == ne(iter.sg) + 1
@@ -412,15 +425,4 @@ function Base.iterate(iter::EdgeIter, (el, i)=(iter.start, 1))
     else
         return nothing
     end
-end
-
-function _to_cartesian_index(sg::SparseGraph, e_idx::Int)
-    r = rowvals(sg.S)
-    idx = findfirst(edgevals(sg) .== e_idx)
-    i = r[idx]
-    j = 1
-    while idx > length(SparseArrays.getcolptr(sg.S, 1:j))
-        j += 1
-    end
-    return (i, j)
 end
