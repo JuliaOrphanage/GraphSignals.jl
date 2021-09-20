@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0]
+
+- `FeaturedGraph` use `SparseGraph` as core graph structure
+- `SparseGraph` support cuda for undirected graph and directed graph
+- make `FeaturedGraph` idempotent
+- make `FeaturedGraph` can be pass to gpu
+- add scatter for FeaturedGraph
+- update manual
+- drop `fetch_graph`
+
 ## [0.2.3]
 
 - Support gradient for neighbor_scatter and edge_scatter
