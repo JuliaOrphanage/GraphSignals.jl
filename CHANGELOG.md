@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1]
+
+- change function name `check_num_node`, `check_num_edge` into `check_num_nodes`, `check_num_edges`
+
 ## [0.3.0]
 
 - `FeaturedGraph` use `SparseGraph` as core graph structure
