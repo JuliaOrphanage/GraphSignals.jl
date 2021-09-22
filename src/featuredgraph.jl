@@ -116,29 +116,28 @@ end
 
 ## dimensional checks
 
-function check_num_node(graph_nv::Real, N::Real)
+function check_num_nodes(graph_nv::Real, N::Real)
     if graph_nv != N
         throw(DimensionMismatch("number of nodes must match between graph ($graph_nv) and node features ($N)"))
     end
 end
 
-function check_num_edge(graph_ne::Real, E::Real)
-    # allow for the number of edge in directed and undirected graph
-    if graph_ne != E && 2*graph_ne != E
+function check_num_edges(graph_ne::Real, E::Real)
+    if graph_ne != E
         throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
     end
 end
 
-check_num_node(graph_nv::Real, nf) = check_num_node(graph_nv, size(nf, 2))
-check_num_edge(graph_ne::Real, ef) = check_num_edge(graph_ne, size(ef, 2))
+check_num_nodes(graph_nv::Real, nf) = check_num_nodes(graph_nv, size(nf, ndims(nf)))
+check_num_edges(graph_ne::Real, ef) = check_num_edges(graph_ne, size(ef, ndims(ef)))
 
-check_num_node(g, nf) = check_num_node(nv(g), nf)
-check_num_edge(g, ef) = check_num_edge(ne(g), ef)
+check_num_nodes(g, nf) = check_num_nodes(nv(g), nf)
+check_num_edges(g, ef) = check_num_edges(ne(g), ef)
 
 function check_precondition(graph, nf, ef, mt::Symbol)
     @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :adjm, :laplacian, :normalized or :scaled"
-    check_num_edge(ne(graph), ef)
-    check_num_node(nv(graph), nf)
+    check_num_edges(ne(graph), ef)
+    check_num_nodes(nv(graph), nf)
     return
 end
 
@@ -175,12 +174,12 @@ GraphSignals.is_directed(fg::FeaturedGraph) = is_directed(graph(fg))
 
 function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
     if prop == :graph
-        check_num_node(x, fg.nf)
-        check_num_edge(x, fg.ef)
+        check_num_nodes(x, fg.nf)
+        check_num_edges(x, fg.ef)
     elseif prop == :nf
-        check_num_node(fg.graph, x)
+        check_num_nodes(fg.graph, x)
     elseif prop == :ef
-        check_num_edge(fg.graph, x)
+        check_num_edges(fg.graph, x)
     end
     setfield!(fg, prop, x)
 end
