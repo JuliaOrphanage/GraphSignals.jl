@@ -38,4 +38,4 @@ end
 
 global_feature(gm::GraphMask) = global_feature(gm.fg)
 
-is_directed(gm::GraphMask) = is_directed(gm.fg)
+LightGraphs.is_directed(gm::GraphMask) = is_directed(gm.fg)

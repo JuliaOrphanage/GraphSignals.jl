@@ -11,13 +11,12 @@ using FillArrays
 using Functors: @functor
 using GraphLaplacians
 using LightGraphs
-using LightGraphs: AbstractGraph, AbstractSimpleGraph, outneighbors
+using LightGraphs: AbstractGraph, AbstractSimpleGraph
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, weights
 using NNlib, NNlibCUDA
 
 import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
     normalized_laplacian, scaled_laplacian
-import LightGraphs: nv, ne, adjacency_matrix, is_directed, neighbors, outneighbors, inneighbors, edges
 
 export
     # featuredgraph
@@ -35,22 +34,16 @@ export
     has_global_feature,
 
     # graph
-    nv,
-    ne,
     adjacency_list,
-    is_directed,
 
     # sparsegraph
     SparseGraph,
-    neighbors,
     incident_edges,
     edge_index,
     edge_scatter,
     neighbor_scatter,
-    edges,
 
     # linalg
-    adjacency_matrix,
     degrees,
     degree_matrix,
     inv_sqrt_degree_matrix,

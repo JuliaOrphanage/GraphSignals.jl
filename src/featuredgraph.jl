@@ -170,7 +170,7 @@ gf_dims_repr(fg::FeaturedGraph) = size(fg.gf, 1)
 
 matrixtype(fg::FeaturedGraph) = fg.matrix_type
 
-GraphSignals.is_directed(fg::FeaturedGraph) = is_directed(graph(fg))
+LightGraphs.is_directed(fg::FeaturedGraph) = is_directed(graph(fg))
 
 function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
     if prop == :graph
@@ -256,16 +256,16 @@ has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
 
 Get node number of graph.
 """
-nv(::NullGraph) = 0
-nv(fg::FeaturedGraph) = nv(graph(fg))
+LightGraphs.nv(::NullGraph) = 0
+LightGraphs.nv(fg::FeaturedGraph) = nv(graph(fg))
 
 """
     ne(::AbstractFeaturedGraph)
 
 Get edge number of graph.
 """
-ne(::NullGraph) = 0
-ne(fg::FeaturedGraph) = ne(graph(fg))
+LightGraphs.ne(::NullGraph) = 0
+LightGraphs.ne(fg::FeaturedGraph) = ne(graph(fg))
 
 
 ## Graph representations
@@ -278,7 +278,7 @@ Get adjacency list of graph.
 adjacency_list(::NullGraph) = [zeros(0)]
 adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
 
-adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adjacency_matrix(graph(fg), T)
+LightGraphs.adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adjacency_matrix(graph(fg), T)
 
 
 ## Linear algebra

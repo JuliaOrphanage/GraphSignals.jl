@@ -80,6 +80,14 @@ LightGraphs.ne(sg::SparseGraph) = sg.E
 LightGraphs.is_directed(::SparseGraph{D}) where {D} = D
 LightGraphs.is_directed(::Type{<:SparseGraph{D}}) where {D} = D
 
+function LightGraphs.has_self_loops(sg::SparseGraph)
+    n = nv(sg)
+    for i = 1:n
+        (i in rowvalview(sg.S, i)) && return true
+    end
+    return false
+end
+
 Base.eltype(sg::SparseGraph) = eltype(sg.S)
 LightGraphs.has_vertex(sg::SparseGraph, i::Integer) = 1 <= i <= nv(sg)
 LightGraphs.vertices(sg::SparseGraph) = 1:nv(sg)
