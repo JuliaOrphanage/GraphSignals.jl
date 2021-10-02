@@ -15,9 +15,6 @@ using LightGraphs: AbstractGraph, AbstractSimpleGraph
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, weights
 using NNlib, NNlibCUDA
 
-import GraphLaplacians: degrees, degree_matrix, inv_sqrt_degree_matrix, laplacian_matrix,
-    normalized_laplacian, scaled_laplacian
-
 export
     # featuredgraph
     AbstractFeaturedGraph,
@@ -44,12 +41,6 @@ export
     neighbor_scatter,
 
     # linalg
-    degrees,
-    degree_matrix,
-    inv_sqrt_degree_matrix,
-    laplacian_matrix,
-    normalized_laplacian,
-    scaled_laplacian,
     laplacian_matrix!,
     normalized_laplacian!,
     scaled_laplacian!,

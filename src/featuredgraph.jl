@@ -283,37 +283,36 @@ LightGraphs.adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) =
 
 ## Linear algebra
 
-degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+LightGraphs.degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
     LightGraphs.degrees(graph(fg), T; dir=dir)
 
-degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    GraphSignals.degree_matrix(graph(fg), T; dir=dir)
+GraphLaplacians.degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+    degree_matrix(graph(fg), T; dir=dir)
 
-inv_sqrt_degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    GraphSignals.inv_sqrt_degree_matrix(graph(fg), T; dir=dir)
+GraphLaplacians.laplacian_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+    GraphLaplacians.laplacian_matrix(graph(fg), T; dir=dir)
 
-laplacian_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    GraphSignals.laplacian_matrix(graph(fg), T; dir=dir)
+GraphLaplacians.normalized_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg));
+                                     dir::Symbol=:both, selfloop::Bool=false) =
+    normalized_laplacian(graph(fg), T; selfloop=selfloop)
 
-normalized_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false) =
-    GraphSignals.normalized_laplacian(graph(fg), T; selfloop=selfloop)
-
-scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_laplacian(graph(fg), T)
+GraphLaplacians.scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_laplacian(graph(fg), T)
 
 
 ## Inplace operations
 
 function laplacian_matrix!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out)
     if fg.matrix_type == :adjm
-        fg.graph.S .= laplacian_matrix(graph(fg), T; dir=dir)
+        fg.graph.S .= GraphLaplacians.laplacian_matrix(graph(fg), T; dir=dir)
         fg.matrix_type = :laplacian
     end
     fg
 end
 
-function normalized_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false)
+function normalized_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg));
+                               dir::Symbol=:both, selfloop::Bool=false)
     if fg.matrix_type == :adjm
-        fg.graph.S .= normalized_laplacian(graph(fg), T; selfloop=selfloop)
+        fg.graph.S .= normalized_laplacian(graph(fg), T; dir=dir, selfloop=selfloop)
         fg.matrix_type = :normalized
     end
     fg
