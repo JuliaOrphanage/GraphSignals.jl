@@ -24,6 +24,8 @@
         
         fg = FeaturedGraph(adjm)
         @test matrixtype(fg) == :adjm
+        @test repr(fg) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in adjacency matrix,\n)"
+
         for T in [Int8, Int16, Int32, Int64, Int128, Float16, Float32, Float64]
             @test LightGraphs.adjacency_matrix(adjm, T) == T.(adjm)
             @test LightGraphs.adjacency_matrix(fg, T) == T.(adjm)
@@ -37,6 +39,7 @@
             fg_ = laplacian_matrix!(deepcopy(fg), T)
             @test graph(fg_).S == T.(lap)
             @test matrixtype(fg_) == :laplacian
+            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in Laplacian matrix,\n)"
         end
 
         fg = FeaturedGraph(Float64.(adjm))
@@ -48,9 +51,12 @@
             fg_ = normalized_laplacian!(deepcopy(fg), T)
             @test graph(fg_).S ≈ T.(norm_lap)
             @test matrixtype(fg_) == :normalized
+            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in normalized Laplacian,\n)"
+
             fg_ = scaled_laplacian!(deepcopy(fg), T)
             @test graph(fg_).S ≈ T.(scaled_lap)
             @test matrixtype(fg_) == :scaled
+            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in scaled Laplacian,\n)"
         end
     end
 end

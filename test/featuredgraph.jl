@@ -41,6 +41,12 @@
         @test GraphSignals.nf_dims_repr(fg) == vdim
         @test GraphSignals.ef_dims_repr(fg) == edim
         @test GraphSignals.gf_dims_repr(fg) == gdim
+
+        fg2 = FeaturedGraph(fg)
+        @test LightGraphs.adjacency_matrix(fg2) == adjm
+        @test node_feature(fg2) == nf
+        @test edge_feature(fg2) == ef
+        @test global_feature(fg2) == gf
     
         # Test with transposed features
         nf_t = rand(V, vdim)'
