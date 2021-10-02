@@ -80,6 +80,14 @@ LightGraphs.ne(sg::SparseGraph) = sg.E
 LightGraphs.is_directed(::SparseGraph{D}) where {D} = D
 LightGraphs.is_directed(::Type{<:SparseGraph{D}}) where {D} = D
 
+function LightGraphs.has_self_loops(sg::SparseGraph)
+    n = nv(sg)
+    for i = 1:n
+        (i in rowvalview(sg.S, i)) && return true
+    end
+    return false
+end
+
 Base.eltype(sg::SparseGraph) = eltype(sg.S)
 LightGraphs.has_vertex(sg::SparseGraph, i::Integer) = 1 <= i <= nv(sg)
 LightGraphs.vertices(sg::SparseGraph) = 1:nv(sg)
@@ -367,29 +375,21 @@ LightGraphs.adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg)) = T.(sg.S)
 
 ## Linear algebra
 
-function LightGraphs.degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out)
-    return degrees(sg.S, T; dir=dir)
-end
+LightGraphs.degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
+    degrees(sg.S, T; dir=dir)
 
-function degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out)
-    return degree_matrix(sg.S, T; dir=dir)
-end
+GraphLaplacians.degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
+    GraphLaplacians.degree_matrix(sg.S, T; dir=dir)
 
-function inv_sqrt_degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out)
-    return inv_sqrt_degree_matrix(sg.S, T; dir=dir)
-end
+GraphLaplacians.laplacian_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
+    GraphLaplacians.laplacian_matrix(sg.S, T; dir=dir)
 
-function laplacian_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out)
-    return laplacian_matrix(sg.S, T; dir=dir)
-end
+GraphLaplacians.normalized_laplacian(sg::SparseGraph, T::DataType=eltype(sg);
+                                     dir::Symbol=:both, selfloop::Bool=false) =
+    GraphLaplacians.normalized_laplacian(sg.S, T; selfloop=selfloop)
 
-function normalized_laplacian(sg::SparseGraph, T::DataType=eltype(sg); selfloop::Bool=false)
-    return normalized_laplacian(sg.S, T; selfloop=selfloop)
-end
-
-function scaled_laplacian(sg::SparseGraph, T::DataType=eltype(sg))
-    return scaled_laplacian(sg.S, T)
-end
+GraphLaplacians.scaled_laplacian(sg::SparseGraph, T::DataType=eltype(sg)) =
+    GraphLaplacians.scaled_laplacian(sg.S, T)
 
 
 ## Edge iterator

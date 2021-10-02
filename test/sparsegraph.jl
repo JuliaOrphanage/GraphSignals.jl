@@ -49,6 +49,7 @@
         @test !LightGraphs.is_directed(sg)
         @test !LightGraphs.is_directed(typeof(sg))
         @test repr(sg) == "SparseGraph(#V=5, #E=5)"
+        @test LightGraphs.has_self_loops(sg)
 
         @test LightGraphs.has_vertex(sg, 3)
         @test LightGraphs.vertices(sg) == 1:V
@@ -148,6 +149,7 @@
         @test LightGraphs.is_directed(sg)
         @test LightGraphs.is_directed(typeof(sg))
         @test repr(sg) == "SparseGraph(#V=5, #E=7)"
+        @test LightGraphs.has_self_loops(sg)
 
         @test LightGraphs.has_vertex(sg, 3)
         @test LightGraphs.vertices(sg) == 1:V

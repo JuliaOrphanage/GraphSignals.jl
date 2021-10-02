@@ -18,7 +18,7 @@ end
 adjacency_list(adj::AbstractVector{<:AbstractVector{<:Integer}}) = adj
 
 GraphSignals.nv(g::AbstractMatrix) = size(g, 1)
-nv(g::AbstractVector{T}) where {T<:AbstractVector} = size(g, 1)
+GraphSignals.nv(g::AbstractVector{T}) where {T<:AbstractVector} = size(g, 1)
 
 function GraphSignals.ne(g::AbstractMatrix, directed::Bool=is_directed(g))
     g = Matrix(g) .!= 0
@@ -30,7 +30,7 @@ function GraphSignals.ne(g::AbstractMatrix, directed::Bool=is_directed(g))
     end
 end
 
-function ne(g::AbstractVector{T}, directed::Bool=is_directed(g)) where {T<:AbstractVector}
+function GraphSignals.ne(g::AbstractVector{T}, directed::Bool=is_directed(g)) where {T<:AbstractVector}
     if directed
         return sum(length, g)
     else
@@ -48,7 +48,7 @@ end
 
 GraphSignals.is_directed(g::AbstractMatrix) = !issymmetric(Matrix(g))
 
-function is_directed(g::AbstractVector{T}) where {T<:AbstractVector}
+function GraphSignals.is_directed(g::AbstractVector{T}) where {T<:AbstractVector}
     edges = Set{Tuple{Int64,Int64}}()
     for (i, js) in enumerate(g)
         for j in Set(js)

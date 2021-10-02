@@ -24,34 +24,39 @@
         
         fg = FeaturedGraph(adjm)
         @test matrixtype(fg) == :adjm
-        for T in [Int8, Int16, Int32, Int64, Int128, Float16, Float32, Float64]
-            @test GraphSignals.adjacency_matrix(adjm, T) == T.(adjm)
-            @test GraphSignals.adjacency_matrix(fg, T) == T.(adjm)
-            @test GraphSignals.degrees(fg; dir=:both) == [2, 2, 2, 2]
-            dm = GraphSignals.degree_matrix(fg, T; dir=:out)
-            @test dm == T.(deg)
-            @test GraphSignals.degree_matrix(adjm, T; dir=:in) == dm
-            @test GraphSignals.degree_matrix(adjm, T; dir=:both) == dm
-            @test GraphSignals.laplacian_matrix(fg, T) == T.(lap)
+        @test repr(fg) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in adjacency matrix,\n)"
 
-            fg_ = GraphSignals.laplacian_matrix!(deepcopy(fg), T)
+        for T in [Int8, Int16, Int32, Int64, Int128, Float16, Float32, Float64]
+            @test LightGraphs.adjacency_matrix(adjm, T) == T.(adjm)
+            @test LightGraphs.adjacency_matrix(fg, T) == T.(adjm)
+            @test LightGraphs.degrees(fg; dir=:both) == [2, 2, 2, 2]
+            dm = GraphLaplacians.degree_matrix(fg, T; dir=:out)
+            @test dm == T.(deg)
+            @test GraphLaplacians.degree_matrix(adjm, T; dir=:in) == dm
+            @test GraphLaplacians.degree_matrix(adjm, T; dir=:both) == dm
+            @test GraphLaplacians.laplacian_matrix(fg, T) == T.(lap)
+
+            fg_ = laplacian_matrix!(deepcopy(fg), T)
             @test graph(fg_).S == T.(lap)
             @test matrixtype(fg_) == :laplacian
+            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in Laplacian matrix,\n)"
         end
 
         fg = FeaturedGraph(Float64.(adjm))
         @test matrixtype(fg) == :adjm
         for T in [Float16, Float32, Float64]
-            @test GraphSignals.inv_sqrt_degree_matrix(fg, T) == T.(diagm(1 ./ isd))
-            @test GraphSignals.normalized_laplacian(fg, T) ≈ T.(norm_lap)
-            @test GraphSignals.scaled_laplacian(fg, T) ≈ T.(scaled_lap)
+            @test GraphLaplacians.normalized_laplacian(fg, T) ≈ T.(norm_lap)
+            @test GraphLaplacians.scaled_laplacian(fg, T) ≈ T.(scaled_lap)
     
-            fg_ = GraphSignals.normalized_laplacian!(deepcopy(fg), T)
+            fg_ = normalized_laplacian!(deepcopy(fg), T)
             @test graph(fg_).S ≈ T.(norm_lap)
             @test matrixtype(fg_) == :normalized
-            fg_ = GraphSignals.scaled_laplacian!(deepcopy(fg), T)
+            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in normalized Laplacian,\n)"
+
+            fg_ = scaled_laplacian!(deepcopy(fg), T)
             @test graph(fg_).S ≈ T.(scaled_lap)
             @test matrixtype(fg_) == :scaled
+            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in scaled Laplacian,\n)"
         end
     end
 end
