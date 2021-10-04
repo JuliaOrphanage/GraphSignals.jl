@@ -98,6 +98,30 @@ Graphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = i ∈ SparseArrays.ro
 Base.:(==)(sg1::SparseGraph, sg2::SparseGraph) =
     sg1.E == sg2.E && sg1.edges == sg2.edges && sg1.S == sg2.S
 
+function colvals(S::SparseCSC, n::Int, upper_traingle::Bool=false)
+    if upper_traingle
+        ls = [count(rowvalview(S, j) .≤ j) for j in 1:n]
+        pushfirst!(ls, 1)
+        cumsum!(ls, ls)
+        l = ls[end]-1
+    else
+        colptr = collect(SparseArrays.getcolptr(S))
+        ls = view(colptr, 2:(n+1)) - view(colptr, 1:n)
+        pushfirst!(ls, 1)
+        cumsum!(ls, ls)
+        l = length(rowvals(S))
+    end
+    return _fill_colvals(rowvals(S), ls, l, n)
+end
+
+function _fill_colvals(tmpl::AbstractVector, ls, l::Int, n::Int)
+    res = similar(tmpl, l)
+    for j in 1:n
+        fill!(view(res, ls[j]:(ls[j+1]-1)), j)
+    end
+    return res
+end
+
 edgevals(sg::SparseGraph) = sg.edges
 edgevals(sg::SparseGraph, col::Integer) = view(sg.edges, SparseArrays.getcolptr(sg.S, col))
 edgevals(sg::SparseGraph, I::UnitRange) = view(sg.edges, SparseArrays.getcolptr(sg.S, I))
@@ -257,16 +281,7 @@ end
 aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:inward}) = rowvals(sg.S)
 
 function aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:outward})
-    cols = size(sg.S, 2)
-    colptr = collect(SparseArrays.getcolptr(sg.S))
-    ls = view(colptr, 2:(cols+1)) - view(colptr, 1:cols)
-    pushfirst!(ls, 1)
-    cumsum!(ls, ls)
-    res = similar(sg.edges)
-    for j in 1:size(sg.S, 2)
-        fill!(view(res, ls[j]:(ls[j+1]-1)), j)
-    end
-    return res
+    return colvals(sg.S, nv(sg))
 end
 
 function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:inward})
@@ -282,14 +297,7 @@ end
 
 function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward})
     # for undirected graph, upper traingle of matrix is considered only.
-    ls = [count(rowvalview(sg.S, j) .≤ j) for j in 1:size(sg.S, 2)]
-    pushfirst!(ls, 1)
-    cumsum!(ls, ls)
-    res = similar(sg.edges, ls[end]-1)
-    for j in 1:size(sg.S, 2)
-        fill!(view(res, ls[j]:(ls[j+1]-1)), j)
-    end
-    return res
+    return colvals(sg.S, nv(sg), true)
 end
 
 function aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:inward})

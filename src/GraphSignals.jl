@@ -45,9 +45,9 @@ export
     normalized_laplacian!,
     scaled_laplacian!,
 
-    # mask
-    GraphMask,
-    mask
+    # subgraph
+    FeaturedSubgraph,
+    subgraph
 
 include("graph.jl")
 include("linalg.jl")
@@ -57,8 +57,10 @@ include("featuredgraph.jl")
 include("utils.jl")
 
 include("cuda.jl")
-include("sampling.jl")
-include("mask.jl")
+
+include("subgraph.jl")
+# include("sampling.jl")
+# include("mask.jl")
 
 # Non-differentiables
 

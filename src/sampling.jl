@@ -1,4 +1,3 @@
-abstract type AbstractFeaturedGraph end
 abstract type AbstractGraphPreprocessor <: AbstractFeaturedGraph end
 abstract type AbstractGraphSampler <: AbstractGraphPreprocessor end
 abstract type AbstractDeterministicGraphSampler <: AbstractGraphSampler end
