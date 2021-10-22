@@ -7,7 +7,7 @@ FeaturedSubgraph(ng::NullGraph, ::AbstractVector) = ng
 
 subgraph(fg::AbstractFeaturedGraph, nodes::AbstractVector) = FeaturedSubgraph(fg, nodes)
 
-LightGraphs.adjacency_matrix(fsg::FeaturedSubgraph) = view(adjacency_matrix(fsg.fg), fsg.nodes, fsg.nodes)
+Graphs.adjacency_matrix(fsg::FeaturedSubgraph) = view(adjacency_matrix(fsg.fg), fsg.nodes, fsg.nodes)
 
 node_feature(fsg::FeaturedSubgraph) = view(node_feature(fsg.fg), :, fsg.nodes)
 
@@ -21,4 +21,4 @@ end
 
 global_feature(fsg::FeaturedSubgraph) = global_feature(fsg.fg)
 
-LightGraphs.is_directed(fsg::FeaturedSubgraph) = is_directed(fsg.fg)
+Graphs.is_directed(fsg::FeaturedSubgraph) = is_directed(fsg.fg)
