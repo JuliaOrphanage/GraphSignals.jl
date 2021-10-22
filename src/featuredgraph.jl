@@ -26,7 +26,7 @@ is preserved and shared.
 - `g`: Data representing the graph topology. Possible type are 
     - An adjacency matrix.
     - An adjacency list.
-    - A LightGraphs' graph, i.e. `SimpleGraph`, `SimpleDiGraph` from LightGraphs, or `SimpleWeightedGraph`,
+    - A Graphs' graph, i.e. `SimpleGraph`, `SimpleDiGraph` from Graphs, or `SimpleWeightedGraph`,
         `SimpleWeightedDiGraph` from SimpleWeightedGraphs.
     - An `AbstractFeaturedGraph` object.
 - `mt`: matrix type for `g` in matrix form. if `graph` is in matrix form, `mt` is recorded as one of `:adjm`,
@@ -49,7 +49,7 @@ fg = FeaturedGraph(g)
 nv(fg)  # 5
 ne(fg)  # 10
 
-# From a LightGraphs' graph
+# From a Graphs' graph
 fg = FeaturedGraph(erdos_renyi(100, 20))
 
 # Copy featured graph while also adding node features
@@ -170,7 +170,7 @@ gf_dims_repr(fg::FeaturedGraph) = size(fg.gf, 1)
 
 matrixtype(fg::FeaturedGraph) = fg.matrix_type
 
-LightGraphs.is_directed(fg::FeaturedGraph) = is_directed(graph(fg))
+Graphs.is_directed(fg::FeaturedGraph) = is_directed(graph(fg))
 
 function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
     if prop == :graph
@@ -256,16 +256,16 @@ has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
 
 Get node number of graph.
 """
-LightGraphs.nv(::NullGraph) = 0
-LightGraphs.nv(fg::FeaturedGraph) = nv(graph(fg))
+Graphs.nv(::NullGraph) = 0
+Graphs.nv(fg::FeaturedGraph) = nv(graph(fg))
 
 """
     ne(::AbstractFeaturedGraph)
 
 Get edge number of graph.
 """
-LightGraphs.ne(::NullGraph) = 0
-LightGraphs.ne(fg::FeaturedGraph) = ne(graph(fg))
+Graphs.ne(::NullGraph) = 0
+Graphs.ne(fg::FeaturedGraph) = ne(graph(fg))
 
 
 ## Graph representations
@@ -278,13 +278,13 @@ Get adjacency list of graph.
 adjacency_list(::NullGraph) = [zeros(0)]
 adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
 
-LightGraphs.adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adjacency_matrix(graph(fg), T)
+Graphs.adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adjacency_matrix(graph(fg), T)
 
 
 ## Linear algebra
 
-LightGraphs.degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    LightGraphs.degrees(graph(fg), T; dir=dir)
+Graphs.degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+    Graphs.degrees(graph(fg), T; dir=dir)
 
 GraphLaplacians.degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
     degree_matrix(graph(fg), T; dir=dir)

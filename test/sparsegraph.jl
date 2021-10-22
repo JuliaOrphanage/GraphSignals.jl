@@ -37,7 +37,7 @@
 
         @testset "conversions" begin
             sg = SparseGraph(adjm, false)
-            @test LightGraphs.adjacency_matrix(sg) == adjm
+            @test Graphs.adjacency_matrix(sg) == adjm
             @test_skip Array(sg) == adjm
             @test_skip SparseArrays.sprase(sg) == adjm
             @test adjacency_list(sg) == adjl
@@ -46,15 +46,15 @@
         sg = SparseGraph(adjm, false)
         @test nv(sg) == V
         @test ne(sg) == E
-        @test !LightGraphs.is_directed(sg)
-        @test !LightGraphs.is_directed(typeof(sg))
+        @test !Graphs.is_directed(sg)
+        @test !Graphs.is_directed(typeof(sg))
         @test repr(sg) == "SparseGraph(#V=5, #E=5)"
-        @test LightGraphs.has_self_loops(sg)
+        @test Graphs.has_self_loops(sg)
 
-        @test LightGraphs.has_vertex(sg, 3)
-        @test LightGraphs.vertices(sg) == 1:V
-        @test LightGraphs.edgetype(sg) == typeof((1, 5))
-        @test LightGraphs.has_edge(sg, 1, 5)
+        @test Graphs.has_vertex(sg, 3)
+        @test Graphs.vertices(sg) == 1:V
+        @test Graphs.edgetype(sg) == typeof((1, 5))
+        @test Graphs.has_edge(sg, 1, 5)
         @test sg[1, 5] == 1
         @test sg[CartesianIndex((1, 5))] == 1
         @test edge_index(sg, 1, 5) == 4
@@ -69,8 +69,8 @@
         @test GraphSignals.edgevals(sg, 1) == sg.edges[1:3]
         @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:4]
     
-        @test LightGraphs.neighbors(sg, 1) == adjl[1]
-        @test LightGraphs.neighbors(sg, 3) == adjl[3]
+        @test Graphs.neighbors(sg, 1) == adjl[1]
+        @test Graphs.neighbors(sg, 3) == adjl[3]
         @test incident_edges(sg, 1) == [1, 3, 4]
         @test incident_edges(sg, 3) == [2]
     
@@ -137,7 +137,7 @@
 
         @testset "conversions" begin
             sg = SparseGraph(adjm, true)
-            @test LightGraphs.adjacency_matrix(sg) == adjm
+            @test Graphs.adjacency_matrix(sg) == adjm
             @test_skip Array(sg) == adjm
             @test_skip SparseArrays.sprase(sg) == adjm
             @test adjacency_list(sg) == adjl
@@ -146,15 +146,15 @@
         sg = SparseGraph(adjm, true)
         @test nv(sg) == V
         @test ne(sg) == E
-        @test LightGraphs.is_directed(sg)
-        @test LightGraphs.is_directed(typeof(sg))
+        @test Graphs.is_directed(sg)
+        @test Graphs.is_directed(typeof(sg))
         @test repr(sg) == "SparseGraph(#V=5, #E=7)"
-        @test LightGraphs.has_self_loops(sg)
+        @test Graphs.has_self_loops(sg)
 
-        @test LightGraphs.has_vertex(sg, 3)
-        @test LightGraphs.vertices(sg) == 1:V
-        @test LightGraphs.edgetype(sg) == typeof((1, 3))
-        @test LightGraphs.has_edge(sg, 1, 3)
+        @test Graphs.has_vertex(sg, 3)
+        @test Graphs.vertices(sg) == 1:V
+        @test Graphs.edgetype(sg) == typeof((1, 3))
+        @test Graphs.has_edge(sg, 1, 3)
         @test sg[1, 3] == 1
         @test sg[CartesianIndex((1, 3))] == 1
         @test edge_index(sg, 1, 3) == 3
@@ -171,9 +171,9 @@
         @test GraphSignals.edgevals(sg, 1) == sg.edges[1:2]
         @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:2]
 
-        @test LightGraphs.neighbors(sg, 1) == adjl[1]
-        @test LightGraphs.neighbors(sg, 2) == adjl[2]
-        @test_throws ArgumentError LightGraphs.neighbors(sg, 2, dir=:none)
+        @test Graphs.neighbors(sg, 1) == adjl[1]
+        @test Graphs.neighbors(sg, 2) == adjl[2]
+        @test_throws ArgumentError Graphs.neighbors(sg, 2, dir=:none)
         @test incident_edges(sg, 1, dir=:out) == [1, 2]
         @test incident_edges(sg, 1, dir=:in) == [3, 6]
         @test sort!(incident_edges(sg, 1, dir=:both)) == [1, 2, 3, 6]
