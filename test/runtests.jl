@@ -3,7 +3,7 @@ using CUDA
 using Flux
 using FillArrays
 using GraphLaplacians
-using LightGraphs
+using Graphs
 using LinearAlgebra
 using SimpleWeightedGraphs
 using SparseArrays

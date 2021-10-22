@@ -10,8 +10,8 @@ using ChainRulesCore: @non_differentiable
 using FillArrays
 using Functors: @functor
 using GraphLaplacians
-using LightGraphs
-using LightGraphs: AbstractGraph, AbstractSimpleGraph
+using Graphs
+using Graphs: AbstractGraph, AbstractSimpleGraph
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, weights
 using NNlib, NNlibCUDA
 

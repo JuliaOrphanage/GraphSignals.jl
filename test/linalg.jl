@@ -27,9 +27,9 @@
         @test repr(fg) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in adjacency matrix,\n)"
 
         for T in [Int8, Int16, Int32, Int64, Int128, Float16, Float32, Float64]
-            @test LightGraphs.adjacency_matrix(adjm, T) == T.(adjm)
-            @test LightGraphs.adjacency_matrix(fg, T) == T.(adjm)
-            @test LightGraphs.degrees(fg; dir=:both) == [2, 2, 2, 2]
+            @test Graphs.adjacency_matrix(adjm, T) == T.(adjm)
+            @test Graphs.adjacency_matrix(fg, T) == T.(adjm)
+            @test Graphs.degrees(fg; dir=:both) == [2, 2, 2, 2]
             dm = GraphLaplacians.degree_matrix(fg, T; dir=:out)
             @test dm == T.(deg)
             @test GraphLaplacians.degree_matrix(adjm, T; dir=:in) == dm

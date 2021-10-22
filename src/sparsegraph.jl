@@ -75,12 +75,12 @@ end
 
 Base.show(io::IO, sg::SparseGraph) = print(io, "SparseGraph(#V=", nv(sg), ", #E=", ne(sg), ")")
 
-LightGraphs.nv(sg::SparseGraph) = size(sg.S, 1)
-LightGraphs.ne(sg::SparseGraph) = sg.E
-LightGraphs.is_directed(::SparseGraph{D}) where {D} = D
-LightGraphs.is_directed(::Type{<:SparseGraph{D}}) where {D} = D
+Graphs.nv(sg::SparseGraph) = size(sg.S, 1)
+Graphs.ne(sg::SparseGraph) = sg.E
+Graphs.is_directed(::SparseGraph{D}) where {D} = D
+Graphs.is_directed(::Type{<:SparseGraph{D}}) where {D} = D
 
-function LightGraphs.has_self_loops(sg::SparseGraph)
+function Graphs.has_self_loops(sg::SparseGraph)
     n = nv(sg)
     for i = 1:n
         (i in rowvalview(sg.S, i)) && return true
@@ -89,11 +89,11 @@ function LightGraphs.has_self_loops(sg::SparseGraph)
 end
 
 Base.eltype(sg::SparseGraph) = eltype(sg.S)
-LightGraphs.has_vertex(sg::SparseGraph, i::Integer) = 1 <= i <= nv(sg)
-LightGraphs.vertices(sg::SparseGraph) = 1:nv(sg)
+Graphs.has_vertex(sg::SparseGraph, i::Integer) = 1 <= i <= nv(sg)
+Graphs.vertices(sg::SparseGraph) = 1:nv(sg)
 
-LightGraphs.edgetype(sg::SparseGraph) = Tuple{Int, Int}
-LightGraphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = i ∈ SparseArrays.rowvals(sg.S, j)
+Graphs.edgetype(sg::SparseGraph) = Tuple{Int, Int}
+Graphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = i ∈ SparseArrays.rowvals(sg.S, j)
 
 Base.:(==)(sg1::SparseGraph, sg2::SparseGraph) =
     sg1.E == sg2.E && sg1.edges == sg2.edges && sg1.S == sg2.S
@@ -112,9 +112,9 @@ Return the neighbors of vertex `i` in sparse graph `sg`.
 - `sg::SparseGraph`: sparse graph to query.
 - `i`: vertex index.
 """
-LightGraphs.neighbors(sg::SparseGraph{false}, i::Integer; dir::Symbol=:out) = rowvalview(sg.S, i)
+Graphs.neighbors(sg::SparseGraph{false}, i::Integer; dir::Symbol=:out) = rowvalview(sg.S, i)
 
-function LightGraphs.neighbors(sg::SparseGraph{true}, i::Integer; dir::Symbol=:out)
+function Graphs.neighbors(sg::SparseGraph{true}, i::Integer; dir::Symbol=:out)
     if dir == :out
         return outneighbors(sg, i)
     elseif dir == :in
@@ -126,9 +126,9 @@ function LightGraphs.neighbors(sg::SparseGraph{true}, i::Integer; dir::Symbol=:o
     end
 end
 
-LightGraphs.outneighbors(sg::SparseGraph{true}, i::Integer) = rowvalview(sg.S, i)
+Graphs.outneighbors(sg::SparseGraph{true}, i::Integer) = rowvalview(sg.S, i)
 
-function LightGraphs.inneighbors(sg::SparseGraph{true}, i::Integer)
+function Graphs.inneighbors(sg::SparseGraph{true}, i::Integer)
     mask = [i in rowvalview(sg.S, j) for j in 1:size(sg.S, 2)]
     return findall(mask)
 end
@@ -370,12 +370,12 @@ end
 ## Graph representations
 
 adjacency_list(sg::SparseGraph) = [SparseArrays.rowvals(sg.S, j) for j in 1:size(sg.S, 2)]
-LightGraphs.adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg)) = T.(sg.S)
+Graphs.adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg)) = T.(sg.S)
 
 
 ## Linear algebra
 
-LightGraphs.degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
+Graphs.degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
     degrees(sg.S, T; dir=dir)
 
 GraphLaplacians.degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
@@ -410,7 +410,7 @@ struct EdgeIter{G,S}
     end
 end
 
-LightGraphs.edges(sg::SparseGraph) = EdgeIter(sg)
+Graphs.edges(sg::SparseGraph) = EdgeIter(sg)
 Base.length(iter::EdgeIter) = iter.sg.E
 
 function Base.iterate(iter::EdgeIter, (el, i)=(iter.start, 1))
