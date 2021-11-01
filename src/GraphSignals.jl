@@ -15,6 +15,8 @@ using Graphs: AbstractGraph, AbstractSimpleGraph
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, weights
 using NNlib, NNlibCUDA
 
+import Graphs: laplacian_matrix
+
 export
     # featuredgraph
     AbstractFeaturedGraph,
@@ -41,13 +43,19 @@ export
     neighbor_scatter,
 
     # linalg
+    laplacian_matrix,
+    normalized_laplacian,
+    scaled_laplacian,
     laplacian_matrix!,
     normalized_laplacian!,
     scaled_laplacian!,
 
     # subgraph
     FeaturedSubgraph,
-    subgraph
+    subgraph,
+
+    # mask
+    mask
 
 include("graph.jl")
 include("linalg.jl")
@@ -60,7 +68,7 @@ include("cuda.jl")
 
 include("subgraph.jl")
 # include("sampling.jl")
-# include("mask.jl")
+include("mask.jl")
 
 # Non-differentiables
 

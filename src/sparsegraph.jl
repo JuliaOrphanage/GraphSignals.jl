@@ -384,20 +384,18 @@ Graphs.adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg)) = T.(sg.S)
 ## Linear algebra
 
 Graphs.degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
-    degrees(sg.S, T; dir=dir)
+    GraphLaplacians.degrees(sg.S, T; dir=dir)
 
 GraphLaplacians.degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
     GraphLaplacians.degree_matrix(sg.S, T; dir=dir)
 
-GraphLaplacians.laplacian_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
+laplacian_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
     GraphLaplacians.laplacian_matrix(sg.S, T; dir=dir)
 
-GraphLaplacians.normalized_laplacian(sg::SparseGraph, T::DataType=eltype(sg);
-                                     dir::Symbol=:both, selfloop::Bool=false) =
+normalized_laplacian(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:both, selfloop::Bool=false) =
     GraphLaplacians.normalized_laplacian(sg.S, T; selfloop=selfloop)
 
-GraphLaplacians.scaled_laplacian(sg::SparseGraph, T::DataType=eltype(sg)) =
-    GraphLaplacians.scaled_laplacian(sg.S, T)
+scaled_laplacian(sg::SparseGraph, T::DataType=eltype(sg)) = GraphLaplacians.scaled_laplacian(sg.S, T)
 
 
 ## Edge iterator

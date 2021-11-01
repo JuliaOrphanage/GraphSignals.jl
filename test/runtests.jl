@@ -18,6 +18,7 @@ tests = [
     "sparsegraph",
     "featuredgraph",
     "subgraph",
+    "mask",
 ]
 
 if CUDA.functional()
