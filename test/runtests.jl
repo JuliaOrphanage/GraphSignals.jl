@@ -17,6 +17,7 @@ tests = [
     "linalg",
     "sparsegraph",
     "featuredgraph",
+    "subgraph",
     "mask",
 ]
 

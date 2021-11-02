@@ -287,16 +287,16 @@ Graphs.degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:ou
     Graphs.degrees(graph(fg), T; dir=dir)
 
 GraphLaplacians.degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    degree_matrix(graph(fg), T; dir=dir)
+    GraphLaplacians.degree_matrix(graph(fg), T; dir=dir)
 
-GraphLaplacians.laplacian_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+laplacian_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
     GraphLaplacians.laplacian_matrix(graph(fg), T; dir=dir)
 
-GraphLaplacians.normalized_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg));
+normalized_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg));
                                      dir::Symbol=:both, selfloop::Bool=false) =
     normalized_laplacian(graph(fg), T; selfloop=selfloop)
 
-GraphLaplacians.scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_laplacian(graph(fg), T)
+scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_laplacian(graph(fg), T)
 
 
 ## Inplace operations
