@@ -1,6 +1,6 @@
 module GraphSignals
 
-using LinearAlgebra: issymmetric, diag, diagm, Transpose
+using LinearAlgebra: issymmetric, diag, diagm, Transpose, Diagonal
 using SparseArrays
 using SparseArrays: AbstractSparseMatrixCSC
 
