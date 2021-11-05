@@ -283,8 +283,8 @@ Graphs.adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adja
 
 ## Linear algebra
 
-Graphs.degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    Graphs.degrees(graph(fg), T; dir=dir)
+degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+    degrees(graph(fg), T; dir=dir)
 
 degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
     degree_matrix(graph(fg), T; dir=dir)

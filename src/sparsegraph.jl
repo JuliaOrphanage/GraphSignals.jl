@@ -383,7 +383,7 @@ Graphs.adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg)) = T.(sg.S)
 
 ## Linear algebra
 
-Graphs.degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
+degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
     degrees(sg.S, T; dir=dir)
 
 degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
