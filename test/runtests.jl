@@ -2,7 +2,6 @@ using GraphSignals
 using CUDA
 using Flux
 using FillArrays
-using GraphLaplacians
 using Graphs
 using LinearAlgebra
 using SimpleWeightedGraphs

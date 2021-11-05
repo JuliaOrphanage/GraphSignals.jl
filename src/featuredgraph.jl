@@ -286,11 +286,11 @@ Graphs.adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adja
 Graphs.degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
     Graphs.degrees(graph(fg), T; dir=dir)
 
-GraphLaplacians.degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    GraphLaplacians.degree_matrix(graph(fg), T; dir=dir)
+degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+    degree_matrix(graph(fg), T; dir=dir)
 
 laplacian_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    GraphLaplacians.laplacian_matrix(graph(fg), T; dir=dir)
+    laplacian_matrix(graph(fg), T; dir=dir)
 
 normalized_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg));
                                      dir::Symbol=:both, selfloop::Bool=false) =
@@ -303,7 +303,7 @@ scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_lapl
 
 function laplacian_matrix!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out)
     if fg.matrix_type == :adjm
-        fg.graph.S .= GraphLaplacians.laplacian_matrix(graph(fg), T; dir=dir)
+        fg.graph.S .= laplacian_matrix(graph(fg), T; dir=dir)
         fg.matrix_type = :laplacian
     end
     fg

@@ -1,6 +1,6 @@
 module GraphSignals
 
-using LinearAlgebra: issymmetric, diag, diagm, Transpose, Diagonal
+using LinearAlgebra
 using SparseArrays
 using SparseArrays: AbstractSparseMatrixCSC
 
@@ -9,7 +9,6 @@ using CUDA.CUSPARSE
 using ChainRulesCore: @non_differentiable
 using FillArrays
 using Functors: @functor
-using GraphLaplacians
 using Graphs
 using Graphs: AbstractGraph, AbstractSimpleGraph
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, weights
