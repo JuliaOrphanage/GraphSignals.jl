@@ -1,7 +1,13 @@
-function GraphSignals.adjacency_matrix(adj::AbstractMatrix, T::DataType=eltype(adj))
+function adjacency_matrix(adj::AbstractMatrix)
     m, n = size(adj)
     (m == n) || throw(DimensionMismatch("adjacency matrix is not a square matrix: ($m, $n)"))
-    T.(adj)
+    return collect(adj)
+end
+
+function adjacency_matrix(adj::AnyCuMatrix)
+    m, n = size(adj)
+    (m == n) || throw(DimensionMismatch("adjacency matrix is not a square matrix: ($m, $n)"))
+    return CuArray(adj)
 end
 
 
@@ -20,7 +26,7 @@ Degree of each vertex. Return a vector which contains the degree of each vertex 
 # Examples
 
 ```jldoctest
-julia> using GraphLaplacians
+julia> using GraphSignals
 
 julia> m = [0 1 1; 1 0 0; 1 0 0];
 
@@ -71,11 +77,11 @@ The values other than diagonal are zeros.
 # Examples
 
 ```jldoctest
-julia> using GraphLaplacians
+julia> using GraphSignals
 
 julia> m = [0 1 1; 1 0 0; 1 0 0];
 
-julia> GraphLaplacians.degree_matrix(m)
+julia> GraphSignals.degree_matrix(m)
 3×3 LinearAlgebra.Diagonal{Int64, Vector{Int64}}:
  2  ⋅  ⋅
  ⋅  1  ⋅

@@ -378,7 +378,7 @@ end
 ## Graph representations
 
 adjacency_list(sg::SparseGraph) = [SparseArrays.rowvals(sg.S, j) for j in 1:size(sg.S, 2)]
-Graphs.adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg)) = T.(sg.S)
+adjacency_matrix(sg::SparseGraph) = adjacency_matrix(sg.S)
 
 
 ## Linear algebra

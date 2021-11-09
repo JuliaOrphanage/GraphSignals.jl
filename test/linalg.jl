@@ -117,7 +117,7 @@
                 @test GraphSignals.degree_matrix(g, T; dir=:both) == D
                 @test eltype(D) == T
 
-                @test Graphs.adjacency_matrix(g, T) == T.(adjm)
+                @test GraphSignals.adjacency_matrix(g) == adjm
 
                 L = Graphs.laplacian_matrix(g, T)
                 @test L == T.(lap)
