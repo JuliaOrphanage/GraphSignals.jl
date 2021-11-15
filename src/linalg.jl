@@ -1,13 +1,42 @@
-function adjacency_matrix(adj::AbstractMatrix)
-    m, n = size(adj)
-    (m == n) || throw(DimensionMismatch("adjacency matrix is not a square matrix: ($m, $n)"))
-    return collect(adj)
+function adjacency_matrix(adj::AbstractMatrix{T}, ::Type{S}) where {T,S}
+    _dim_check(adj)
+    return Matrix{S}(adj)
 end
 
-function adjacency_matrix(adj::AnyCuMatrix)
+function adjacency_matrix(adj::AbstractMatrix)
+    _dim_check(adj)
+    return Array(adj)
+end
+
+adjacency_matrix(adj::Matrix{T}, ::Type{T}) where {T} = adjacency_matrix(adj)
+
+function adjacency_matrix(adj::Matrix)
+    _dim_check(adj)
+    return adj
+end
+
+function adjacency_matrix(adj::CuSparseMatrixCSC{T}, ::Type{S}) where {T,S}
+    _dim_check(adj)
+    A = CuSparseMatrixCSR(adj.colPtr, adj.rowVal, adj.nzVal, adj.dims)'
+    return CuMatrix{S}(A)
+end
+
+function adjacency_matrix(adj::CuSparseMatrixCSC)
+    _dim_check(adj)
+    A = CuSparseMatrixCSR(adj.colPtr, adj.rowVal, adj.nzVal, adj.dims)'
+    return CuMatrix(A)
+end
+
+adjacency_matrix(adj::CuMatrix{T}, ::Type{T}) where {T} = adjacency_matrix(adj)
+
+function adjacency_matrix(adj::CuMatrix)
+    _dim_check(adj)
+    return adj
+end
+
+function _dim_check(adj)
     m, n = size(adj)
     (m == n) || throw(DimensionMismatch("adjacency matrix is not a square matrix: ($m, $n)"))
-    return CuArray(adj)
 end
 
 
@@ -119,7 +148,7 @@ function normalized_adjacency_matrix(adj::AbstractMatrix, T::DataType=eltype(adj
                                      selfloop::Bool=false)
     selfloop && (adj += I)
     inv_sqrtD = degree_matrix(adj, T, dir=:both, squared=true, inverse=true)
-    return inv_sqrtD * Graphs.adjacency_matrix(adj, T) * inv_sqrtD
+    return inv_sqrtD * adjacency_matrix(adj, T) * inv_sqrtD
 end
 
 function normalized_adjacency_matrix(g::AbstractGraph, T::DataType=eltype(adj);
@@ -158,8 +187,7 @@ Normalized Laplacian matrix of graph `g`.
 """
 function normalized_laplacian(adj::AbstractMatrix, T::DataType=float(eltype(adj));
                               dir::Symbol=:both, selfloop::Bool=false)
-    L = similar(adj, T)
-    L .= adj
+    L = adjacency_matrix(adj, T)
     if dir == :both
         selfloop && (L += I)
         inv_sqrtD = degree_matrix(adj, T, dir=:both, squared=true, inverse=true)

@@ -105,8 +105,8 @@
             @test !has_global_feature(fg)
             @test graph(fg) isa SparseGraph
             @test node_feature(fg) isa CuMatrix{T}
-            @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
-            @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
+            # @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
+            # @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
         end
 
         @testset "directed graph" begin
@@ -128,8 +128,8 @@
             @test !has_global_feature(fg)
             @test graph(fg) isa SparseGraph
             @test node_feature(fg) isa CuMatrix{T}
-            @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
-            @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
+            # @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
+            # @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
         end
     end
 end
