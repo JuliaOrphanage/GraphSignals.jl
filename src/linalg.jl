@@ -128,7 +128,7 @@ function normalized_laplacian(adj::AbstractMatrix, T::DataType=eltype(adj);
     if dir == :both
         selfloop && (adj += I)
         inv_sqrtD = degree_matrix(adj, T, dir=:both, squared=true, inverse=true)
-        return T.(I - inv_sqrtD * adj * inv_sqrtD)
+        return selfloop ? T.(inv_sqrtD * adj * inv_sqrtD) : T.(I - inv_sqrtD * adj * inv_sqrtD)
     else
         return T.(I - degree_matrix(adj, T, dir=dir, inverse=true) * adj)
     end
