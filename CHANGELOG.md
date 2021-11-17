@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.3]
+
+- add normalized adjacency matrix
+- migrate GraphLaplacians
+- migrate LightGraphs to Graphs
+
 ## [0.3.2]
 
 - migrate LightGraphs to Graphs
