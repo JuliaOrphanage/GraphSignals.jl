@@ -152,16 +152,24 @@
         @test matrixtype(fg) == :adjm
         for T in [Float16, Float32, Float64]
             for g in [adjm, sparse(adjm), fg]
-                NL = normalized_laplacian(g, T)
+                NA = GraphSignals.normalized_adjacency_matrix(g, T)
+                @test NA ≈ T.(I - norm_lap)
+                @test eltype(NA) == T
+
+                NL = GraphSignals.normalized_laplacian(g, T)
                 @test NL ≈ T.(norm_lap)
                 @test eltype(NL) == T
 
-                SL = scaled_laplacian(g, T)
+                SL = GraphSignals.scaled_laplacian(g, T)
                 @test SL ≈ T.(scaled_lap)
                 @test eltype(SL) == T
             end
 
             for kind in [:simple, :weight]
+                NA = GraphSignals.normalized_adjacency_matrix(ugs[kind], T)
+                @test NA ≈ T.(I - norm_laps[kind])
+                @test eltype(NA) == T
+
                 NL = normalized_laplacian(ugs[kind], T)
                 @test NL ≈ T.(norm_laps[kind])
                 @test eltype(NL) == T

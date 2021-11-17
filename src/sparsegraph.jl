@@ -389,6 +389,9 @@ degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
 degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
     degree_matrix(sg.S, T; dir=dir)
 
+normalized_adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg); selfloop::Bool=false) =
+    normalized_adjacency_matrix(sg.S, T; selfloop=selfloop)
+
 laplacian_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
     laplacian_matrix(sg.S, T; dir=dir)
 
