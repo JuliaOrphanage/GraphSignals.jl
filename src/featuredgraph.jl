@@ -281,6 +281,13 @@ adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
 Graphs.adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adjacency_matrix(graph(fg), T)
 
 
+## Neighbors
+
+Graphs.has_edge(fg::FeaturedGraph, i::Integer, j::Integer) = Graphs.has_edge(graph(fg), i, j)
+Graphs.inneighbors(fg::FeaturedGraph, i::Integer) = Graphs.inneighbors(graph(fg), i)
+Graphs.outneighbors(fg::FeaturedGraph, i::Integer) = Graphs.outneighbors(graph(fg), i)
+Graphs.neighbors(fg::FeaturedGraph, i::Integer; dir::Symbol=:out) = Graphs.neighbors(graph(fg), i; dir=dir)
+
 ## Linear algebra
 
 degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
