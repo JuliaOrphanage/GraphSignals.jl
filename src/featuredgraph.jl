@@ -289,6 +289,9 @@ degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
 degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
     degree_matrix(graph(fg), T; dir=dir)
 
+normalized_adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(sg); selfloop::Bool=false) =
+    normalized_adjacency_matrix(graph(fg), T; selfloop=selfloop)
+
 laplacian_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
     laplacian_matrix(graph(fg), T; dir=dir)
 
