@@ -17,14 +17,12 @@ end
 
 function adjacency_matrix(adj::CuSparseMatrixCSC{T}, ::Type{S}) where {T,S}
     _dim_check(adj)
-    A = CuSparseMatrixCSR(adj.colPtr, adj.rowVal, adj.nzVal, adj.dims)'
-    return CuMatrix{S}(A)
+    return CuMatrix{S}(collect(adj))
 end
 
 function adjacency_matrix(adj::CuSparseMatrixCSC)
     _dim_check(adj)
-    A = CuSparseMatrixCSR(adj.colPtr, adj.rowVal, adj.nzVal, adj.dims)'
-    return CuMatrix(A)
+    return CuMatrix(adj)
 end
 
 adjacency_matrix(adj::CuMatrix{T}, ::Type{T}) where {T} = adjacency_matrix(adj)

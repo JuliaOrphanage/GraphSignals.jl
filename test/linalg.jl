@@ -106,6 +106,7 @@
         fg = FeaturedGraph(adjm)
         @test matrixtype(fg) == :adjm
         @test repr(fg) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in adjacency matrix,\n)"
+        @test GraphSignals.adjacency_matrix(adjm, Int64) === adjm
 
         for T in [Int8, Int16, Int32, Int64, Int128, Float16, Float32, Float64]
             for g in [adjm, sparse(adjm), fg]

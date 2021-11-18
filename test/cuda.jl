@@ -9,6 +9,9 @@
               1 0 1 0]))
         @test collect(rowvals(adjm, 2)) == [1, 3]
         @test collect(nonzeros(adjm, 2)) == [1, 1]
+
+        @test GraphSignals.adjacency_matrix(adjm, Int32) isa CuMatrix{Int32}
+        @test GraphSignals.adjacency_matrix(adjm) isa CuMatrix{T}
     end
 
     @testset "SparseGraph" begin
@@ -105,8 +108,6 @@
             @test !has_global_feature(fg)
             @test graph(fg) isa SparseGraph
             @test node_feature(fg) isa CuMatrix{T}
-            # @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
-            # @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
         end
 
         @testset "directed graph" begin
@@ -128,8 +129,6 @@
             @test !has_global_feature(fg)
             @test graph(fg) isa SparseGraph
             @test node_feature(fg) isa CuMatrix{T}
-            # @test edge_feature(fg) isa Fill{T,2,Tuple{Base.OneTo{Int64},Base.OneTo{Int64}}}
-            # @test global_feature(fg) isa Fill{T,1,Tuple{Base.OneTo{Int64}}}
         end
     end
 end
