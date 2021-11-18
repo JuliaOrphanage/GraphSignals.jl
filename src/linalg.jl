@@ -1,7 +1,40 @@
-function GraphSignals.adjacency_matrix(adj::AbstractMatrix, T::DataType=eltype(adj))
+function adjacency_matrix(adj::AbstractMatrix{T}, ::Type{S}) where {T,S}
+    _dim_check(adj)
+    return Matrix{S}(adj)
+end
+
+function adjacency_matrix(adj::AbstractMatrix)
+    _dim_check(adj)
+    return Array(adj)
+end
+
+adjacency_matrix(adj::Matrix{T}, ::Type{T}) where {T} = adjacency_matrix(adj)
+
+function adjacency_matrix(adj::Matrix)
+    _dim_check(adj)
+    return adj
+end
+
+function adjacency_matrix(adj::CuSparseMatrixCSC{T}, ::Type{S}) where {T,S}
+    _dim_check(adj)
+    return CuMatrix{S}(collect(adj))
+end
+
+function adjacency_matrix(adj::CuSparseMatrixCSC)
+    _dim_check(adj)
+    return CuMatrix(adj)
+end
+
+adjacency_matrix(adj::CuMatrix{T}, ::Type{T}) where {T} = adjacency_matrix(adj)
+
+function adjacency_matrix(adj::CuMatrix)
+    _dim_check(adj)
+    return adj
+end
+
+function _dim_check(adj)
     m, n = size(adj)
     (m == n) || throw(DimensionMismatch("adjacency matrix is not a square matrix: ($m, $n)"))
-    T.(adj)
 end
 
 
@@ -20,7 +53,7 @@ Degree of each vertex. Return a vector which contains the degree of each vertex 
 # Examples
 
 ```jldoctest
-julia> using GraphLaplacians
+julia> using GraphSignals
 
 julia> m = [0 1 1; 1 0 0; 1 0 0];
 
@@ -71,11 +104,11 @@ The values other than diagonal are zeros.
 # Examples
 
 ```jldoctest
-julia> using GraphLaplacians
+julia> using GraphSignals
 
 julia> m = [0 1 1; 1 0 0; 1 0 0];
 
-julia> GraphLaplacians.degree_matrix(m)
+julia> GraphSignals.degree_matrix(m)
 3×3 LinearAlgebra.Diagonal{Int64, Vector{Int64}}:
  2  ⋅  ⋅
  ⋅  1  ⋅
@@ -84,6 +117,8 @@ julia> GraphLaplacians.degree_matrix(m)
 """
 function degree_matrix(adj::AbstractMatrix, T::DataType=eltype(adj);
                        dir::Symbol=:out, squared::Bool=false, inverse::Bool=false)
+    D = similar(adj, T)
+    fill!(D, 0)
     d = degrees(adj, T, dir=dir)
     squared && (d .= sqrt.(d))
     inverse && (d .= inv.(d); replace!(d, typemax(T)=>zero(T)))
@@ -111,7 +146,7 @@ function normalized_adjacency_matrix(adj::AbstractMatrix, T::DataType=eltype(adj
                                      selfloop::Bool=false)
     selfloop && (adj += I)
     inv_sqrtD = degree_matrix(adj, T, dir=:both, squared=true, inverse=true)
-    return inv_sqrtD * Graphs.adjacency_matrix(adj, T) * inv_sqrtD
+    return inv_sqrtD * adjacency_matrix(adj, T) * inv_sqrtD
 end
 
 function normalized_adjacency_matrix(g::AbstractGraph, T::DataType=eltype(adj);
@@ -133,7 +168,7 @@ Laplacian matrix of graph `g`.
 - `dir`: direction of degree; should be `:in`, `:out`, or `:both` (optional).
 """
 Graphs.laplacian_matrix(adj::AbstractMatrix, T::DataType=eltype(adj); dir::Symbol=:out) =
-    degree_matrix(adj, T, dir=dir) - SparseMatrixCSC(T.(adj))
+    degree_matrix(adj, T, dir=dir) - T.(adj)
 
 """
     normalized_laplacian(g[, T]; dir=:both, selfloop=false)
@@ -148,18 +183,21 @@ Normalized Laplacian matrix of graph `g`.
 - `selfloop`: adding self loop while calculating the matrix (optional).
 - `dir`: direction of graph; should be `:in` or `:out` (optional).
 """
-function normalized_laplacian(adj::AbstractMatrix, T::DataType=eltype(adj);
+function normalized_laplacian(adj::AbstractMatrix, T::DataType=float(eltype(adj));
                               dir::Symbol=:both, selfloop::Bool=false)
+    L = adjacency_matrix(adj, T)
     if dir == :both
-        selfloop && (adj += I)
+        selfloop && (L += I)
         inv_sqrtD = degree_matrix(adj, T, dir=:both, squared=true, inverse=true)
-        return T.(I - inv_sqrtD * adj * inv_sqrtD)
+        L .= I - inv_sqrtD * L * inv_sqrtD
     else
-        return T.(I - degree_matrix(adj, T, dir=dir, inverse=true) * adj)
+        inv_D = degree_matrix(adj, T, dir=dir, inverse=true)
+        L .= I - inv_D * L
     end
+    return L
 end
 
-function normalized_laplacian(g::AbstractGraph, T::DataType=eltype(g);
+function normalized_laplacian(g::AbstractGraph, T::DataType=float(eltype(g));
                               dir::Symbol=:both, selfloop::Bool=false)
     adj = Graphs.adjacency_matrix(g, T)
     return normalized_laplacian(adj, T, dir=dir, selfloop=selfloop)
@@ -177,15 +215,15 @@ defined as ``\hat{L} = \frac{2}{\lambda_{max}} L - I`` where ``L`` is the normal
     or `SimpleWeightedGraph`, `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
 - `T`: result element type of degree vector; default is the element type of `g` (optional).
 """
-function scaled_laplacian(adj::AbstractMatrix, T::DataType=eltype(adj))
-    @assert issymmetric(adj) "scaled_laplacian only works with symmetric matrices"
+function scaled_laplacian(adj::AbstractMatrix, T::DataType=float(eltype(adj)))
+    # @assert issymmetric(adj) "scaled_laplacian only works with symmetric matrices"
     E = eigen(Symmetric(Array(adj))).values
-    T(2. / maximum(E)) * normalized_laplacian(adj, T) - I
+    return T(2. / maximum(E)) .* normalized_laplacian(adj, T) - I
 end
 
-function scaled_laplacian(g::AbstractGraph, T::DataType=eltype(g))
-    adj = adjacency_matrix(g, T)
-    scaled_laplacian(adj, T)
+function scaled_laplacian(g::AbstractGraph, T::DataType=float(eltype(g)))
+    adj = Graphs.adjacency_matrix(g, T)
+    return scaled_laplacian(adj, T)
 end
 
 """

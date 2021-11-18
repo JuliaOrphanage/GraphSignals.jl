@@ -37,7 +37,7 @@
 
         @testset "conversions" begin
             sg = SparseGraph(adjm, false)
-            @test Graphs.adjacency_matrix(sg) == adjm
+            @test GraphSignals.adjacency_matrix(sg) == adjm
             @test_skip Array(sg) == adjm
             @test_skip SparseArrays.sprase(sg) == adjm
             @test adjacency_list(sg) == adjl
@@ -137,7 +137,7 @@
 
         @testset "conversions" begin
             sg = SparseGraph(adjm, true)
-            @test Graphs.adjacency_matrix(sg) == adjm
+            @test GraphSignals.adjacency_matrix(sg) == adjm
             @test_skip Array(sg) == adjm
             @test_skip SparseArrays.sprase(sg) == adjm
             @test adjacency_list(sg) == adjl

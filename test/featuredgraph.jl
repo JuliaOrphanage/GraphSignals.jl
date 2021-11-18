@@ -43,7 +43,7 @@
         @test GraphSignals.gf_dims_repr(fg) == gdim
 
         fg2 = FeaturedGraph(fg)
-        @test Graphs.adjacency_matrix(fg2) == adjm
+        @test GraphSignals.adjacency_matrix(fg2) == adjm
         @test node_feature(fg2) == nf
         @test edge_feature(fg2) == ef
         @test global_feature(fg2) == gf

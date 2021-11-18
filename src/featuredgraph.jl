@@ -271,14 +271,14 @@ Graphs.ne(fg::FeaturedGraph) = ne(graph(fg))
 ## Graph representations
 
 """
-adjacency_list(::AbstractFeaturedGraph)
+    adjacency_list(::AbstractFeaturedGraph)
 
 Get adjacency list of graph.
 """
 adjacency_list(::NullGraph) = [zeros(0)]
 adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
 
-Graphs.adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = adjacency_matrix(graph(fg), T)
+adjacency_matrix(fg::FeaturedGraph) = adjacency_matrix(graph(fg))
 
 
 ## Linear algebra

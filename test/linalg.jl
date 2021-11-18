@@ -106,6 +106,7 @@
         fg = FeaturedGraph(adjm)
         @test matrixtype(fg) == :adjm
         @test repr(fg) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in adjacency matrix,\n)"
+        @test GraphSignals.adjacency_matrix(adjm, Int64) === adjm
 
         for T in [Int8, Int16, Int32, Int64, Int128, Float16, Float32, Float64]
             for g in [adjm, sparse(adjm), fg]
@@ -117,7 +118,7 @@
                 @test GraphSignals.degree_matrix(g, T; dir=:both) == D
                 @test eltype(D) == T
 
-                @test Graphs.adjacency_matrix(g, T) == T.(adjm)
+                @test GraphSignals.adjacency_matrix(g) == adjm
 
                 L = Graphs.laplacian_matrix(g, T)
                 @test L == T.(lap)
@@ -238,49 +239,37 @@
         add_edge!(dgs[:weight], 3, 4, -2); add_edge!(dgs[:weight], 3, 5, -1)
 
         for T in [Int8, Int16, Int32, Int64, Int128, Float16, Float32, Float64]
-            for dir in [:out, :in, :both]
-                D = GraphSignals.degree_matrix(adjm, T, dir=dir)
-                @test D == T.(degs[dir])
-                @test eltype(D) == T
-                D = GraphSignals.degree_matrix(sparse(adjm), T, dir=dir)
-                @test D == T.(degs[dir])
-                @test eltype(D) == T
-            end
-            @test_throws DomainError GraphSignals.degree_matrix(adjm, dir=:other)
+            for g in [adjm, sparse(adjm)]
+                for dir in [:out, :in, :both]
+                    D = GraphSignals.degree_matrix(g, T, dir=dir)
+                    @test D == T.(degs[dir])
+                    @test eltype(D) == T
 
-            for dir in [:out, :in, :both]
-                L = Graphs.laplacian_matrix(adjm, T, dir=dir)
-                @test L == T.(laps[dir])
-                @test eltype(L) == T
-                L = Graphs.laplacian_matrix(sparse(adjm), T, dir=dir)
-                @test L == T.(laps[dir])
-                @test eltype(L) == T
-            end
+                    L = Graphs.laplacian_matrix(g, T, dir=dir)
+                    @test L == T.(laps[dir])
+                    @test eltype(L) == T
 
-            for dir in [:out, :in, :both]
-                SL = GraphSignals.signless_laplacian(adjm, T, dir=dir)
-                @test SL == T.(sig_laps[dir])
-                @test eltype(SL) == T
-                SL = GraphSignals.signless_laplacian(sparse(adjm), T, dir=dir)
-                @test SL == T.(sig_laps[dir])
-                @test eltype(SL) == T
+                    SL = GraphSignals.signless_laplacian(g, T, dir=dir)
+                    @test SL == T.(sig_laps[dir])
+                    @test eltype(SL) == T
+                end
+                @test_throws DomainError GraphSignals.degree_matrix(g, dir=:other)
             end
         end
 
         for T in [Float32, Float64]
-            for dir in [:out, :in]
-                L = normalized_laplacian(adjm, T, dir=dir)
-                @test L == T.(norm_laps[dir])
-                @test eltype(L) == T
-            end
+            for g in [adjm, sparse(adjm)]
+                for dir in [:out, :in]
+                    L = normalized_laplacian(g, T, dir=dir)
+                    @test L == T.(norm_laps[dir])
+                    @test eltype(L) == T
+                end
 
-            for dir in [:out, :in, :both]
-                RW = GraphSignals.random_walk_laplacian(adjm, T, dir=dir)
-                @test RW == T.(rw_laps[dir])
-                @test eltype(RW) == T
-                RW = GraphSignals.random_walk_laplacian(sparse(adjm), T, dir=dir)
-                @test RW == T.(rw_laps[dir])
-                @test eltype(RW) == T
+                for dir in [:out, :in, :both]
+                    RW = GraphSignals.random_walk_laplacian(g, T, dir=dir)
+                    @test RW == T.(rw_laps[dir])
+                    @test eltype(RW) == T
+                end
             end
         end
     end
