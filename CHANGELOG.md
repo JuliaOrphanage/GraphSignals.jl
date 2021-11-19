@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.5]
+
+- fix normalized_adjacency_matrix for FeaturedGraph
+
 ## [0.3.4]
 
 - correct degree_matrix with CuSparseMatrixCSC input
