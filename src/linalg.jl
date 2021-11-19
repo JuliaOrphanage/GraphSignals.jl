@@ -81,7 +81,8 @@ function degrees(adj::AbstractMatrix; dir::Symbol=:out)
     d
 end
 
-degrees(adj::AbstractMatrix, T::DataType; dir::Symbol=:out) = degrees(T.(adj); dir=dir)
+degrees(adj::AbstractMatrix, T::DataType; dir::Symbol=:out) = T.(degrees(adj; dir=dir))
+degrees(adj::CuSparseMatrixCSC, T::DataType; dir::Symbol=:out) = T.(degrees(CuMatrix(adj); dir=dir))
 
 function degrees(g::AbstractGraph, T::DataType=eltype(g); dir::Symbol=:out)
     adj = Graphs.adjacency_matrix(g, T; dir=dir)
