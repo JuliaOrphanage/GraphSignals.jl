@@ -121,7 +121,7 @@ function degree_matrix(adj::AbstractMatrix, T::DataType=eltype(adj);
     fill!(D, 0)
     d = degrees(adj, T, dir=dir)
     squared && (d .= sqrt.(d))
-    inverse && (d .= inv.(d); replace!(d, typemax(T)=>zero(T)))
+    inverse && (d .= safe_inv.(d))
     return Diagonal(T.(d))
 end
 
@@ -129,6 +129,8 @@ function degree_matrix(g::AbstractGraph, T::DataType=eltype(g); dir::Symbol=:out
     adj = Graphs.adjacency_matrix(g, T; dir=dir)
     degree_matrix(adj, T; dir=dir)
 end
+
+safe_inv(x::T) where {T} = ifelse(iszero(x), zero(T), inv(x))
 
 """
     normalized_adjacency_matrix(g[, T]; selfloop=false)
@@ -144,9 +146,10 @@ Normalized adjacency matrix of graph `g`.
 """
 function normalized_adjacency_matrix(adj::AbstractMatrix, T::DataType=eltype(adj);
                                      selfloop::Bool=false)
+    adj = adjacency_matrix(adj, T)
     selfloop && (adj += I)
     inv_sqrtD = degree_matrix(adj, T, dir=:both, squared=true, inverse=true)
-    return inv_sqrtD * adjacency_matrix(adj, T) * inv_sqrtD
+    return inv_sqrtD * adj * inv_sqrtD
 end
 
 function normalized_adjacency_matrix(g::AbstractGraph, T::DataType=eltype(adj);
