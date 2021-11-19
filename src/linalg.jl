@@ -144,9 +144,10 @@ Normalized adjacency matrix of graph `g`.
 """
 function normalized_adjacency_matrix(adj::AbstractMatrix, T::DataType=eltype(adj);
                                      selfloop::Bool=false)
+    adj = adjacency_matrix(adj, T)
     selfloop && (adj += I)
     inv_sqrtD = degree_matrix(adj, T, dir=:both, squared=true, inverse=true)
-    return inv_sqrtD * adjacency_matrix(adj, T) * inv_sqrtD
+    return inv_sqrtD * adj * inv_sqrtD
 end
 
 function normalized_adjacency_matrix(g::AbstractGraph, T::DataType=eltype(adj);

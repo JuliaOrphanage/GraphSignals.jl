@@ -157,6 +157,9 @@
                 @test NA ≈ T.(I - norm_lap)
                 @test eltype(NA) == T
 
+                NA = GraphSignals.normalized_adjacency_matrix(g, T, selfloop=true)
+                @test eltype(NA) == T
+
                 NL = GraphSignals.normalized_laplacian(g, T)
                 @test NL ≈ T.(norm_lap)
                 @test eltype(NL) == T
