@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.4]
+
+- correct degree_matrix with CuSparseMatrixCSC input
+- correct normalized adjacency matrix with self-loop
+- adjacency_matrix returns dense arrays
+
 ## [0.3.3]
 
 - add normalized adjacency matrix

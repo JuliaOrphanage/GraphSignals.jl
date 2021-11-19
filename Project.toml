@@ -1,7 +1,7 @@
 name = "GraphSignals"
 uuid = "3ebe565e-a4b5-49c6-aed2-300248c3a9c1"
 authors = ["Yueh-Hua Tu <a504082002@gmail.com>"]
-version = "0.3.3"
+version = "0.3.4"
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
@@ -17,8 +17,8 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
 CUDA = "3"
-ChainRulesCore = "0.10, 1"
-FillArrays = "0.11 - 0.12"
+ChainRulesCore = "1"
+FillArrays = "0.12"
 Functors = "0.2"
 Graphs = "1.4"
 NNlib = "0.7"
