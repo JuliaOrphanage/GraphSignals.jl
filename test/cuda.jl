@@ -45,6 +45,8 @@
             @test ne(sg) == E
             @test collect(neighbors(sg, 1)) == adjl[1]
             @test collect(neighbors(sg, 2)) == adjl[2]
+            @test GraphSignals.cpu_neighbors(sg, 1) isa Vector
+            @test GraphSignals.cpu_incident_edges(sg, 1) isa Vector
             @test collect(GraphSignals.aggregate_index(sg, :edge, :inward)) == [1, 3, 1, 1, 4]
             @test collect(GraphSignals.aggregate_index(sg, :edge, :outward)) == [2, 3, 4, 5, 5]
             @test_throws ArgumentError GraphSignals.aggregate_index(sg, :edge, :in)
@@ -81,6 +83,8 @@
             @test ne(sg) == E
             @test collect(neighbors(sg, 1)) == adjl[1]
             @test collect(neighbors(sg, 3)) == adjl[3]
+            @test GraphSignals.cpu_neighbors(sg, 1) isa Vector
+            @test GraphSignals.cpu_incident_edges(sg, 1) isa Vector
             @test Array(GraphSignals.aggregate_index(sg, :edge, :inward)) == [2, 5, 1, 4, 4, 1, 4]
             @test Array(GraphSignals.aggregate_index(sg, :edge, :outward)) == [1, 1, 3, 3, 4, 5, 5]
             @test size(edge_scatter(+, ef, sg, direction=:inward)) == (10, V)
