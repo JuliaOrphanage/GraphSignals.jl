@@ -12,6 +12,7 @@ using Functors: @functor
 using Graphs
 using Graphs: AbstractGraph, AbstractSimpleGraph
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, weights
+using StatsBase
 using NNlib, NNlibCUDA
 
 import Graphs: laplacian_matrix
@@ -54,7 +55,11 @@ export
     subgraph,
 
     # mask
-    mask
+    mask,
+
+    # random
+    random_walk,
+    neighbor_sample
 
 include("graph.jl")
 include("linalg.jl")
@@ -68,6 +73,7 @@ include("cuda.jl")
 include("subgraph.jl")
 # include("sampling.jl")
 include("mask.jl")
+include("random.jl")
 
 # Non-differentiables
 

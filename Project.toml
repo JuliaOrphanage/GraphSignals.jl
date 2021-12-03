@@ -14,6 +14,7 @@ NNlib = "872c559c-99b0-510c-b3b7-b6c96a88d5cd"
 NNlibCUDA = "a00861dc-f156-4864-bf3c-e6376f28a68d"
 SimpleWeightedGraphs = "47aef6b3-ad0c-573a-a1e2-d07658019622"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 CUDA = "3"
@@ -24,6 +25,7 @@ Graphs = "1.4"
 NNlib = "0.7"
 NNlibCUDA = "0.1"
 SimpleWeightedGraphs = "1.2"
+StatsBase = "0.33"
 julia = "1.6"
 
 [extras]
