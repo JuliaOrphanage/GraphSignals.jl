@@ -18,6 +18,7 @@ tests = [
     "featuredgraph",
     "subgraph",
     "mask",
+    "random",
 ]
 
 if CUDA.functional()
