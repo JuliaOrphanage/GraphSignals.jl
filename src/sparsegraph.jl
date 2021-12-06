@@ -73,6 +73,9 @@ end
 @functor SparseGraph{true}
 @functor SparseGraph{false}
 
+SparseArrays.sparse(sg::SparseGraph) = sg.S
+Base.collect(sg::SparseGraph) = collect(sg.S)
+
 Base.show(io::IO, sg::SparseGraph) = print(io, "SparseGraph(#V=", nv(sg), ", #E=", ne(sg), ")")
 
 Graphs.nv(sg::SparseGraph) = size(sg.S, 1)
@@ -160,6 +163,9 @@ end
 noutneighbors(sg::SparseGraph, col::Integer) = length(SparseArrays.getcolptr(sg.S, col))
 noutneighbors(sg::SparseGraph, I::UnitRange) = length(SparseArrays.getcolptr(sg.S, I))
 
+cpu_neighbors(sg::SparseGraph, i::Integer; dir::Symbol=:out) = neighbors(sg, i; dir=dir)
+cpu_neighbors(sg::SparseGraph{B,T}, i::Integer; dir::Symbol=:out) where {B,T<:CuSparseMatrixCSC} = collect(neighbors(sg, i; dir=dir))
+
 """
     incident_edges(sg, i)
 
@@ -195,6 +201,9 @@ function incident_inedges(sg::SparseGraph{true,M,V}, i) where {M,V}
     end
     return inedges
 end
+
+cpu_incident_edges(sg::SparseGraph, i) = incident_edges(sg, i)
+cpu_incident_edges(sg::SparseGraph{B,T}, i) where {B,T<:CuSparseMatrixCSC} = collect(incident_edges(sg, i))
 
 Base.getindex(sg::SparseGraph, ind...) = getindex(sg.S, ind...)
 edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sg.S, i, j)]

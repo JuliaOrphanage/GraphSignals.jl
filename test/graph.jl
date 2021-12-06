@@ -37,9 +37,7 @@
             add_edge!(wug, 2, 3, 5); add_edge!(wug, 3, 4, 2); add_edge!(wug, 3, 5, 2)
             add_edge!(wug, 5, 5, 3)
     
-            # ne cannot account self loop for SimpleWeightedGraph
-            # https://github.com/JuliaGraphs/SimpleWeightedGraphs.jl/issues/41
-            for g in [adjm, adjl, ug]#, wug]
+            for g in [adjm, adjl, ug, wug]
                 fg = FeaturedGraph(g)
                 @test adjacency_list(fg) == adjl
                 @test nv(fg) == V
