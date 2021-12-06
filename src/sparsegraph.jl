@@ -73,6 +73,9 @@ end
 @functor SparseGraph{true}
 @functor SparseGraph{false}
 
+SparseArrays.sparse(sg::SparseGraph) = sg.S
+Base.collect(sg::SparseGraph) = collect(sg.S)
+
 Base.show(io::IO, sg::SparseGraph) = print(io, "SparseGraph(#V=", nv(sg), ", #E=", ne(sg), ")")
 
 Graphs.nv(sg::SparseGraph) = size(sg.S, 1)
