@@ -267,6 +267,10 @@ Get edge number of graph.
 Graphs.ne(::NullGraph) = 0
 Graphs.ne(fg::FeaturedGraph) = ne(graph(fg))
 
+Graphs.edges(fg::FeaturedGraph) = edges(graph(fg))
+
+Graphs.neighbors(fg::FeaturedGraph, i::Integer; dir::Symbol=:out) = neighbors(graph(fg), i, dir=dir)
+
 
 ## Graph representations
 
