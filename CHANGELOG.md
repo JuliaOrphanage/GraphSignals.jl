@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.6]
+
+- add random walk and neighbor sampling on graph
+- add `edges` and `neighbors` as API for `FeaturedGraph`
+- add `cpu_neighbors`
+- add `collect` and `sparse` for `SparseGraph`
+
 ## [0.3.5]
 
 - fix normalized_adjacency_matrix for FeaturedGraph
