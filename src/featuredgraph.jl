@@ -271,6 +271,8 @@ Graphs.edges(fg::FeaturedGraph) = edges(graph(fg))
 
 Graphs.neighbors(fg::FeaturedGraph, i::Integer; dir::Symbol=:out) = neighbors(graph(fg), i, dir=dir)
 
+Graphs.has_edge(fg::FeaturedGraph, i::Integer, j::Integer) = has_edge(graph(fg), i, j)
+
 
 ## Graph representations
 
