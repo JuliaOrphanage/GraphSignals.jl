@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.7]
+
+- correct edge direction for `has_edge` and `edge_index`
+- add `has_edge` for `FeaturedGraph`
+
 ## [0.3.6]
 
 - add random walk and neighbor sampling on graph
