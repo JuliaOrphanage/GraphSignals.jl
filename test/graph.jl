@@ -43,6 +43,8 @@
                 @test nv(fg) == V
                 @test ne(fg) == E
                 @test !is_directed(fg)
+                @test has_edge(fg, 1, 2)
+                @test neighbors(fg, 1) == adjl[1]
             end
         end
 
@@ -90,6 +92,8 @@
                 @test nv(fg) == V
                 @test ne(fg) == E
                 @test is_directed(fg)
+                @test has_edge(fg, 1, 3)
+                @test neighbors(fg, 1) == adjl[1]
             end
         end
     end
