@@ -96,7 +96,7 @@ Graphs.has_vertex(sg::SparseGraph, i::Integer) = 1 <= i <= nv(sg)
 Graphs.vertices(sg::SparseGraph) = 1:nv(sg)
 
 Graphs.edgetype(sg::SparseGraph) = Tuple{Int, Int}
-Graphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = i ∈ SparseArrays.rowvals(sg.S, j)
+Graphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = j ∈ SparseArrays.rowvals(sg.S, i)
 
 Base.:(==)(sg1::SparseGraph, sg2::SparseGraph) =
     sg1.E == sg2.E && sg1.edges == sg2.edges && sg1.S == sg2.S
@@ -206,7 +206,7 @@ cpu_incident_edges(sg::SparseGraph, i) = incident_edges(sg, i)
 cpu_incident_edges(sg::SparseGraph{B,T}, i) where {B,T<:CuSparseMatrixCSC} = collect(incident_edges(sg, i))
 
 Base.getindex(sg::SparseGraph, ind...) = getindex(sg.S, ind...)
-edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sg.S, i, j)]
+edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sg.S, j, i)]
 
 """
 Transform a CSC-based edge index `edges[eidx]` into a regular cartesian index `A[i, j]`.

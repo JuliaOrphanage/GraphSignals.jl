@@ -55,9 +55,9 @@
         @test Graphs.vertices(sg) == 1:V
         @test Graphs.edgetype(sg) == typeof((1, 5))
         @test Graphs.has_edge(sg, 1, 5)
+        @test edge_index(sg, 1, 5) == 4
         @test sg[1, 5] == 1
         @test sg[CartesianIndex((1, 5))] == 1
-        @test edge_index(sg, 1, 5) == 4
         @test collect(edges(sg)) == [
             (1, (2, 1)),
             (2, (3, 3)),
@@ -153,11 +153,11 @@
 
         @test Graphs.has_vertex(sg, 3)
         @test Graphs.vertices(sg) == 1:V
-        @test Graphs.edgetype(sg) == typeof((1, 3))
-        @test Graphs.has_edge(sg, 1, 3)
+        @test Graphs.edgetype(sg) == typeof((3, 1))
+        @test Graphs.has_edge(sg, 3, 1)
+        @test edge_index(sg, 3, 1) == 3
         @test sg[1, 3] == 1
         @test sg[CartesianIndex((1, 3))] == 1
-        @test edge_index(sg, 1, 3) == 3
         @test collect(edges(sg)) == [
             (1, (2, 1)),
             (2, (5, 1)),
