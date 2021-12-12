@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.8]
+
+- bug fix for message-passing network
+
 ## [0.3.7]
 
 - correct edge direction for `has_edge` and `edge_index`
