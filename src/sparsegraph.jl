@@ -379,7 +379,7 @@ function neighbor_features(aggr, X::AbstractArray{T}, idx) where {T}
     if isempty(idx)
         return fill(NNlib.scatter_empty(aggr, T), size(X, 1))
     else
-        return mapreduce(j -> view(X,:,j), aggr, collect(idx))
+        return mapreduce(j -> view(X,:,j), (x, y) -> aggr.(x, y), collect(idx))
     end
 end
 
