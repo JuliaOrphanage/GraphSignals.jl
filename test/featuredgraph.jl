@@ -112,4 +112,17 @@
         @test size(edge_scatter(fg, +, direction=:undirected)) == (edim, V)
         @test size(neighbor_scatter(fg, +, direction=:undirected)) == (vdim, V)
     end
+
+    @testset "random subgraph" begin
+        adjm = [0 1 1 1;
+                1 0 1 0;
+                1 1 0 1;
+                1 0 1 0]
+
+        fg = FeaturedGraph(adjm)
+        rand_subgraph = sample(fg, 3)
+        @test rand_subgraph isa FeaturedSubgraph
+        @test length(rand_subgraph.nodes) == 3
+        @test_throws ErrorException sample(fg, 5)
+    end
 end

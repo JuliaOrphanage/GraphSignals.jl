@@ -208,6 +208,10 @@ cpu_incident_edges(sg::SparseGraph{B,T}, i) where {B,T<:CuSparseMatrixCSC} = col
 Base.getindex(sg::SparseGraph, ind...) = getindex(sg.S, ind...)
 edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sg.S, j, i)]
 
+function repeat_nodes(sg::SparseGraph, i::Int)
+    return repeat([i], length(neighbors(sg, i)))
+end
+
 """
 Transform a CSC-based edge index `edges[eidx]` into a regular cartesian index `A[i, j]`.
 """

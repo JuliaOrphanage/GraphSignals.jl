@@ -347,3 +347,9 @@ function neighbor_scatter(fg::FeaturedGraph, aggr; direction::Symbol=:outward)
     is_directed(fg) || (direction = :undirected)
     return neighbor_scatter(aggr, node_feature(fg), fg.graph, direction=direction)
 end
+
+
+## sample
+
+StatsBase.sample(fg::FeaturedGraph, n::Int) =
+    subgraph(fg, sample(vertices(graph(fg)), n; replace=false))
