@@ -6,6 +6,7 @@ using Graphs
 using LinearAlgebra
 using SimpleWeightedGraphs
 using SparseArrays
+using StatsBase
 using Test
 CUDA.allowscalar(false)
 
