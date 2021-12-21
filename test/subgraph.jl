@@ -32,6 +32,9 @@
         @test node_feature(subg) == view(nf, :, nodes)
         @test edge_feature(subg) == view(ef, :, [1,2,5])
         @test global_feature(subg) == gf
+        @test neighbors(subg) == [2, 4, 1, 3, 2, 4, 5]
+        @test incident_edges(subg) == [1, 3, 1, 2, 2, 4, 5]
+        @test GraphSignals.repeat_nodes(subg) == [1, 1, 2, 2, 3, 3, 5]        
 
         rand_subgraph = sample(subg, 3)
         @test rand_subgraph isa FeaturedSubgraph
@@ -58,6 +61,9 @@
         @test node_feature(subg) == view(nf, :, nodes)
         @test edge_feature(subg) == view(ef, :, [1,2,4,5,6,7,8,9,11,15,16])
         @test global_feature(subg) == gf
+        @test neighbors(subg) == [1, 2, 4, 5, 1, 2, 3, 2, 3, 4, 5, 3, 5]
+        @test incident_edges(subg) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16]
+        @test GraphSignals.repeat_nodes(subg) == [1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 5, 5]
 
         rand_subgraph = sample(subg, 3)
         @test rand_subgraph isa FeaturedSubgraph

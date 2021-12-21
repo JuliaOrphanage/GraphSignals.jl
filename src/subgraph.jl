@@ -28,3 +28,9 @@ end
 global_feature(fsg::FeaturedSubgraph) = global_feature(fsg.fg)
 
 Graphs.is_directed(fsg::FeaturedSubgraph) = is_directed(fsg.fg)
+
+Graphs.neighbors(fsg::FeaturedSubgraph) = mapreduce(i -> neighbors(graph(fsg), i), vcat, fsg.nodes)
+
+incident_edges(fsg::FeaturedSubgraph) = mapreduce(i -> incident_edges(graph(fsg), i), vcat, fsg.nodes)
+
+repeat_nodes(fsg::FeaturedSubgraph) = mapreduce(i -> repeat_nodes(graph(fsg), i), vcat, fsg.nodes)
