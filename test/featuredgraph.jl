@@ -123,6 +123,6 @@
         rand_subgraph = sample(fg, 3)
         @test rand_subgraph isa FeaturedSubgraph
         @test length(rand_subgraph.nodes) == 3
-        @test_throws sample(fg, 5) ErrorException
+        @test_throws ErrorException sample(fg, 5)
     end
 end

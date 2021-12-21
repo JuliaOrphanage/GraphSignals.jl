@@ -24,6 +24,7 @@
         fg = FeaturedGraph(adjm, nf=nf, ef=ef, gf=gf)
 
         subg = FeaturedSubgraph(fg, nodes)
+        @test graph(subg) === graph(fg)
         @test subgraph(fg, nodes) == subg
         @test is_directed(subg) == is_directed(fg)
         @test adjacency_matrix(subg) == view(adjm, nodes, nodes)
@@ -31,6 +32,11 @@
         @test node_feature(subg) == view(nf, :, nodes)
         @test edge_feature(subg) == view(ef, :, [1,2,5])
         @test global_feature(subg) == gf
+
+        rand_subgraph = sample(subg, 3)
+        @test rand_subgraph isa FeaturedSubgraph
+        @test length(rand_subgraph.nodes) == 3
+        @test rand_subgraph.nodes ⊆ subg.nodes
     end
 
     @testset "directed graph" begin
@@ -44,6 +50,7 @@
         fg = FeaturedGraph(adjm, nf=nf, ef=ef, gf=gf)
 
         subg = FeaturedSubgraph(fg, nodes)
+        @test graph(subg) === graph(fg)
         @test subgraph(fg, nodes) == subg
         @test is_directed(subg) == is_directed(fg)
         @test adjacency_matrix(subg) == view(adjm, nodes, nodes)
@@ -51,5 +58,10 @@
         @test node_feature(subg) == view(nf, :, nodes)
         @test edge_feature(subg) == view(ef, :, [1,2,4,5,6,7,8,9,11,15,16])
         @test global_feature(subg) == gf
+
+        rand_subgraph = sample(subg, 3)
+        @test rand_subgraph isa FeaturedSubgraph
+        @test length(rand_subgraph.nodes) == 3
+        @test rand_subgraph.nodes ⊆ subg.nodes
     end
 end

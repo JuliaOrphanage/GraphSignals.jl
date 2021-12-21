@@ -6,6 +6,12 @@ end
 FeaturedSubgraph(ng::NullGraph, ::AbstractVector) = ng
 
 subgraph(fg::AbstractFeaturedGraph, nodes::AbstractVector) = FeaturedSubgraph(fg, nodes)
+subgraph(fsg::FeaturedSubgraph, nodes::AbstractVector) = FeaturedSubgraph(fsg.fg, nodes)
+
+StatsBase.sample(fsg::FeaturedSubgraph, n::Int) =
+    subgraph(fsg, sample(fsg.nodes, n; replace=false))
+
+graph(fsg::FeaturedSubgraph) = graph(fsg.fg)
 
 Graphs.adjacency_matrix(fsg::FeaturedSubgraph) = view(adjacency_matrix(fsg.fg), fsg.nodes, fsg.nodes)
 
