@@ -278,7 +278,7 @@ Graphs.has_edge(fg::FeaturedGraph, i::Integer, j::Integer) = has_edge(graph(fg),
 
 incident_edges(fg::FeaturedGraph) = incident_edges(graph(fg))
 
-repeat_nodes(fg::FeaturedGraph) = colvals(sparse(graph(fg)), nv(fg))
+repeat_nodes(fg::FeaturedGraph) = colvals(sparse(graph(fg)))
 
 
 ## Graph representations

@@ -21,7 +21,7 @@ node_feature(fsg::FeaturedSubgraph) = view(node_feature(fsg.fg), :, fsg.nodes)
 
 function edge_feature(fsg::FeaturedSubgraph)
     sg = graph(fsg.fg)
-    sel = map(x -> x in fsg.nodes, colvals(sg.S, nv(sg)))
+    sel = map(x -> x in fsg.nodes, colvals(sg.S))
     sel .&= map(x -> x in fsg.nodes, rowvals(sg.S))
     eidx = sort!(unique!(edgevals(sg)[sel]))
     return view(edge_feature(fsg.fg), :, eidx)

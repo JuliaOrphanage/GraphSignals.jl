@@ -101,7 +101,23 @@ Graphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = j ∈ SparseArrays.ro
 Base.:(==)(sg1::SparseGraph, sg2::SparseGraph) =
     sg1.E == sg2.E && sg1.edges == sg2.edges && sg1.S == sg2.S
 
-function colvals(S::SparseCSC, n::Int, upper_traingle::Bool=false)
+"""
+    colvals(S, [n]; upper_traingle=false)
+
+Returns column indices of nonzero values in a sparse array `S`.
+Nonzero values are count up to column `n`. If `n` is not specified,
+all nonzero values are considered.
+
+# Arguments
+
+- `S::SparseCSC`: Sparse array, which can be `SparseMatrixCSC` or `CuSparseMatrixCSC`.
+- `n::Int`: Maximum columns to count nonzero values.
+- `upper_traingle::Bool`: To count nonzero values in upper traingle only or not.
+"""
+colvals(S::SparseCSC; upper_traingle::Bool=false) =
+    colvals(S, size(S, 2); upper_traingle=upper_traingle)
+
+function colvals(S::SparseCSC, n::Int; upper_traingle::Bool=false)
     if upper_traingle
         ls = [count(rowvalview(S, j) .≤ j) for j in 1:n]
         pushfirst!(ls, 1)
@@ -295,9 +311,7 @@ end
 
 aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:inward}) = rowvals(sg.S)
 
-function aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:outward})
-    return colvals(sg.S, nv(sg))
-end
+aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:outward}) = colvals(sg.S)
 
 function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:inward})
     # for undirected graph, upper traingle of matrix is considered only.
@@ -310,10 +324,8 @@ function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:inward})
     return res
 end
 
-function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward})
-    # for undirected graph, upper traingle of matrix is considered only.
-    return colvals(sg.S, nv(sg), true)
-end
+# for undirected graph, upper traingle of matrix is considered only.
+aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward}) = colvals(sg.S, upper_traingle=true)
 
 function aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:inward})
     return [neighbors(sg, i, dir=:out) for i in 1:nv(sg)]
