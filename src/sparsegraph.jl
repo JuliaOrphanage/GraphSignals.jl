@@ -101,7 +101,23 @@ Graphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = j ∈ SparseArrays.ro
 Base.:(==)(sg1::SparseGraph, sg2::SparseGraph) =
     sg1.E == sg2.E && sg1.edges == sg2.edges && sg1.S == sg2.S
 
-function colvals(S::SparseCSC, n::Int, upper_traingle::Bool=false)
+"""
+    colvals(S, [n]; upper_traingle=false)
+
+Returns column indices of nonzero values in a sparse array `S`.
+Nonzero values are count up to column `n`. If `n` is not specified,
+all nonzero values are considered.
+
+# Arguments
+
+- `S::SparseCSC`: Sparse array, which can be `SparseMatrixCSC` or `CuSparseMatrixCSC`.
+- `n::Int`: Maximum columns to count nonzero values.
+- `upper_traingle::Bool`: To count nonzero values in upper traingle only or not.
+"""
+colvals(S::SparseCSC; upper_traingle::Bool=false) =
+    colvals(S, size(S, 2); upper_traingle=upper_traingle)
+
+function colvals(S::SparseCSC, n::Int; upper_traingle::Bool=false)
     if upper_traingle
         ls = [count(rowvalview(S, j) .≤ j) for j in 1:n]
         pushfirst!(ls, 1)
@@ -139,6 +155,8 @@ Return the neighbors of vertex `i` in sparse graph `sg`.
 - `sg::SparseGraph`: sparse graph to query.
 - `i`: vertex index.
 """
+Graphs.neighbors(sg::SparseGraph{false}; dir::Symbol=:out) = rowvals(sg.S)
+
 Graphs.neighbors(sg::SparseGraph{false}, i::Integer; dir::Symbol=:out) = rowvalview(sg.S, i)
 
 function Graphs.neighbors(sg::SparseGraph{true}, i::Integer; dir::Symbol=:out)
@@ -163,9 +181,6 @@ end
 noutneighbors(sg::SparseGraph, col::Integer) = length(SparseArrays.getcolptr(sg.S, col))
 noutneighbors(sg::SparseGraph, I::UnitRange) = length(SparseArrays.getcolptr(sg.S, I))
 
-cpu_neighbors(sg::SparseGraph, i::Integer; dir::Symbol=:out) = neighbors(sg, i; dir=dir)
-cpu_neighbors(sg::SparseGraph{B,T}, i::Integer; dir::Symbol=:out) where {B,T<:CuSparseMatrixCSC} = collect(neighbors(sg, i; dir=dir))
-
 """
     incident_edges(sg, i)
 
@@ -176,6 +191,8 @@ Return the edges incident to vertex `i` in sparse graph `sg`.
 - `sg::SparseGraph`: sparse graph to query.
 - `i`: vertex index.
 """
+incident_edges(sg::SparseGraph{false}) = edgevals(sg)
+
 incident_edges(sg::SparseGraph{false}, i) = edgevals(sg, i)
 
 function incident_edges(sg::SparseGraph{true}, i; dir=:out)
@@ -202,15 +219,10 @@ function incident_inedges(sg::SparseGraph{true,M,V}, i) where {M,V}
     return inedges
 end
 
-cpu_incident_edges(sg::SparseGraph, i) = incident_edges(sg, i)
-cpu_incident_edges(sg::SparseGraph{B,T}, i) where {B,T<:CuSparseMatrixCSC} = collect(incident_edges(sg, i))
-
 Base.getindex(sg::SparseGraph, ind...) = getindex(sg.S, ind...)
 edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sg.S, j, i)]
 
-function repeat_nodes(sg::SparseGraph, i::Int)
-    return repeat([i], length(neighbors(sg, i)))
-end
+repeat_nodes(sg::SparseGraph, i::Int) = repeat([i], length(neighbors(sg, i)))
 
 """
 Transform a CSC-based edge index `edges[eidx]` into a regular cartesian index `A[i, j]`.
@@ -293,9 +305,7 @@ end
 
 aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:inward}) = rowvals(sg.S)
 
-function aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:outward})
-    return colvals(sg.S, nv(sg))
-end
+aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:outward}) = colvals(sg.S)
 
 function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:inward})
     # for undirected graph, upper traingle of matrix is considered only.
@@ -308,10 +318,8 @@ function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:inward})
     return res
 end
 
-function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward})
-    # for undirected graph, upper traingle of matrix is considered only.
-    return colvals(sg.S, nv(sg), true)
-end
+# for undirected graph, upper traingle of matrix is considered only.
+aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward}) = colvals(sg.S, upper_traingle=true)
 
 function aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:inward})
     return [neighbors(sg, i, dir=:out) for i in 1:nv(sg)]

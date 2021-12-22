@@ -102,6 +102,19 @@
         @test_throws DimensionMismatch fg.ef = rand(10, 11)
     end
 
+    @testset "graph properties" begin
+        adjm = [0 1 1 1;
+                1 0 1 0;
+                1 1 0 1;
+                1 0 1 0]
+
+        fg = FeaturedGraph(adjm)
+        @test vertices(fg) == 1:V
+        @test neighbors(fg) == [2, 3, 4, 1, 3, 1, 2, 4, 1, 3]
+        @test incident_edges(fg) == fg |> graph |> GraphSignals.edgevals
+        @test GraphSignals.repeat_nodes(fg) == [1, 1, 1, 2, 2, 3, 3, 3, 4, 4]
+    end
+
     @testset "scatter" begin
         adjm = [0 1 1 1;
                 1 0 1 0;

@@ -267,11 +267,18 @@ Get edge number of graph.
 Graphs.ne(::NullGraph) = 0
 Graphs.ne(fg::FeaturedGraph) = ne(graph(fg))
 
+Graphs.vertices(fg::FeaturedGraph) = vertices(graph(fg))
+
 Graphs.edges(fg::FeaturedGraph) = edges(graph(fg))
 
+Graphs.neighbors(fg::FeaturedGraph; dir::Symbol=:out) = neighbors(graph(fg); dir=dir)
 Graphs.neighbors(fg::FeaturedGraph, i::Integer; dir::Symbol=:out) = neighbors(graph(fg), i, dir=dir)
 
 Graphs.has_edge(fg::FeaturedGraph, i::Integer, j::Integer) = has_edge(graph(fg), i, j)
+
+incident_edges(fg::FeaturedGraph) = incident_edges(graph(fg))
+
+repeat_nodes(fg::FeaturedGraph) = colvals(sparse(graph(fg)))
 
 
 ## Graph representations
