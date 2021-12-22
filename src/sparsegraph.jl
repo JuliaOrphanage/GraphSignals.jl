@@ -139,6 +139,8 @@ Return the neighbors of vertex `i` in sparse graph `sg`.
 - `sg::SparseGraph`: sparse graph to query.
 - `i`: vertex index.
 """
+Graphs.neighbors(sg::SparseGraph{false}; dir::Symbol=:out) = rowvals(sg.S)
+
 Graphs.neighbors(sg::SparseGraph{false}, i::Integer; dir::Symbol=:out) = rowvalview(sg.S, i)
 
 function Graphs.neighbors(sg::SparseGraph{true}, i::Integer; dir::Symbol=:out)
@@ -176,6 +178,8 @@ Return the edges incident to vertex `i` in sparse graph `sg`.
 - `sg::SparseGraph`: sparse graph to query.
 - `i`: vertex index.
 """
+incident_edges(sg::SparseGraph{false}) = edgevals(sg)
+
 incident_edges(sg::SparseGraph{false}, i) = edgevals(sg, i)
 
 function incident_edges(sg::SparseGraph{true}, i; dir=:out)
@@ -208,9 +212,7 @@ cpu_incident_edges(sg::SparseGraph{B,T}, i) where {B,T<:CuSparseMatrixCSC} = col
 Base.getindex(sg::SparseGraph, ind...) = getindex(sg.S, ind...)
 edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sg.S, j, i)]
 
-function repeat_nodes(sg::SparseGraph, i::Int)
-    return repeat([i], length(neighbors(sg, i)))
-end
+repeat_nodes(sg::SparseGraph, i::Int) = repeat([i], length(neighbors(sg, i)))
 
 """
 Transform a CSC-based edge index `edges[eidx]` into a regular cartesian index `A[i, j]`.
