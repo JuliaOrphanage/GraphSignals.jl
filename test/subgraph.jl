@@ -63,6 +63,7 @@
         # @test node_feature(subg) == view(nf, :, nodes)
         # @test edge_feature(subg) == view(ef, :, [1,2,4,5,6,7,8,9,11,15,16])
         @test global_feature(subg) == gf
+        @test parent(subg) === subg.fg
 
         @test vertices(subg) == nodes
         @test neighbors(subg) == [1, 2, 4, 5, 1, 2, 3, 2, 3, 4, 5, 3, 5]

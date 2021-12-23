@@ -13,6 +13,8 @@ StatsBase.sample(fsg::FeaturedSubgraph, n::Int) =
 
 graph(fsg::FeaturedSubgraph) = graph(fsg.fg)
 
+Base.parent(fsg::FeaturedSubgraph) = fsg.fg
+
 Graphs.vertices(fsg::FeaturedSubgraph) = fsg.nodes
 
 Graphs.adjacency_matrix(fsg::FeaturedSubgraph) = view(adjacency_matrix(fsg.fg), fsg.nodes, fsg.nodes)

@@ -192,6 +192,8 @@ Get referenced graph.
 graph(::NullGraph) = nothing
 graph(fg::FeaturedGraph) = fg.graph
 
+Base.parent(fg::FeaturedGraph) = fg
+
 """
     node_feature(::AbstractFeaturedGraph)
 

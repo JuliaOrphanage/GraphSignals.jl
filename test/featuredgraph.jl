@@ -41,6 +41,7 @@
         @test GraphSignals.nf_dims_repr(fg) == vdim
         @test GraphSignals.ef_dims_repr(fg) == edim
         @test GraphSignals.gf_dims_repr(fg) == gdim
+        @test parent(fg) === fg
 
         fg2 = FeaturedGraph(fg)
         @test GraphSignals.adjacency_matrix(fg2) == adjm
