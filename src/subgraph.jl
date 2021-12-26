@@ -13,19 +13,23 @@ StatsBase.sample(fsg::FeaturedSubgraph, n::Int) =
 
 graph(fsg::FeaturedSubgraph) = graph(fsg.fg)
 
+Base.parent(fsg::FeaturedSubgraph) = fsg.fg
+
 Graphs.vertices(fsg::FeaturedSubgraph) = fsg.nodes
 
 Graphs.adjacency_matrix(fsg::FeaturedSubgraph) = view(adjacency_matrix(fsg.fg), fsg.nodes, fsg.nodes)
 
-node_feature(fsg::FeaturedSubgraph) = view(node_feature(fsg.fg), :, fsg.nodes)
+node_feature(fsg::FeaturedSubgraph) = node_feature(fsg.fg)
+# node_feature(fsg::FeaturedSubgraph) = view(node_feature(fsg.fg), :, fsg.nodes)
 
-function edge_feature(fsg::FeaturedSubgraph)
-    sg = graph(fsg.fg)
-    sel = map(x -> x in fsg.nodes, colvals(sg.S))
-    sel .&= map(x -> x in fsg.nodes, rowvals(sg.S))
-    eidx = sort!(unique!(edgevals(sg)[sel]))
-    return view(edge_feature(fsg.fg), :, eidx)
-end
+edge_feature(fsg::FeaturedSubgraph) = edge_feature(fsg.fg)
+# function edge_feature(fsg::FeaturedSubgraph)
+#     sg = graph(fsg.fg)
+#     sel = map(x -> x in fsg.nodes, colvals(sg.S))
+#     sel .&= map(x -> x in fsg.nodes, rowvals(sg.S))
+#     eidx = sort!(unique!(edgevals(sg)[sel]))
+#     return view(edge_feature(fsg.fg), :, eidx)
+# end
 
 global_feature(fsg::FeaturedSubgraph) = global_feature(fsg.fg)
 
