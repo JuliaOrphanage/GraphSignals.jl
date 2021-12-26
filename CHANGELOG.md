@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.9]
+
+- add sample for generate random subgraph for `FeaturedGraph` and `FeaturedSubgraph`
+- drop `cpu_neighbors` and `cpu_incident_edges`
+- add `neighbors`, `incident_edges`, `repeat_nodes` for `FeaturedGraph` and `FeaturedSubgraph`
+- add `parent` for `FeaturedGraph` and `FeaturedSubgraph`
+- access features in `FeaturedSubgraph` change to `FeaturedGraph`
+
 ## [0.3.8]
 
 - bug fix for message-passing network
