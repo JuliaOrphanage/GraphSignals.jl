@@ -3,6 +3,8 @@ struct FeaturedSubgraph{G<:AbstractFeaturedGraph,T} <: AbstractFeaturedGraph
     nodes::T
 end
 
+@functor FeaturedSubgraph
+
 FeaturedSubgraph(ng::NullGraph, ::AbstractVector) = ng
 
 subgraph(fg::AbstractFeaturedGraph, nodes::AbstractVector) = FeaturedSubgraph(fg, nodes)
