@@ -1,4 +1,5 @@
 @testset "subgraph" begin
+    T = Float64
     V = 5
     nf = rand(3, V)
     gf = rand(7)
@@ -16,7 +17,7 @@
     @testset "undirected graph" begin
         E = 5
         ef = rand(5, E)
-        adjm = [0 1 0 1 0; # symmetric
+        adjm = T[0 1 0 1 0; # symmetric
                 1 0 1 0 0;
                 0 1 0 1 0;
                 1 0 1 0 0;
@@ -29,14 +30,33 @@
         @test is_directed(subg) == is_directed(fg)
         @test adjacency_matrix(subg) == view(adjm, nodes, nodes)
         @test adjacency_matrix(subg) isa SubArray
-        # @test node_feature(subg) == view(nf, :, nodes)
-        # @test edge_feature(subg) == view(ef, :, [1,2,5])
+        @test node_feature(subg) == view(nf, :, nodes)
+        @test edge_feature(subg) == view(ef, :, [1,2,5])
         @test global_feature(subg) == gf
 
         @test vertices(subg) == nodes
         @test neighbors(subg) == [2, 4, 1, 3, 2, 4, 5]
         @test incident_edges(subg) == [1, 3, 1, 2, 2, 4, 5]
         @test GraphSignals.repeat_nodes(subg) == [1, 1, 2, 2, 3, 3, 5]
+
+        @test GraphSignals.degrees(subg) == [2, 2, 2, 1]
+        @test GraphSignals.degree_matrix(subg) == diagm([2, 2, 2, 1])
+        @test GraphSignals.normalized_adjacency_matrix(subg) ≈ [0 .5 0 0;
+                                                                .5 0 .5 0;
+                                                                0 .5 0 0;
+                                                                0 0 0 1]
+        @test GraphSignals.laplacian_matrix(subg) == [2 -1 0 0;
+                                                     -1 2 -1 0;
+                                                      0 -1 2 0;
+                                                      0 0 0 0]
+        @test GraphSignals.normalized_laplacian(subg) ≈ [1 -.5 0 0;
+                                                        -.5 1 -.5 0;
+                                                         0 -.5 1 0;
+                                                         0 0 0 0]
+        @test GraphSignals.scaled_laplacian(subg) ≈ [0 -.5 0 0;
+                                                     -.5 0 -.5 0;
+                                                     0 -.5 0 0;
+                                                     0 0 0 -1]
 
         rand_subgraph = sample(subg, 3)
         @test rand_subgraph isa FeaturedSubgraph
@@ -60,8 +80,8 @@
         @test is_directed(subg) == is_directed(fg)
         @test adjacency_matrix(subg) == view(adjm, nodes, nodes)
         @test adjacency_matrix(subg) isa SubArray
-        # @test node_feature(subg) == view(nf, :, nodes)
-        # @test edge_feature(subg) == view(ef, :, [1,2,4,5,6,7,8,9,11,15,16])
+        @test node_feature(subg) == view(nf, :, nodes)
+        @test edge_feature(subg) == view(ef, :, [1,2,4,5,6,7,8,9,11,15,16])
         @test global_feature(subg) == gf
         @test parent(subg) === subg.fg
 
