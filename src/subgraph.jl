@@ -28,9 +28,11 @@ Graphs.vertices(fsg::FeaturedSubgraph) = fsg.nodes
 
 function Graphs.edges(fsg::FeaturedSubgraph)
     sg = graph(fsg.fg)
-    sel = map(x -> x in fsg.nodes, colvals(sg.S))
-    sel .&= map(x -> x in fsg.nodes, rowvals(sg.S))
-    return sort!(unique!(edgevals(sg)[sel]))
+    S = SparseMatrixCSC(sparse(sg))
+    nodes = collect(fsg.nodes)
+    sel = map(x -> x in nodes, colvals(S))
+    sel .&= map(x -> x in nodes, rowvals(S))
+    return sort!(unique!(collect(edgevals(sg))[sel]))
 end
 
 Graphs.adjacency_matrix(fsg::FeaturedSubgraph) = view(adjacency_matrix(fsg.fg), fsg.nodes, fsg.nodes)
