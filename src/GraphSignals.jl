@@ -22,6 +22,7 @@ export
     AbstractFeaturedGraph,
     NullGraph,
     FeaturedGraph,
+    ConcreteFeaturedGraph,
     graph,
     matrixtype,
     node_feature,
