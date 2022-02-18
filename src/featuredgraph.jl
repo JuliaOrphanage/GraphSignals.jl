@@ -59,7 +59,7 @@ fg = FeaturedGraph(fg, nf=rand(100, 5))
 fg = fg |> cu
 ```
 
-See also [`graph`](@ref), [`node_feature`](@ref), [`edge_feature`](@ref), and [`global_feature`](@ref)
+See also [`graph`](@ref), [`node_feature`](@ref), [`edge_feature`](@ref), and [`global_feature`](@ref).
 """
 mutable struct FeaturedGraph{T,Tn,Te,Tg} <: AbstractFeaturedGraph
     graph::T
@@ -70,12 +70,10 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg} <: AbstractFeaturedGraph
 
     function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg,
                            mt::Symbol) where {Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
-        check_precondition(graph, nf, ef, mt)
         new{typeof(graph),Tn,Te,Tg}(graph, nf, ef, gf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg}(graph, nf, ef, gf, mt
             ) where {T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
-        check_precondition(graph, nf, ef, mt)
         new{T,Tn,Te,Tg}(T(graph), Tn(nf), Te(ef), Tg(gf), mt)
     end
 end
@@ -112,6 +110,8 @@ FeaturedGraph(ng::NullGraph) = ng
 function FeaturedGraph(fg::FeaturedGraph; nf=node_feature(fg), ef=edge_feature(fg), gf=global_feature(fg))
     return FeaturedGraph(graph(fg), nf, ef, gf, matrixtype(fg))
 end
+
+ConcreteFeaturedGraph(fg::FeaturedGraph; kwargs...) = FeaturedGraph(fg; kwargs...)
 
 
 ## dimensional checks
