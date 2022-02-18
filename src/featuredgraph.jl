@@ -70,12 +70,10 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg} <: AbstractFeaturedGraph
 
     function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg,
                            mt::Symbol) where {Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
-        check_precondition(graph, nf, ef, mt)
         new{typeof(graph),Tn,Te,Tg}(graph, nf, ef, gf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg}(graph, nf, ef, gf, mt
             ) where {T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
-        check_precondition(graph, nf, ef, mt)
         new{T,Tn,Te,Tg}(T(graph), Tn(nf), Te(ef), Tg(gf), mt)
     end
 end
