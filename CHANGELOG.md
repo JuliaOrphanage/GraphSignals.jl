@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.10]
+
+- add `FeaturedSubgraph` for subgraphing `FeaturedGraph`
+
 ## [0.3.9]
 
 - add sample for generate random subgraph for `FeaturedGraph` and `FeaturedSubgraph`
