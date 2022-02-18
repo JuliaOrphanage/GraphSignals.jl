@@ -179,6 +179,11 @@
                 @test eltype(NL) == T
             end
 
+            fg_ = GraphSignals.normalized_adjacency_matrix!(deepcopy(fg), T)
+            @test graph(fg_).S ≈ T.(I - norm_lap)
+            @test matrixtype(fg_) == :normedadjm
+            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in normalized adjacency matrix,\n)"
+
             fg_ = normalized_laplacian!(deepcopy(fg), T)
             @test graph(fg_).S ≈ T.(norm_lap)
             @test matrixtype(fg_) == :normalized

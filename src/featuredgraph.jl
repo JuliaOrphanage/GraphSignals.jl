@@ -1,4 +1,4 @@
-const MATRIX_TYPES = [:adjm, :laplacian, :normalized, :scaled]
+const MATRIX_TYPES = [:adjm, :normedadjm, :laplacian, :normalized, :scaled]
 const DIRECTEDS = [:auto, :directed, :undirected]
 
 abstract type AbstractFeaturedGraph end
@@ -70,10 +70,12 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg} <: AbstractFeaturedGraph
 
     function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg,
                            mt::Symbol) where {Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
+        mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
         new{typeof(graph),Tn,Te,Tg}(graph, nf, ef, gf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg}(graph, nf, ef, gf, mt
             ) where {T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
+        mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
         new{T,Tn,Te,Tg}(T(graph), Tn(nf), Te(ef), Tg(gf), mt)
     end
 end
@@ -135,7 +137,6 @@ check_num_nodes(g, nf) = check_num_nodes(nv(g), nf)
 check_num_edges(g, ef) = check_num_edges(ne(g), ef)
 
 function check_precondition(graph, nf, ef, mt::Symbol)
-    @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :adjm, :laplacian, :normalized or :scaled"
     check_num_edges(ne(graph), ef)
     check_num_nodes(nv(graph), nf)
     return
@@ -157,6 +158,7 @@ end
 
 matrixrepr(fg::FeaturedGraph) = matrixrepr(Val(matrixtype(fg)))
 matrixrepr(::Val{:adjm}) = "adjacency matrix"
+matrixrepr(::Val{:normedadjm}) = "normalized adjacency matrix"
 matrixrepr(::Val{:laplacian}) = "Laplacian matrix"
 matrixrepr(::Val{:normalized}) = "normalized Laplacian"
 matrixrepr(::Val{:scaled}) = "scaled Laplacian"
@@ -318,6 +320,14 @@ scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_lapl
 
 
 ## Inplace operations
+
+function normalized_adjacency_matrix!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false)
+    if fg.matrix_type == :adjm
+        fg.graph.S .= normalized_adjacency_matrix(graph(fg), T; selfloop=selfloop)
+        fg.matrix_type = :normedadjm
+    end
+    fg
+end
 
 function laplacian_matrix!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out)
     if fg.matrix_type == :adjm
