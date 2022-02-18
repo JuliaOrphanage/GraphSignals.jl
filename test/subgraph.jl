@@ -30,8 +30,8 @@
         @test is_directed(subg) == is_directed(fg)
         @test adjacency_matrix(subg) == view(adjm, nodes, nodes)
         @test adjacency_matrix(subg) isa SubArray
-        @test node_feature(subg) == view(nf, :, nodes)
-        @test edge_feature(subg) == view(ef, :, [1,2,5])
+        @test node_feature(subg) == nf
+        @test edge_feature(subg) == ef
         @test global_feature(subg) == gf
 
         @test vertices(subg) == nodes
@@ -81,8 +81,8 @@
         @test is_directed(subg) == is_directed(fg)
         @test adjacency_matrix(subg) == view(adjm, nodes, nodes)
         @test adjacency_matrix(subg) isa SubArray
-        @test node_feature(subg) == view(nf, :, nodes)
-        @test edge_feature(subg) == view(ef, :, [1,2,4,5,6,7,8,9,11,15,16])
+        @test node_feature(subg) == nf
+        @test edge_feature(subg) == ef
         @test global_feature(subg) == gf
         @test parent(subg) === subg.fg
 

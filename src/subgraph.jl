@@ -44,9 +44,9 @@ end
 
 Graphs.adjacency_matrix(fsg::FeaturedSubgraph) = view(adjacency_matrix(fsg.fg), fsg.nodes, fsg.nodes)
 
-node_feature(fsg::FeaturedSubgraph) = view(node_feature(fsg.fg), :, fsg.nodes)
+node_feature(fsg::FeaturedSubgraph) = node_feature(fsg.fg)
 
-edge_feature(fsg::FeaturedSubgraph) = view(edge_feature(fsg.fg), :, edges(fsg))
+edge_feature(fsg::FeaturedSubgraph) = edge_feature(fsg.fg)
 
 global_feature(fsg::FeaturedSubgraph) = global_feature(fsg.fg)
 
