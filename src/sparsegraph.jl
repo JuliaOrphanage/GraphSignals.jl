@@ -34,27 +34,38 @@ function SparseGraph{D}(A::AbstractMatrix{Tv}, edges::AbstractVector{Ti}, E::Int
     return SparseGraph{D,typeof(A),typeof(edges),typeof(E)}(A, edges, E)
 end
 
-function SparseGraph(A::AbstractMatrix{Tv}, edges::AbstractVector{Ti}, directed::Bool) where {Tv,Ti}
+function SparseGraph(
+        A::AbstractMatrix{Tv},
+        edges::AbstractVector{Ti},
+        directed::Bool,
+        ::Type{T}=eltype(A)
+    ) where {Tv,Ti,T}
     E = length(unique(edges))
-    spA = SparseMatrixCSC{Tv,Ti}(A)
+    spA = (Tv === T) ? SparseMatrixCSC{Tv,Ti}(A) : SparseMatrixCSC{T,Ti}(A)
     return SparseGraph{directed,typeof(spA),typeof(edges),typeof(E)}(spA, edges, E)
 end
 
-SparseGraph(A::SparseCSC, directed::Bool) = SparseGraph(A, order_edges(A, directed=directed), directed)
-SparseGraph(A::AbstractMatrix, directed::Bool) = SparseGraph(sparsecsc(A), directed)
+SparseGraph(A::SparseCSC, directed::Bool, ::Type{T}=eltype(A)) where {T} =
+    SparseGraph(A, order_edges(A, directed=directed), directed, T)
+SparseGraph(A::AbstractMatrix, directed::Bool, ::Type{T}=eltype(A)) where {T} =
+    SparseGraph(sparsecsc(A), directed, T)
 
-function SparseGraph(adjl::AbstractVector{T}, directed::Bool) where {T<:AbstractVector}
+function SparseGraph(
+        adjl::AbstractVector{T},
+        directed::Bool,
+        ::Type{Te}=eltype(eltype(adjl))
+    ) where {T<:AbstractVector,Te}
     n = length(adjl)
     colptr, rowval, nzval = to_csc(adjl)
-    spA = SparseMatrixCSC(n, n, colptr, rowval, nzval)
+    spA = SparseMatrixCSC(n, n, UInt32.(colptr), UInt32.(rowval), Te.(nzval))
     return SparseGraph(spA, directed)
 end
 
-SparseGraph(g::G, directed::Bool=is_directed(G)) where {G<:AbstractSimpleGraph} =
-    SparseGraph(g.fadjlist, directed)
+SparseGraph(g::G, directed::Bool=is_directed(G), ::Type{T}=eltype(g)) where {G<:AbstractSimpleGraph,T} =
+    SparseGraph(g.fadjlist, directed, T)
 
-SparseGraph(g::G, directed::Bool=is_directed(G)) where {G<:AbstractSimpleWeightedGraph} =
-    SparseGraph(weights(g)', directed)
+SparseGraph(g::G, directed::Bool=is_directed(G), ::Type{T}=eltype(g)) where {G<:AbstractSimpleWeightedGraph,T} =
+    SparseGraph(weights(g)', directed, T)
 
 function to_csc(adjl::AbstractVector{T}) where {T<:AbstractVector}
     ET = eltype(adjl[1])
@@ -76,7 +87,8 @@ end
 SparseArrays.sparse(sg::SparseGraph) = sg.S
 Base.collect(sg::SparseGraph) = collect(sg.S)
 
-Base.show(io::IO, sg::SparseGraph) = print(io, "SparseGraph(#V=", nv(sg), ", #E=", ne(sg), ")")
+Base.show(io::IO, sg::SparseGraph) =
+    print(io, "SparseGraph{", eltype(sg), "}(#V=", nv(sg), ", #E=", ne(sg), ")")
 
 Graphs.nv(sg::SparseGraph) = size(sg.S, 1)
 Graphs.ne(sg::SparseGraph) = sg.E
