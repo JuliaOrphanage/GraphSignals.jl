@@ -88,12 +88,12 @@ function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    return FeaturedGraph(SparseGraph(graph, dir), nf, ef, gf, mat_type)
+    return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, mat_type)
 end
 
 ## Graph from JuliaGraphs
 
-FeaturedGraph(graph::AbstractGraph; kwargs...) = FeaturedGraph(graph, :adjm; kwargs...)
+FeaturedGraph(graph::AbstractGraph; kwargs...) = FeaturedGraph(graph, :adjm; T=Float32, kwargs...)
 
 ## Graph in adjacency list
 
