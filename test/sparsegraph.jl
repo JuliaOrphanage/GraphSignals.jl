@@ -1,4 +1,5 @@
 @testset "SparseGraph" begin
+    T = Float32
     @testset "undirected graph" begin
         # undirected graph with self loop
         V = 5
@@ -28,27 +29,28 @@
             add_edge!(wug, 3, 3, 5); add_edge!(wug, 4, 5, 2)
 
             for g in [adjm, adjl, ug, wug]
-                sg = SparseGraph(g, false)
+                sg = SparseGraph(g, false, T)
                 @test (sg.S .!= 0) == adjm
                 @test sg.edges == [1, 3, 4, 1, 2, 3, 5, 4, 5]
                 @test sg.E == E
+                @test eltype(sg) == T
             end
         end
 
         @testset "conversions" begin
-            sg = SparseGraph(adjm, false)
+            sg = SparseGraph(adjm, false, T)
             @test GraphSignals.adjacency_matrix(sg) == adjm
             @test collect(sg) == adjm
             @test SparseArrays.sparse(sg) == adjm
             @test adjacency_list(sg) == adjl
         end
 
-        sg = SparseGraph(adjm, false)
+        sg = SparseGraph(adjm, false, T)
         @test nv(sg) == V
         @test ne(sg) == E
         @test !Graphs.is_directed(sg)
         @test !Graphs.is_directed(typeof(sg))
-        @test repr(sg) == "SparseGraph(#V=5, #E=5)"
+        @test repr(sg) == "SparseGraph{Float32}(#V=5, #E=5)"
         @test Graphs.has_self_loops(sg)
 
         @test Graphs.has_vertex(sg, 3)
@@ -128,27 +130,28 @@
             add_edge!(wdg, 5, 4, 4)
 
             for g in [adjm, adjl, dg, wdg]
-                sg = SparseGraph(g, true)
+                sg = SparseGraph(g, true, T)
                 @test (sg.S .!= 0) == adjm
                 @test sg.edges == collect(1:7)
                 @test sg.E == E
+                @test eltype(sg) == T
             end
         end
 
         @testset "conversions" begin
-            sg = SparseGraph(adjm, true)
+            sg = SparseGraph(adjm, true, T)
             @test GraphSignals.adjacency_matrix(sg) == adjm
             @test collect(sg) == adjm
             @test SparseArrays.sparse(sg) == adjm
             @test adjacency_list(sg) == adjl
         end
 
-        sg = SparseGraph(adjm, true)
+        sg = SparseGraph(adjm, true, T)
         @test nv(sg) == V
         @test ne(sg) == E
         @test Graphs.is_directed(sg)
         @test Graphs.is_directed(typeof(sg))
-        @test repr(sg) == "SparseGraph(#V=5, #E=7)"
+        @test repr(sg) == "SparseGraph{Float32}(#V=5, #E=7)"
         @test Graphs.has_self_loops(sg)
 
         @test Graphs.has_vertex(sg, 3)

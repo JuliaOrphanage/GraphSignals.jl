@@ -1,4 +1,4 @@
-const MATRIX_TYPES = [:adjm, :laplacian, :normalized, :scaled]
+const MATRIX_TYPES = [:adjm, :normedadjm, :laplacian, :normalized, :scaled]
 const DIRECTEDS = [:auto, :directed, :undirected]
 
 abstract type AbstractFeaturedGraph end
@@ -70,10 +70,12 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg} <: AbstractFeaturedGraph
 
     function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg,
                            mt::Symbol) where {Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
+        mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
         new{typeof(graph),Tn,Te,Tg}(graph, nf, ef, gf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg}(graph, nf, ef, gf, mt
             ) where {T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
+        mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
         new{T,Tn,Te,Tg}(T(graph), Tn(nf), Te(ef), Tg(gf), mt)
     end
 end
@@ -86,12 +88,12 @@ function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    return FeaturedGraph(SparseGraph(graph, dir), nf, ef, gf, mat_type)
+    return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, mat_type)
 end
 
 ## Graph from JuliaGraphs
 
-FeaturedGraph(graph::AbstractGraph; kwargs...) = FeaturedGraph(graph, :adjm; kwargs...)
+FeaturedGraph(graph::AbstractGraph; kwargs...) = FeaturedGraph(graph, :adjm; T=Float32, kwargs...)
 
 ## Graph in adjacency list
 
@@ -135,7 +137,6 @@ check_num_nodes(g, nf) = check_num_nodes(nv(g), nf)
 check_num_edges(g, ef) = check_num_edges(ne(g), ef)
 
 function check_precondition(graph, nf, ef, mt::Symbol)
-    @assert mt ∈ MATRIX_TYPES "matrix_type must be one of :adjm, :laplacian, :normalized or :scaled"
     check_num_edges(ne(graph), ef)
     check_num_nodes(nv(graph), nf)
     return
@@ -157,6 +158,7 @@ end
 
 matrixrepr(fg::FeaturedGraph) = matrixrepr(Val(matrixtype(fg)))
 matrixrepr(::Val{:adjm}) = "adjacency matrix"
+matrixrepr(::Val{:normedadjm}) = "normalized adjacency matrix"
 matrixrepr(::Val{:laplacian}) = "Laplacian matrix"
 matrixrepr(::Val{:normalized}) = "normalized Laplacian"
 matrixrepr(::Val{:scaled}) = "scaled Laplacian"
@@ -318,6 +320,14 @@ scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_lapl
 
 
 ## Inplace operations
+
+function normalized_adjacency_matrix!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false)
+    if fg.matrix_type == :adjm
+        fg.graph.S .= normalized_adjacency_matrix(graph(fg), T; selfloop=selfloop)
+        fg.matrix_type = :normedadjm
+    end
+    fg
+end
 
 function laplacian_matrix!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out)
     if fg.matrix_type == :adjm
