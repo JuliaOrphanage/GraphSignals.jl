@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.11]
+
+- inplace normalized adjacency matrix
+- specify type for `FeaturedGraph`
+
 ## [0.3.10]
 
 - add `FeaturedSubgraph` for subgraphing `FeaturedGraph`
