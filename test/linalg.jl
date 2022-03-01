@@ -105,7 +105,7 @@
         
         fg = FeaturedGraph(adjm)
         @test matrixtype(fg) == :adjm
-        @test repr(fg) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in adjacency matrix,\n)"
+        @test repr(fg) == "FeaturedGraph:\n\tUndirected graph with (#V=4, #E=4) in adjacency matrix"
         @test GraphSignals.adjacency_matrix(adjm, Int64) === adjm
 
         for T in [Int8, Int16, Int32, Int64, Int128, Float16, Float32, Float64]
@@ -140,7 +140,7 @@
             fg_ = laplacian_matrix!(deepcopy(fg), T)
             @test graph(fg_).S == T.(lap)
             @test matrixtype(fg_) == :laplacian
-            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in Laplacian matrix,\n)"
+            @test repr(fg_) == "FeaturedGraph:\n\tUndirected graph with (#V=4, #E=4) in Laplacian matrix"
 
             for g in [adjm, sparse(adjm)]
                 SL = GraphSignals.signless_laplacian(g, T)
@@ -182,17 +182,17 @@
             fg_ = GraphSignals.normalized_adjacency_matrix!(deepcopy(fg), T)
             @test graph(fg_).S ≈ T.(I - norm_lap)
             @test matrixtype(fg_) == :normedadjm
-            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in normalized adjacency matrix,\n)"
+            @test repr(fg_) == "FeaturedGraph:\n\tUndirected graph with (#V=4, #E=4) in normalized adjacency matrix"
 
             fg_ = normalized_laplacian!(deepcopy(fg), T)
             @test graph(fg_).S ≈ T.(norm_lap)
             @test matrixtype(fg_) == :normalized
-            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in normalized Laplacian,\n)"
+            @test repr(fg_) == "FeaturedGraph:\n\tUndirected graph with (#V=4, #E=4) in normalized Laplacian"
 
             fg_ = scaled_laplacian!(deepcopy(fg), T)
             @test graph(fg_).S ≈ T.(scaled_lap)
             @test matrixtype(fg_) == :scaled
-            @test repr(fg_) == "FeaturedGraph(\n\tUndirected graph with (#V=4, #E=4) in scaled Laplacian,\n)"
+            @test repr(fg_) == "FeaturedGraph:\n\tUndirected graph with (#V=4, #E=4) in scaled Laplacian"
             
             RW = GraphSignals.random_walk_laplacian(adjm, T)
             @test RW == T.(rw_lap)
