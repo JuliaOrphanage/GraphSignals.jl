@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.12]
+
+- update docs
+
 ## [0.3.11]
 
 - inplace normalized adjacency matrix
