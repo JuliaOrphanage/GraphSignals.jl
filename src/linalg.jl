@@ -39,7 +39,7 @@ end
 
 
 """
-    degrees(g[, T]; dir=:out)
+    degrees(g, [T]; dir=:out)
 
 Degree of each vertex. Return a vector which contains the degree of each vertex in graph `g`.
 
@@ -57,7 +57,7 @@ julia> using GraphSignals
 
 julia> m = [0 1 1; 1 0 0; 1 0 0];
 
-julia> GraphLaplacians.degrees(m)
+julia> GraphSignals.degrees(m)
 3-element Vector{Int64}:
  2
  1
@@ -90,7 +90,7 @@ function degrees(g::AbstractGraph, T::DataType=eltype(g); dir::Symbol=:out)
 end
 
 """
-    degree_matrix(g[, T]; dir=:out)
+    degree_matrix(g, [T]; dir=:out)
 
 Degree matrix of graph `g`. Return a matrix which contains degrees of each vertex in its diagonal.
 The values other than diagonal are zeros.
@@ -134,7 +134,7 @@ end
 safe_inv(x::T) where {T} = ifelse(iszero(x), zero(T), inv(x))
 
 """
-    normalized_adjacency_matrix(g[, T]; selfloop=false)
+    normalized_adjacency_matrix(g, [T]; selfloop=false)
 
 Normalized adjacency matrix of graph `g`.
 
@@ -160,7 +160,7 @@ function normalized_adjacency_matrix(g::AbstractGraph, T::DataType=eltype(adj);
 end
 
 """
-    laplacian_matrix(g[, T]; dir=:out)
+    laplacian_matrix(g, [T]; dir=:out)
 
 Laplacian matrix of graph `g`.
 
@@ -175,7 +175,7 @@ Graphs.laplacian_matrix(adj::AbstractMatrix, T::DataType=eltype(adj); dir::Symbo
     degree_matrix(adj, T, dir=dir) - T.(adj)
 
 """
-    normalized_laplacian(g[, T]; dir=:both, selfloop=false)
+    normalized_laplacian(g, [T]; dir=:both, selfloop=false)
 
 Normalized Laplacian matrix of graph `g`.
 
@@ -208,7 +208,7 @@ function normalized_laplacian(g::AbstractGraph, T::DataType=float(eltype(g));
 end
 
 @doc raw"""
-    scaled_laplacian(g[, T])
+    scaled_laplacian(g, [T])
 
 Scaled Laplacien matrix of graph `g`,
 defined as ``\hat{L} = \frac{2}{\lambda_{max}} L - I`` where ``L`` is the normalized Laplacian matrix.
@@ -231,7 +231,7 @@ function scaled_laplacian(g::AbstractGraph, T::DataType=float(eltype(g)))
 end
 
 """
-    random_walk_laplacian(g[, T]; dir=:out)
+    random_walk_laplacian(g, [T]; dir=:out)
 
 Random walk normalized Laplacian matrix of graph `g`.
 
@@ -251,7 +251,7 @@ function random_walk_laplacian(adj::AbstractMatrix, T::DataType=eltype(adj); dir
 end
 
 """
-    signless_laplacian(g[, T]; dir=:out)
+    signless_laplacian(g, [T]; dir=:out)
 
 Signless Laplacian matrix of graph `g`.
 

@@ -11,7 +11,7 @@ Null object for `FeaturedGraph`.
 struct NullGraph <: AbstractFeaturedGraph end
 
 """
-    FeaturedGraph(g, [mt]; nf, ef, gf, directed)
+    FeaturedGraph(g, [mt]; directed=:auto, nf, ef, gf, T, N, E)
 
 A type representing a graph structure and storing also arrays 
 that contain features associated to nodes, edges, and the whole graph. 
@@ -19,7 +19,7 @@ that contain features associated to nodes, edges, and the whole graph.
 A `FeaturedGraph` can be constructed out of different objects `g` representing
 the connections inside the graph.
 When constructed from another featured graph `fg`, the internal graph representation
-is preserved and shared. 
+is preserved and shared.
 
 # Arguments
 
@@ -29,12 +29,16 @@ is preserved and shared.
     - A Graphs' graph, i.e. `SimpleGraph`, `SimpleDiGraph` from Graphs, or `SimpleWeightedGraph`,
         `SimpleWeightedDiGraph` from SimpleWeightedGraphs.
     - An `AbstractFeaturedGraph` object.
-- `mt`: matrix type for `g` in matrix form. if `graph` is in matrix form, `mt` is recorded as one of `:adjm`,
-    `:laplacian`, `:normalized` or `:scaled`.
+- `mt::Symbol`: Matrix type for `g` in matrix form. if `graph` is in matrix form, `mt` is recorded as one of `:adjm`,
+    `:normedadjm`, `:laplacian`, `:normalized` or `:scaled`.
+- `directed`: It specify that direction of a graph. It can be `:auto`, `:directed` and `:undirected`.
+    Default value is `:auto`, which infers direction automatically.
 - `nf`: Node features.
 - `ef`: Edge features.
 - `gf`: Global features.
-
+- `T`: It specifies the element type of graph. Default value is the element type of `g`.
+- `N`: Number of nodes for `g`.
+- `E`: Number of edges for `g`.
 
 # Usage
 
@@ -113,6 +117,41 @@ function FeaturedGraph(fg::FeaturedGraph; nf=node_feature(fg), ef=edge_feature(f
     return FeaturedGraph(graph(fg), nf, ef, gf, matrixtype(fg))
 end
 
+"""
+    ConcreteFeaturedGraph(fg; kwargs...)
+
+This is a syntax sugar for construction for `FeaturedGraph` and `FeaturedSubgraph` object.
+It is an idempotent operation, which gives the same type of object as inputs.
+It wraps input `fg` again but reconfigures with `kwargs`.
+
+# Arguments
+
+- `fg`: `FeaturedGraph` and `FeaturedSubgraph` object.
+
+# Usage
+
+```jldoctest
+julia> using GraphSignals
+
+julia> adjm = [0 1 1 1;
+               1 0 1 0;
+               1 1 0 1;
+               1 0 1 0];
+
+julia> nf = rand(10, 4);
+
+julia> fg = FeaturedGraph(adjm; nf=nf)
+FeaturedGraph:
+	Undirected graph with (#V=4, #E=5) in adjacency matrix
+	Node feature:	ℝ^10 <Matrix{Float64}>
+
+julia> ConcreteFeaturedGraph(fg, nf=rand(7, 4))
+FeaturedGraph:
+    Undirected graph with (#V=4, #E=5) in adjacency matrix
+    Node feature:	ℝ^7 <Matrix{Float64}>
+```
+
+"""
 ConcreteFeaturedGraph(fg::FeaturedGraph; kwargs...) = FeaturedGraph(fg; kwargs...)
 
 
@@ -147,13 +186,11 @@ end
 
 function Base.show(io::IO, fg::FeaturedGraph)
     direct = is_directed(fg) ? "Directed" : "Undirected"
-    println(io, "FeaturedGraph(")
-    print(io, "\t", direct, " graph with (#V=", nv(fg), ", #E=", ne(fg), ") in ")
-    println(io, matrixrepr(fg), ",")
-    has_node_feature(fg) && println(io, "\tNode feature:\tℝ^", nf_dims_repr(fg), " <", typeof(fg.nf), ">,")
-    has_edge_feature(fg) && println(io, "\tEdge feature:\tℝ^", ef_dims_repr(fg), " <", typeof(fg.ef), ">,")
-    has_global_feature(fg) && println(io, "\tGlobal feature:\tℝ^", gf_dims_repr(fg), " <", typeof(fg.gf), ">,")
-    print(io, ")")
+    println(io, "FeaturedGraph:")
+    print(io, "\t", direct, " graph with (#V=", nv(fg), ", #E=", ne(fg), ") in ", matrixrepr(fg))
+    has_node_feature(fg) && print(io, "\n\tNode feature:\tℝ^", nf_dims_repr(fg), " <", typeof(fg.nf), ">")
+    has_edge_feature(fg) && print(io, "\n\tEdge feature:\tℝ^", ef_dims_repr(fg), " <", typeof(fg.ef), ">")
+    has_global_feature(fg) && print(io, "\n\tGlobal feature:\tℝ^", gf_dims_repr(fg), " <", typeof(fg.gf), ">")
 end
 
 matrixrepr(fg::FeaturedGraph) = matrixrepr(Val(matrixtype(fg)))
@@ -187,9 +224,13 @@ function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
 end
 
 """
-    graph(::AbstractFeaturedGraph)
+    graph(fg)
 
-Get referenced graph.
+Get referenced graph in `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 graph(::NullGraph) = nothing
 graph(fg::FeaturedGraph) = fg.graph
@@ -197,33 +238,49 @@ graph(fg::FeaturedGraph) = fg.graph
 Base.parent(fg::FeaturedGraph) = fg
 
 """
-    node_feature(::AbstractFeaturedGraph)
+    node_feature(fg)
 
-Get node feature attached to graph.
+Get node feature attached to `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 node_feature(::NullGraph) = nothing
 node_feature(fg::FeaturedGraph) = fg.nf
 
 """
-    edge_feature(::AbstractFeaturedGraph)
+    edge_feature(fg)
 
-Get edge feature attached to graph.
+Get edge feature attached to `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 edge_feature(::NullGraph) = nothing
 edge_feature(fg::FeaturedGraph) = fg.ef
 
 """
-    global_feature(::AbstractFeaturedGraph)
+    global_feature(fg)
 
-Get global feature attached to graph.
+Get global feature attached to `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 global_feature(::NullGraph) = nothing
 global_feature(fg::FeaturedGraph) = fg.gf
 
 """
-    has_graph(::AbstractFeaturedGraph)
+    has_graph(fg)
 
-Check if graph is available or not.
+Check if `graph` is available or not for `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 has_graph(::NullGraph) = false
 has_graph(fg::FeaturedGraph) = fg.graph != Fill(0., (0,0))
@@ -231,7 +288,11 @@ has_graph(fg::FeaturedGraph) = fg.graph != Fill(0., (0,0))
 """
     has_node_feature(::AbstractFeaturedGraph)
 
-Check if node feature is available or not.
+Check if `node_feature` is available or not for `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 has_node_feature(::NullGraph) = false
 has_node_feature(fg::FeaturedGraph) = !isempty(fg.nf)
@@ -239,7 +300,11 @@ has_node_feature(fg::FeaturedGraph) = !isempty(fg.nf)
 """
     has_edge_feature(::AbstractFeaturedGraph)
 
-Check if edge feature is available or not.
+Check if `edge_feature` is available or not for `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 has_edge_feature(::NullGraph) = false
 has_edge_feature(fg::FeaturedGraph) = !isempty(fg.ef)
@@ -247,7 +312,11 @@ has_edge_feature(fg::FeaturedGraph) = !isempty(fg.ef)
 """
     has_global_feature(::AbstractFeaturedGraph)
 
-Check if global feature is available or not.
+Check if `global_feature` is available or not for `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 has_global_feature(::NullGraph) = false
 has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
@@ -256,17 +325,25 @@ has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
 ## Graph property
 
 """
-    nv(::AbstractFeaturedGraph)
+    nv(fg)
 
-Get node number of graph.
+Get node number of graph in `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 Graphs.nv(::NullGraph) = 0
 Graphs.nv(fg::FeaturedGraph) = nv(graph(fg))
 
 """
-    ne(::AbstractFeaturedGraph)
+    ne(fg)
 
-Get edge number of graph.
+Get edge number of in `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 Graphs.ne(::NullGraph) = 0
 Graphs.ne(fg::FeaturedGraph) = ne(graph(fg))
@@ -288,9 +365,13 @@ repeat_nodes(fg::FeaturedGraph) = colvals(sparse(graph(fg)))
 ## Graph representations
 
 """
-    adjacency_list(::AbstractFeaturedGraph)
+    adjacency_list(fg)
 
-Get adjacency list of graph.
+Get adjacency list of graph in `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 adjacency_list(::NullGraph) = [zeros(0)]
 adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
