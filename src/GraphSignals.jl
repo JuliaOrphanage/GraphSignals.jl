@@ -64,6 +64,7 @@ export
 
 include("graph.jl")
 include("linalg.jl")
+include("sparsematrix.jl")
 include("sparsegraph.jl")
 
 include("featuredgraph.jl")
