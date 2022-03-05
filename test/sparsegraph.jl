@@ -60,13 +60,10 @@
         @test edge_index(sg, 1, 5) == 4
         @test sg[1, 5] == 1
         @test sg[CartesianIndex((1, 5))] == 1
-        @test collect(edges(sg)) == [
-            (1, (2, 1)),
-            (2, (3, 3)),
-            (3, (4, 1)),
-            (4, (5, 1)),
-            (5, (5, 4)),
-        ]
+        es, nbrs, xs = collect(edges(sg))
+        @test es == [1, 3, 4, 1, 2, 3, 5, 4, 5]
+        @test nbrs == [2, 4, 5, 1, 3, 1, 5, 1, 4]
+        @test xs == [1, 1, 1, 2, 3, 4, 4, 5, 5]
         @test GraphSignals.edgevals(sg) == sg.edges
         @test GraphSignals.edgevals(sg, 1) == sg.edges[1:3]
         @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:4]
@@ -161,15 +158,10 @@
         @test edge_index(sg, 3, 1) == 3
         @test sg[1, 3] == 1
         @test sg[CartesianIndex((1, 3))] == 1
-        @test collect(edges(sg)) == [
-            (1, (2, 1)),
-            (2, (5, 1)),
-            (3, (1, 3)),
-            (4, (4, 3)),
-            (5, (4, 4)),
-            (6, (1, 5)),
-            (7, (4, 5)),
-        ]
+        es, nbrs, xs = collect(edges(sg))
+        @test es == collect(1:7)
+        @test nbrs == [2, 5, 1, 4, 4, 1, 4]
+        @test xs == [1, 1, 3, 3, 4, 5, 5]
         @test GraphSignals.edgevals(sg) == sg.edges
         @test GraphSignals.edgevals(sg, 1) == sg.edges[1:2]
         @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:2]
