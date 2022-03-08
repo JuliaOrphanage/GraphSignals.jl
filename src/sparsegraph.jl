@@ -18,10 +18,17 @@ SparseArrays.nzvalview(S::SparseCSC, I::UnitRange) = view(nonzeros(S), SparseArr
 
 
 """
-    SparseGraph(A, directed)
+    SparseGraph(A, directed, [T])
 
 A sparse graph structure represents by sparse matrix.
-A directed graph is represented by a sparse matrix, of which column index as source node index and row index as sink node index.
+A directed graph is represented by a sparse matrix, of which column
+index as source node index and row index as sink node index.
+
+# Arguments
+
+- `A`: Adjacency matrix.
+- `directed`: If this is a directed graph or not.
+- `T`: Element type for `SparseGraph`.
 """
 struct SparseGraph{D,M,V,T} <: AbstractGraph{Int}
     S::M
@@ -42,7 +49,7 @@ function SparseGraph(
     ) where {Tv,Ti,T}
     E = length(unique(edges))
     spA = (Tv === T) ? SparseMatrixCSC{Tv,Ti}(A) : SparseMatrixCSC{T,Ti}(A)
-    return SparseGraph{directed,typeof(spA),typeof(edges),typeof(E)}(spA, edges, E)
+    return SparseGraph{directed}(spA, edges, E)
 end
 
 SparseGraph(A::SparseCSC, directed::Bool, ::Type{T}=eltype(A)) where {T} =
@@ -453,8 +460,9 @@ struct EdgeIter{G,S}
     end
 end
 
+graph(iter::EdgeIter) = iter.sg
 Graphs.edges(sg::SparseGraph) = EdgeIter(sg)
-Base.length(iter::EdgeIter) = iter.sg.E
+Base.length(iter::EdgeIter) = nnz(sparse(graph(iter)))
 
 function Base.iterate(iter::EdgeIter, (el, i)=(iter.start, 1))
     next_i = i + 1

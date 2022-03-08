@@ -1,7 +1,8 @@
 @testset "subgraph" begin
     T = Float64
     V = 5
-    nf = rand(3, V)
+    vdim = 3
+    nf = rand(vdim, V)
     gf = rand(7)
 
     nodes = [1,2,3,5]
@@ -33,6 +34,12 @@
         @test node_feature(subg) == nf
         @test edge_feature(subg) == ef
         @test global_feature(subg) == gf
+
+        new_nf = rand(vdim, V)
+        new_subg = ConcreteFeaturedGraph(subg, nf=new_nf)
+        @test node_feature(new_subg) == new_nf
+        @test edge_feature(new_subg) == ef
+        @test global_feature(new_subg) == gf
 
         @test vertices(subg) == nodes
         @test edges(subg) == [1,2,5]

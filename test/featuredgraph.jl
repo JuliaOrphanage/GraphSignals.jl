@@ -48,6 +48,12 @@
         @test node_feature(fg2) == nf
         @test edge_feature(fg2) == ef
         @test global_feature(fg2) == gf
+
+        new_nf = rand(vdim, V)
+        new_fg = ConcreteFeaturedGraph(fg, nf=new_nf)
+        @test node_feature(new_fg) == new_nf
+        @test edge_feature(new_fg) == ef
+        @test global_feature(new_fg) == gf
     
         # Test with transposed features
         nf_t = rand(V, vdim)'
@@ -101,6 +107,7 @@
 
         fg = FeaturedGraph(adjm)
         @test vertices(fg) == 1:V
+        @test edges(fg) isa GraphSignals.EdgeIter
         @test neighbors(fg) == [2, 3, 4, 1, 3, 1, 2, 4, 1, 3]
         @test incident_edges(fg) == fg |> graph |> GraphSignals.edgevals
         @test GraphSignals.repeat_nodes(fg) == [1, 1, 1, 2, 2, 3, 3, 3, 4, 4]
