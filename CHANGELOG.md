@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.13]
+
+- fix collect for edges
+
 ## [0.3.12]
 
 - update docs
