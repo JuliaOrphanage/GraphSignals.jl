@@ -1,3 +1,5 @@
+abstract type AbstractSparseGraph <: AbstractGraph{Int} end
+
 """
     SparseGraph(A, directed, [T])
 
@@ -11,7 +13,7 @@ index as source node index and row index as sink node index.
 - `directed`: If this is a directed graph or not.
 - `T`: Element type for `SparseGraph`.
 """
-struct SparseGraph{D,M,V,T} <: AbstractGraph{Int}
+struct SparseGraph{D,M,V,T} <: AbstractSparseGraph
     S::M
     edges::V
     E::T
@@ -72,19 +74,33 @@ end
 @functor SparseGraph{true}
 @functor SparseGraph{false}
 
-SparseArrays.sparse(sg::SparseGraph) = sg.S
+struct SparseSubgraph{G<:AbstractSparseGraph,T} <: AbstractSparseGraph
+    sg::G
+    nodes::T
+end
 
-Base.collect(sg::SparseGraph) = collect(sparse(sg))
+@functor SparseSubgraph
+
+SparseArrays.sparse(sg::SparseGraph) = sg.S
+SparseArrays.sparse(ss::SparseSubgraph) = sparse(ss.sg)[ss.nodes, ss.nodes]
+
+Base.collect(sg::AbstractSparseGraph) = collect(sparse(sg))
 
 Base.show(io::IO, sg::SparseGraph) =
     print(io, "SparseGraph{", eltype(sg), "}(#V=", nv(sg), ", #E=", ne(sg), ")")
+Base.show(io::IO, ss::SparseSubgraph) =
+    print(io, "subgraph of ", ss.sg, " with nodes=$(ss.nodes)")
 
 Graphs.nv(sg::SparseGraph) = size(sparse(sg), 1)
+Graphs.nv(ss::SparseSubgraph) = length(ss.nodes)
 
 Graphs.ne(sg::SparseGraph) = sg.E
+# Graphs.ne(ss::SparseSubgraph) = 
 
 Graphs.is_directed(::SparseGraph{G}) where {G} = G
 Graphs.is_directed(::Type{<:SparseGraph{G}}) where {G} = G
+Graphs.is_directed(ss::SparseSubgraph) = is_directed(ss.sg)
+Graphs.is_directed(::Type{<:SparseSubgraph{G}}) where {G} = is_directed(G)
 
 function Graphs.has_self_loops(sg::SparseGraph)
     for i in vertices(sg)
@@ -93,20 +109,37 @@ function Graphs.has_self_loops(sg::SparseGraph)
     return false
 end
 
+function Graphs.has_self_loops(ss::SparseSubgraph)
+    for i in vertices(ss)
+        (i in rowvalview(sparse(ss.sg), i)) && return true
+    end
+    return false
+end
+
 Base.eltype(sg::SparseGraph) = eltype(sparse(sg))
+Base.eltype(ss::SparseSubgraph) = eltype(ss.sg)
 
 Graphs.has_vertex(sg::SparseGraph, i::Integer) = 1 <= i <= nv(sg)
+Graphs.has_vertex(ss::SparseSubgraph, i::Integer) = (i in ss.nodes)
 
 Graphs.vertices(sg::SparseGraph) = 1:nv(sg)
+Graphs.vertices(ss::SparseSubgraph) = ss.nodes
 
-Graphs.edgetype(::SparseGraph) = Tuple{Int, Int}
+Graphs.edgetype(::AbstractSparseGraph) = Tuple{Int, Int}
 
 Graphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = j ∈ SparseArrays.rowvals(sparse(sg), i)
+Graphs.has_edge(ss::SparseSubgraph, i::Integer, j::Integer) =
+    (i in ss.nodes && j in ss.nodes && has_edge(ss.sg, i, j))
 
 Base.:(==)(sg1::SparseGraph, sg2::SparseGraph) =
     sg1.E == sg2.E && sg1.edges == sg2.edges && sg1.S == sg2.S
+Base.:(==)(ss1::SparseSubgraph, ss2::SparseSubgraph) =
+    ss1.nodes == ss2.nodes && ss1.sg == ss2.sg
 
 graph(sg::SparseGraph) = sg
+
+subgraph(sg::AbstractSparseGraph, nodes::AbstractVector) = SparseSubgraph(sg, nodes)
+subgraph(ss::SparseSubgraph, nodes::AbstractVector) = SparseSubgraph(ss.sg, nodes)
 
 edgevals(sg::SparseGraph) = sg.edges
 edgevals(sg::SparseGraph, col::Integer) = view(sg.edges, SparseArrays.getcolptr(sparse(sg), col))
@@ -189,8 +222,10 @@ function incident_inedges(sg::SparseGraph{true,M,V}, i) where {M,V}
 end
 
 Base.getindex(sg::SparseGraph, ind...) = getindex(sparse(sg), ind...)
+# Base.getindex(ss::SparseSubgraph, ind...) = 
 
 edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sparse(sg), j, i)]
+# edge_index(ss::SparseSubgraph, i, j) = 
 
 """
 Transform a CSC-based edge index `edges[eidx]` into a regular cartesian index `A[i, j]`.

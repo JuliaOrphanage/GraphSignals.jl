@@ -54,6 +54,7 @@
         @test Graphs.has_self_loops(sg)
         @test !Graphs.has_self_loops(SparseGraph([0 1; 1 0], false, T))
         @test sg == SparseGraph(adjm, false, T)
+        @test graph(sg) == sg
 
         @test Graphs.has_vertex(sg, 3)
         @test Graphs.vertices(sg) == 1:V
@@ -82,6 +83,32 @@
         @test GraphSignals.aggregate_index(sg, :vertex, :outward) == [[2, 4, 5], [1], [3], [1, 5], [1, 4]]
         @test_throws ArgumentError GraphSignals.aggregate_index(sg, :edge, :in)
         @test_throws ArgumentError GraphSignals.aggregate_index(sg, :foo, :inward)
+
+        @testset "subgraph" begin
+            nodes = [1, 2, 4, 5]
+            ss = subgraph(sg, nodes)
+            @test nv(ss) == length(nodes)
+            @test_skip ne(ss) == 4
+            @test !Graphs.is_directed(ss)
+            @test !Graphs.is_directed(typeof(ss))
+            @test eltype(sg) == T
+            @test repr(ss) == "subgraph of SparseGraph{Float32}(#V=5, #E=5) with nodes=[1, 2, 4, 5]"
+            @test !Graphs.has_self_loops(ss)
+            @test sparse(ss) == [0 1 1 1;
+                                 1 0 0 0;
+                                 1 0 0 1;
+                                 1 0 1 0]
+        
+            @test !Graphs.has_vertex(ss, 3)
+            @test Graphs.vertices(ss) == nodes
+            @test Graphs.edgetype(ss) == typeof((1, 5))
+            @test Graphs.has_edge(ss, 1, 5)
+            @test_skip edge_index(ss, 1, 5) == 4
+            @test_skip ss[1, 5] == 1
+            @test_skip ss[CartesianIndex((1, 5))] == 1
+
+            @test subgraph(ss, [1, 4, 5]) == subgraph(sg, [1, 4, 5])
+        end
     end
 
     @testset "directed graph" begin

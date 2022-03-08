@@ -37,7 +37,9 @@ export
     adjacency_list,
 
     # sparsegraph
+    AbstractSparseGraph,
     SparseGraph,
+    SparseSubgraph,
     incident_edges,
     edge_index,
 
