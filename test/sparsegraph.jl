@@ -52,6 +52,8 @@
         @test !Graphs.is_directed(typeof(sg))
         @test repr(sg) == "SparseGraph{Float32}(#V=5, #E=5)"
         @test Graphs.has_self_loops(sg)
+        @test !Graphs.has_self_loops(SparseGraph([0 1; 1 0], false, T))
+        @test sg == SparseGraph(adjm, false, T)
 
         @test Graphs.has_vertex(sg, 3)
         @test Graphs.vertices(sg) == 1:V
@@ -60,13 +62,11 @@
         @test edge_index(sg, 1, 5) == 4
         @test sg[1, 5] == 1
         @test sg[CartesianIndex((1, 5))] == 1
-        @test collect(edges(sg)) == [
-            (1, (2, 1)),
-            (2, (3, 3)),
-            (3, (4, 1)),
-            (4, (5, 1)),
-            (5, (5, 4)),
-        ]
+        @test length(edges(sg)) == 9
+        es, nbrs, xs = collect(edges(sg))
+        @test es == [1, 3, 4, 1, 2, 3, 5, 4, 5]
+        @test nbrs == [2, 4, 5, 1, 3, 1, 5, 1, 4]
+        @test xs == [1, 1, 1, 2, 3, 4, 4, 5, 5]
         @test GraphSignals.edgevals(sg) == sg.edges
         @test GraphSignals.edgevals(sg, 1) == sg.edges[1:3]
         @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:4]
@@ -153,6 +153,7 @@
         @test Graphs.is_directed(typeof(sg))
         @test repr(sg) == "SparseGraph{Float32}(#V=5, #E=7)"
         @test Graphs.has_self_loops(sg)
+        @test sg == SparseGraph(adjm, true, T)
 
         @test Graphs.has_vertex(sg, 3)
         @test Graphs.vertices(sg) == 1:V
@@ -161,15 +162,11 @@
         @test edge_index(sg, 3, 1) == 3
         @test sg[1, 3] == 1
         @test sg[CartesianIndex((1, 3))] == 1
-        @test collect(edges(sg)) == [
-            (1, (2, 1)),
-            (2, (5, 1)),
-            (3, (1, 3)),
-            (4, (4, 3)),
-            (5, (4, 4)),
-            (6, (1, 5)),
-            (7, (4, 5)),
-        ]
+        @test length(edges(sg)) == E
+        es, nbrs, xs = collect(edges(sg))
+        @test es == collect(1:7)
+        @test nbrs == [2, 5, 1, 4, 4, 1, 4]
+        @test xs == [1, 1, 3, 3, 4, 5, 5]
         @test GraphSignals.edgevals(sg) == sg.edges
         @test GraphSignals.edgevals(sg, 1) == sg.edges[1:2]
         @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:2]
