@@ -40,8 +40,6 @@ export
     SparseGraph,
     incident_edges,
     edge_index,
-    edge_scatter,
-    neighbor_scatter,
 
     # linalg
     laplacian_matrix,
@@ -66,9 +64,7 @@ include("graph.jl")
 include("linalg.jl")
 include("sparsematrix.jl")
 include("sparsegraph.jl")
-
 include("featuredgraph.jl")
-include("utils.jl")
 
 include("cuda.jl")
 

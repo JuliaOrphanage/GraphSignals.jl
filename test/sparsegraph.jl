@@ -82,21 +82,6 @@
         @test GraphSignals.aggregate_index(sg, :vertex, :outward) == [[2, 4, 5], [1], [3], [1, 5], [1, 4]]
         @test_throws ArgumentError GraphSignals.aggregate_index(sg, :edge, :in)
         @test_throws ArgumentError GraphSignals.aggregate_index(sg, :foo, :inward)
-
-        @testset "scatter" begin
-            vdim = 5
-            edim = 7
-            nf = rand(vdim, V)
-            ef = rand(edim, E)
-
-            @test size(edge_scatter(+, ef, sg)) == (edim, V)
-            X = neighbor_scatter(+, nf, sg, direction=:undirected)
-            @test size(X) == (vdim, V)
-            @test X[:,1] == vec(sum(nf[:, [2, 4, 5]], dims=2))
-
-            gradtest(x -> edge_scatter(+, x, sg), ef)
-            gradtest(x -> neighbor_scatter(+, x, sg, direction=:undirected), nf)
-        end
     end
 
     @testset "directed graph" begin
@@ -183,26 +168,5 @@
         @test GraphSignals.aggregate_index(sg, :edge, :outward) == [1, 1, 3, 3, 4, 5, 5]
         @test GraphSignals.aggregate_index(sg, :vertex, :inward) == [[2, 5], [], [1, 4], [4], [1, 4]]
         @test GraphSignals.aggregate_index(sg, :vertex, :outward) == [[3, 5], [1], [], [3, 4, 5], [1]]
-
-        @testset "scatter" begin
-            vdim = 5
-            edim = 7
-            nf = rand(vdim, V)
-            ef = rand(edim, E)
-
-            @test size(edge_scatter(+, ef, sg, direction=:inward)) == (edim, V)
-            @test size(edge_scatter(+, ef, sg, direction=:outward)) == (edim, V)
-            X = neighbor_scatter(+, nf, sg, direction=:inward)
-            @test size(X) == (vdim, V)
-            @test X[:,1] == vec(sum(nf[:, [2, 5]], dims=2))
-            X = neighbor_scatter(+, nf, sg, direction=:outward)
-            @test size(X) == (vdim, V)
-            @test X[:,1] == vec(sum(nf[:, [3, 5]], dims=2))
-
-            gradtest(x -> edge_scatter(+, x, sg, direction=:inward), ef)
-            gradtest(x -> edge_scatter(+, x, sg, direction=:outward), ef)
-            gradtest(x -> neighbor_scatter(+, x, sg, direction=:inward), nf)
-            gradtest(x -> neighbor_scatter(+, x, sg, direction=:outward), nf)
-        end
     end
 end

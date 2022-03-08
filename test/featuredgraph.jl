@@ -110,18 +110,6 @@
         @test edges(fg) isa GraphSignals.EdgeIter
         @test neighbors(fg) == [2, 3, 4, 1, 3, 1, 2, 4, 1, 3]
         @test incident_edges(fg) == fg |> graph |> GraphSignals.edgevals
-        @test GraphSignals.repeat_nodes(fg) == [1, 1, 1, 2, 2, 3, 3, 3, 4, 4]
-    end
-
-    @testset "scatter" begin
-        adjm = [0 1 1 1;
-                1 0 1 0;
-                1 1 0 1;
-                1 0 1 0]
-
-        fg = FeaturedGraph(adjm; nf=nf, ef=ef, gf=gf)
-        @test size(edge_scatter(fg, +, direction=:undirected)) == (edim, V)
-        @test size(neighbor_scatter(fg, +, direction=:undirected)) == (vdim, V)
     end
 
     @testset "random subgraph" begin
