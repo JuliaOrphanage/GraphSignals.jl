@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0]
+
+- add `SparseSubgraph`
+- relax `FeaturedGraph`
+- drop support of `edge_scatter`, `neighbor_scatter`, `repeat_nodes` and `promote_graph`
+
 ## [0.3.13]
 
 - fix collect for edges
