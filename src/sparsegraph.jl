@@ -192,8 +192,6 @@ Base.getindex(sg::SparseGraph, ind...) = getindex(sparse(sg), ind...)
 
 edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sparse(sg), j, i)]
 
-repeat_nodes(sg::SparseGraph, i::Int) = repeat([i], length(neighbors(sg, i)))
-
 """
 Transform a CSC-based edge index `edges[eidx]` into a regular cartesian index `A[i, j]`.
 """
@@ -266,62 +264,6 @@ end
 function aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:outward})
     # for undirected graph, upper traingle of matrix is considered only.
     return [neighbors(sg, i, dir=:in) for i in 1:nv(sg)]
-end
-
-
-"""
-    edge_scatter(aggr, E, sg, direction=:outward)
-
-Scatter operation for aggregating edge feature into vertex feature.
-
-# Arguments
-
-- `aggr`: aggregating operators, e.g. `+`.
-- `E`: Edge features of dimension (#feature, #edge).
-- `sg::SparseGraph`: The reference graph.
-- `direction::Symbol`: The direction of an edge to be choose to aggregate.
-    It must be one of `:undirected`, `:inward` and `:outward`.
-"""
-function edge_scatter(aggr, E::AbstractArray, sg::SparseGraph{D}; direction::Symbol=:outward) where {D}
-    if direction == :undirected || !D
-        idx1 = aggregate_index(sg, :edge, :outward)
-        idx2 = aggregate_index(sg, :edge, :inward)
-        # idx may be incomplelely cover all index, this may cause some bug which makes dst shorter than expect
-        # currently, scatter idx1 first can avoid this condition
-        dst = NNlib.scatter(aggr, E, idx1)
-        return NNlib.scatter!(aggr, dst, E, idx2)
-    else
-        idx = aggregate_index(sg, :edge, direction)
-        return NNlib.scatter(aggr, E, idx)
-    end
-end
-
-"""
-    neighbor_scatter(aggr, X, sg, direction=:outward)
-
-Scatter operation for aggregating neighbor vertex feature together.
-
-# Arguments
-
-- `aggr`: aggregating operators, e.g. `+`.
-- `X`: Vertex features of dimension (#feature, #vertex).
-- `sg::SparseGraph`: The reference graph.
-- `direction::Symbol`: The direction of an edge to be choose to aggregate.
-    It must be one of `:undirected`, `:inward` and `:outward`.
-"""
-function neighbor_scatter(aggr, X::AbstractArray, sg::SparseGraph; direction::Symbol=:outward)
-    direction == :undirected && (direction = :outward)
-    idx = aggregate_index(sg, :vertex, direction)
-    Ys = [neighbor_features(aggr, X, idx[i]) for i = 1:length(idx)]
-    return hcat(Ys...)
-end
-
-function neighbor_features(aggr, X::AbstractArray{T}, idx) where {T}
-    if isempty(idx)
-        return fill(NNlib.scatter_empty(aggr, T), size(X, 1))
-    else
-        return mapreduce(j -> view(X,:,j), (x, y) -> aggr.(x, y), collect(idx))
-    end
 end
 
 

@@ -359,8 +359,6 @@ Graphs.has_edge(fg::FeaturedGraph, i::Integer, j::Integer) = has_edge(graph(fg),
 
 incident_edges(fg::FeaturedGraph) = incident_edges(graph(fg))
 
-repeat_nodes(fg::FeaturedGraph) = colvals(sparse(graph(fg)))
-
 
 ## Graph representations
 
@@ -433,19 +431,6 @@ function scaled_laplacian!(fg::FeaturedGraph, T::DataType=eltype(graph(fg)))
         fg.matrix_type = :scaled
     end
     fg
-end
-
-
-## scatter
-
-function edge_scatter(fg::FeaturedGraph, aggr; direction::Symbol=:outward)
-    is_directed(fg) || (direction = :undirected)
-    return edge_scatter(aggr, edge_feature(fg), fg.graph, direction=direction)
-end
-
-function neighbor_scatter(fg::FeaturedGraph, aggr; direction::Symbol=:outward)
-    is_directed(fg) || (direction = :undirected)
-    return neighbor_scatter(aggr, node_feature(fg), fg.graph, direction=direction)
 end
 
 

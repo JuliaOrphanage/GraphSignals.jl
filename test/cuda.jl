@@ -48,7 +48,6 @@
             @test collect(GraphSignals.aggregate_index(sg, :edge, :inward)) == [1, 3, 1, 1, 4]
             @test collect(GraphSignals.aggregate_index(sg, :edge, :outward)) == [2, 3, 4, 5, 5]
             @test_throws ArgumentError GraphSignals.aggregate_index(sg, :edge, :in)
-            @test size(edge_scatter(+, ef, sg)) == (10, V)
             @test random_walk(sg, 1) ⊆ [2, 4, 5]
             @test neighbor_sample(sg, 1) ⊆ [2, 4, 5]
         end
@@ -85,8 +84,6 @@
             @test collect(neighbors(sg, 3)) == adjl[3]
             @test Array(GraphSignals.aggregate_index(sg, :edge, :inward)) == [2, 5, 1, 4, 4, 1, 4]
             @test Array(GraphSignals.aggregate_index(sg, :edge, :outward)) == [1, 1, 3, 3, 4, 5, 5]
-            @test size(edge_scatter(+, ef, sg, direction=:inward)) == (10, V)
-            @test size(edge_scatter(+, ef, sg, direction=:outward)) == (10, V)
             @test random_walk(sg, 1) ⊆ [2, 5]
             @test neighbor_sample(sg, 1) ⊆ [2, 5]
         end
