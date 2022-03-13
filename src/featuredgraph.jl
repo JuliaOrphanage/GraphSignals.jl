@@ -73,12 +73,12 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg} <: AbstractFeaturedGraph
     matrix_type::Symbol
 
     function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg,
-                           mt::Symbol) where {Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
+                           mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray}
         mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
         new{typeof(graph),Tn,Te,Tg}(graph, nf, ef, gf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg}(graph, nf, ef, gf, mt
-            ) where {T,Tn<:AbstractMatrix,Te<:AbstractMatrix,Tg<:AbstractVector}
+            ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray}
         mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
         new{T,Tn,Te,Tg}(T(graph), Tn(nf), Te(ef), Tg(gf), mt)
     end
@@ -169,8 +169,8 @@ function check_num_edges(graph_ne::Real, E::Real)
     end
 end
 
-check_num_nodes(graph_nv::Real, nf) = check_num_nodes(graph_nv, size(nf, ndims(nf)))
-check_num_edges(graph_ne::Real, ef) = check_num_edges(graph_ne, size(ef, ndims(ef)))
+check_num_nodes(graph_nv::Real, nf) = check_num_nodes(graph_nv, size(nf, 2))
+check_num_edges(graph_ne::Real, ef) = check_num_edges(graph_ne, size(ef, 2))
 
 check_num_nodes(g, nf) = check_num_nodes(nv(g), nf)
 check_num_edges(g, ef) = check_num_edges(ne(g), ef)
