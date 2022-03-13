@@ -2,7 +2,7 @@ module GraphSignals
 
 using LinearAlgebra
 using SparseArrays
-using SparseArrays: AbstractSparseMatrixCSC
+using SparseArrays
 
 using CUDA
 using CUDA.CUSPARSE
