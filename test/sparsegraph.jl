@@ -53,6 +53,8 @@
         @test repr(sg) == "SparseGraph{Float32}(#V=5, #E=5)"
         @test Graphs.has_self_loops(sg)
         @test !Graphs.has_self_loops(SparseGraph([0 1; 1 0], false, T))
+        @test !GraphSignals.has_all_self_loops(sg)
+        @test GraphSignals.has_all_self_loops(SparseGraph([1 1; 1 1], false, T))
         @test sg == SparseGraph(adjm, false, T)
         @test graph(sg) == sg
 
@@ -94,6 +96,7 @@
             @test eltype(sg) == T
             @test repr(ss) == "subgraph of SparseGraph{Float32}(#V=5, #E=5) with nodes=[1, 2, 4, 5]"
             @test !Graphs.has_self_loops(ss)
+            @test !GraphSignals.has_all_self_loops(ss)
             @test sparse(ss) == [0 1 1 1;
                                  1 0 0 0;
                                  1 0 0 1;
@@ -165,6 +168,7 @@
         @test Graphs.is_directed(typeof(sg))
         @test repr(sg) == "SparseGraph{Float32}(#V=5, #E=7)"
         @test Graphs.has_self_loops(sg)
+        @test !GraphSignals.has_all_self_loops(sg)
         @test sg == SparseGraph(adjm, true, T)
 
         @test Graphs.has_vertex(sg, 3)

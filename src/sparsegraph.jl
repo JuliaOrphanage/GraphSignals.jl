@@ -102,18 +102,18 @@ Graphs.is_directed(::Type{<:SparseGraph{G}}) where {G} = G
 Graphs.is_directed(ss::SparseSubgraph) = is_directed(ss.sg)
 Graphs.is_directed(::Type{<:SparseSubgraph{G}}) where {G} = is_directed(G)
 
-function Graphs.has_self_loops(sg::SparseGraph)
+function Graphs.has_self_loops(sg::AbstractSparseGraph)
     for i in vertices(sg)
-        (i in rowvalview(sparse(sg), i)) && return true
+        isneighbor(graph(sg), i, i) && return true
     end
     return false
 end
 
-function Graphs.has_self_loops(ss::SparseSubgraph)
-    for i in vertices(ss)
-        (i in rowvalview(sparse(ss.sg), i)) && return true
+function has_all_self_loops(sg::AbstractSparseGraph)
+    for i in vertices(sg)
+        isneighbor(graph(sg), i, i) || return false
     end
-    return false
+    return true
 end
 
 Base.eltype(sg::SparseGraph) = eltype(sparse(sg))
@@ -127,7 +127,7 @@ Graphs.vertices(ss::SparseSubgraph) = ss.nodes
 
 Graphs.edgetype(::AbstractSparseGraph) = Tuple{Int, Int}
 
-Graphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = j ∈ SparseArrays.rowvals(sparse(sg), i)
+Graphs.has_edge(sg::SparseGraph, i::Integer, j::Integer) = j ∈ outneighbors(sg, i)
 Graphs.has_edge(ss::SparseSubgraph, i::Integer, j::Integer) =
     (i in ss.nodes && j in ss.nodes && has_edge(ss.sg, i, j))
 
@@ -137,9 +137,9 @@ Base.:(==)(ss1::SparseSubgraph, ss2::SparseSubgraph) =
     ss1.nodes == ss2.nodes && ss1.sg == ss2.sg
 
 graph(sg::SparseGraph) = sg
+graph(ss::SparseSubgraph) = ss.sg
 
-subgraph(sg::AbstractSparseGraph, nodes::AbstractVector) = SparseSubgraph(sg, nodes)
-subgraph(ss::SparseSubgraph, nodes::AbstractVector) = SparseSubgraph(ss.sg, nodes)
+subgraph(sg::AbstractSparseGraph, nodes::AbstractVector) = SparseSubgraph(graph(sg), nodes)
 
 edgevals(sg::SparseGraph) = sg.edges
 edgevals(sg::SparseGraph, col::Integer) = view(sg.edges, SparseArrays.getcolptr(sparse(sg), col))
@@ -157,7 +157,7 @@ Return the neighbors of vertex `i` in sparse graph `sg`.
 """
 Graphs.neighbors(sg::SparseGraph{false}; dir::Symbol=:out) = rowvals(sparse(sg))
 
-Graphs.neighbors(sg::SparseGraph{false}, i::Integer; dir::Symbol=:out) = rowvalview(sparse(sg), i)
+Graphs.neighbors(sg::SparseGraph{false}, i::Integer; dir::Symbol=:out) = outneighbors(sg, i)
 
 function Graphs.neighbors(sg::SparseGraph{true}, i::Integer; dir::Symbol=:out)
     if dir == :out
@@ -171,16 +171,17 @@ function Graphs.neighbors(sg::SparseGraph{true}, i::Integer; dir::Symbol=:out)
     end
 end
 
-Graphs.outneighbors(sg::SparseGraph{true}, i::Integer) = rowvalview(sparse(sg), i)
+Graphs.outneighbors(sg::SparseGraph, i::Integer) = rowvalview(sparse(sg), i)
 
-function Graphs.inneighbors(sg::SparseGraph{true}, i::Integer)
-    S = sparse(sg)
-    mask = [i in rowvalview(S, j) for j in 1:size(S, 2)]
+function Graphs.inneighbors(sg::SparseGraph, i::Integer)
+    mask = map(j -> isneighbor(sg, i, j), vertices(sg))
     return findall(mask)
 end
 
 noutneighbors(sg::SparseGraph, i) =
     length(SparseArrays.getcolptr(SparseMatrixCSC(sparse(sg)), i))
+
+isneighbor(sg::SparseGraph, j, i) = any(j .== outneighbors(sg, i))
 
 """
     incident_edges(sg, i)
@@ -213,8 +214,8 @@ incident_outedges(sg::SparseGraph{true}, i) = edgevals(sg, i)
 function incident_inedges(sg::SparseGraph{true,M,V}, i) where {M,V}
     S = sparse(sg)
     inedges = V()
-    for j in 1:size(S, 2)
-        mask = i in rowvalview(S, j)
+    for j in vertices(sg)
+        mask = isneighbor(sg, i, j)
         edges = edgevals(sg, j)
         append!(inedges, edges[findall(mask)])
     end
@@ -272,7 +273,7 @@ function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:inward})
     # for undirected graph, upper traingle of matrix is considered only.
     S = sparse(sg)
     res = Int[]
-    for j in 1:size(S, 2)
+    for j in vertices(sg)
         r = rowvalview(S, j)
         r = view(r, r .≤ j)
         append!(res, r)
@@ -283,28 +284,24 @@ end
 # for undirected graph, upper traingle of matrix is considered only.
 aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward}) = colvals(sparse(sg), upper_traingle=true)
 
-function aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:inward})
-    return [neighbors(sg, i, dir=:out) for i in 1:nv(sg)]
-end
+aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:inward}) =
+    map(i -> outneighbors(sg, i), vertices(sg))
 
-function aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:outward})
-    return [neighbors(sg, i, dir=:in) for i in 1:nv(sg)]
-end
+aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:outward}) =
+    map(i -> inneighbors(sg, i), vertices(sg))
 
-function aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:inward})
-    # for undirected graph, upper traingle of matrix is considered only.
-    return [neighbors(sg, i, dir=:out) for i in 1:nv(sg)]
-end
+# for undirected graph, upper traingle of matrix is considered only.
+aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:inward}) =
+    map(i -> outneighbors(sg, i), vertices(sg))
 
-function aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:outward})
-    # for undirected graph, upper traingle of matrix is considered only.
-    return [neighbors(sg, i, dir=:in) for i in 1:nv(sg)]
-end
+# for undirected graph, upper traingle of matrix is considered only.
+aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:outward}) =
+    map(i -> inneighbors(sg, i), vertices(sg))
 
 
 ## Graph representations
 
-adjacency_list(sg::SparseGraph) = [SparseArrays.rowvals(sparse(sg), j) for j in 1:size(sparse(sg), 2)]
+adjacency_list(sg::SparseGraph) = map(j -> outneighbors(sg, j), vertices(sg))
 adjacency_matrix(sg::SparseGraph) = adjacency_matrix(sparse(sg))
 
 
