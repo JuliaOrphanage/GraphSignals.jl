@@ -332,14 +332,18 @@ struct EdgeIter{G,S}
     start::S
 
     function EdgeIter(sg::SparseGraph)
-        S = SparseMatrixCSC(sparse(sg))
-        j = 1
-        while 1 > length(SparseArrays.getcolptr(S, 1:j))
-            j += 1
+        if ne(sg) == 0
+            start = (0, (0, 0))
+        else
+            S = SparseMatrixCSC(sparse(sg))
+            j = 1
+            while 1 > length(SparseArrays.getcolptr(S, 1:j))
+                j += 1
+            end
+            i = rowvals(S)[1]
+            e = collect(edgevals(sg))[1]
+            start = (e, (i, j))
         end
-        i = rowvals(S)[1]
-        e = collect(edgevals(sg))[1]
-        start = (e, (i, j))
         return new{typeof(sg),typeof(start)}(sg, start)
     end
 end
@@ -350,11 +354,11 @@ Base.length(iter::EdgeIter) = nnz(sparse(graph(iter)))
 
 function Base.iterate(iter::EdgeIter, (el, i)=(iter.start, 1))
     next_i = i + 1
-    if next_i <= ne(iter.sg)
-        car_idx = get_cartesian_index(iter.sg, next_i)
+    if next_i <= ne(graph(iter))
+        car_idx = get_cartesian_index(graph(iter), next_i)
         next_el = (next_i, car_idx)
         return (el, (next_el, next_i))
-    elseif next_i == ne(iter.sg) + 1
+    elseif next_i == ne(graph(iter)) + 1
         next_el = (0, (0, 0))
         return (el, (next_el, next_i))
     else

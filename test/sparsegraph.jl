@@ -73,6 +73,13 @@
         @test GraphSignals.edgevals(sg) == sg.edges
         @test GraphSignals.edgevals(sg, 1) == sg.edges[1:3]
         @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:4]
+
+        # graph without edges
+        sg_no_edge = SparseGraph(zeros(V, V), false, T)
+        es, nbrs, xs = collect(edges(sg_no_edge))
+        @test es == []
+        @test nbrs == []
+        @test xs == []
     
         @test Graphs.neighbors(sg, 1) == adjl[1]
         @test Graphs.neighbors(sg, 3) == adjl[3]
@@ -186,6 +193,13 @@
         @test GraphSignals.edgevals(sg) == sg.edges
         @test GraphSignals.edgevals(sg, 1) == sg.edges[1:2]
         @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:2]
+
+        # graph without edges
+        sg_no_edge = SparseGraph(zeros(V, V), true, T)
+        es, nbrs, xs = collect(edges(sg_no_edge))
+        @test es == []
+        @test nbrs == []
+        @test xs == []
 
         @test Graphs.neighbors(sg, 1) == adjl[1]
         @test Graphs.neighbors(sg, 2) == adjl[2]
