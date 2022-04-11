@@ -148,7 +148,7 @@ FeaturedGraph:
 julia> ConcreteFeaturedGraph(fg, nf=rand(7, 4))
 FeaturedGraph:
     Undirected graph with (#V=4, #E=5) in adjacency matrix
-    Node feature:	ℝ^7 <Matrix{Float64}>
+    Node feature:	ℝ^7 <Matrix{Float64}>    
 ```
 
 """

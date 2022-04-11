@@ -97,4 +97,24 @@
             end
         end
     end
+
+    @testset "remove self loops" begin
+        adjl = [
+            [1, 2, 3],
+            [2, 3],
+            [1, 2],
+        ]
+
+        adjl_noselfloops = [
+            [2, 3],
+            [3],
+            [1, 2],
+        ]
+
+        new_adjl = GraphSignals.remove_self_loops(adjl)
+        @test new_adjl == adjl_noselfloops
+
+        GraphSignals.remove_self_loops!(adjl)
+        @test adjl == adjl_noselfloops
+    end
 end
