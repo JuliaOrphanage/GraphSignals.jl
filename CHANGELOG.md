@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.3]
+
+- Resolve conflict with StatsBase
+
 ## [0.4.2]
 
 - support `collect(edges(g))` for graph without edges
