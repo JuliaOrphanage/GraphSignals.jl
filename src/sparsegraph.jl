@@ -55,7 +55,7 @@ SparseGraph(g::G, directed::Bool=is_directed(G), ::Type{T}=eltype(g)) where {G<:
     SparseGraph(g.fadjlist, directed, T)
 
 SparseGraph(g::G, directed::Bool=is_directed(G), ::Type{T}=eltype(g)) where {G<:AbstractSimpleWeightedGraph,T} =
-    SparseGraph(weights(g)', directed, T)
+    SparseGraph(SimpleWeightedGraphs.weights(g)', directed, T)
 
 function to_csc(adjl::AbstractVector{T}) where {T<:AbstractVector}
     ET = eltype(adjl[1])

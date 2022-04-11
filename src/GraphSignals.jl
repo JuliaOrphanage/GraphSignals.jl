@@ -2,16 +2,15 @@ module GraphSignals
 
 using LinearAlgebra
 using SparseArrays
-using SparseArrays
 
 using CUDA
 using CUDA.CUSPARSE
 using ChainRulesCore: @non_differentiable
 using FillArrays
 using Functors: @functor
-using Graphs
+using Graphs, SimpleWeightedGraphs
 using Graphs: AbstractGraph, AbstractSimpleGraph
-using SimpleWeightedGraphs: AbstractSimpleWeightedGraph, weights
+using SimpleWeightedGraphs: AbstractSimpleWeightedGraph
 using StatsBase
 using NNlib, NNlibCUDA
 
