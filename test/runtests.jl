@@ -1,5 +1,6 @@
 using GraphSignals
 using CUDA
+using Distances
 using Flux
 using FillArrays
 using Graphs
@@ -20,6 +21,7 @@ tests = [
     "subgraph",
     "mask",
     "random",
+    "neighbor_graphs"
 ]
 
 if CUDA.functional()

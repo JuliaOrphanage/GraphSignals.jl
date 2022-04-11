@@ -64,3 +64,18 @@ function GraphSignals.is_directed(g::AbstractVector{T}) where {T<:AbstractVector
     end
     !isempty(edges)
 end
+
+function remove_self_loops!(adj::AbstractVector{<:AbstractVector{<:Integer}})
+    N = nv(adj)
+    for i in 1:N
+        deleteat!(adj[i], adj[i] .== i)
+    end
+
+    return adj
+end
+
+function remove_self_loops(adj::AbstractVector{T}) where {T<:AbstractVector{<:Integer}}
+    N = nv(adj)
+    new_adj = T[adj[i][adj[i] .!= i] for i in 1:N]
+    return new_adj
+end

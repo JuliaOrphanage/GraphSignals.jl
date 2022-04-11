@@ -6,6 +6,7 @@ using SparseArrays
 using CUDA
 using CUDA.CUSPARSE
 using ChainRulesCore: @non_differentiable
+using Distances
 using FillArrays
 using Functors: @functor
 using Graphs, SimpleWeightedGraphs
@@ -13,6 +14,7 @@ using Graphs: AbstractGraph, AbstractSimpleGraph
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph
 using StatsBase
 using NNlib, NNlibCUDA
+using NearestNeighbors
 
 import Graphs: laplacian_matrix
 
@@ -68,6 +70,7 @@ include("sparsegraph.jl")
 include("featuredgraph.jl")
 
 include("cuda.jl")
+include("neighbor_graphs.jl")
 
 include("subgraph.jl")
 # include("sampling.jl")
