@@ -6,7 +6,7 @@
 
     @testset "Euclidean distance" begin
         nf = rand(T, vdim, V)
-        fg = GraphSignals.kneighbors_graph(nf, k; include_self=false)
+        fg = kneighbors_graph(nf, k; include_self=false)
         @test fg isa FeaturedGraph
         @test nv(fg) == V
         @test ne(fg) == V*k
@@ -15,7 +15,7 @@
 
     @testset "Minkowski distance" begin
         nf = rand(T, vdim, V)
-        fg = GraphSignals.kneighbors_graph(nf, k, Minkowski(3); include_self=true)
+        fg = kneighbors_graph(nf, k, Minkowski(3); include_self=true)
         @test fg isa FeaturedGraph
         @test nv(fg) == V
         @test ne(fg) == V*k
@@ -24,7 +24,7 @@
 
     @testset "Jaccard distance" begin
         nf = rand(T[0, 1], vdim, V)
-        fg = GraphSignals.kneighbors_graph(nf, k, Jaccard(); include_self=true)
+        fg = kneighbors_graph(nf, k, Jaccard(); include_self=true)
         @test fg isa FeaturedGraph
         @test nv(fg) == V
         @test ne(fg) == V*k

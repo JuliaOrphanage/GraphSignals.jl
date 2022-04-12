@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0]
+
+- add `kneighbors_graph`
+- fix doc test and some bug
+
 ## [0.4.3]
 
 - Resolve conflict with StatsBase

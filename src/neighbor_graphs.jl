@@ -22,19 +22,19 @@ julia> using GraphSignals, Distances
 
 julia> nf = rand(Float32, 10, 1024);
 
-julia> fg = GraphSignals.kneighbors_graph(nf, 5)
+julia> fg = kneighbors_graph(nf, 5)
 FeaturedGraph:
 	Directed graph with (#V=1024, #E=5120) in adjacency matrix
 	Node feature:	ℝ^10 <Matrix{Float32}>
 
-julia> fg = GraphSignals.kneighbors_graph(nf, 5, Cityblock())
+julia> fg = kneighbors_graph(nf, 5, Cityblock())
 FeaturedGraph:
     Directed graph with (#V=1024, #E=5120) in adjacency matrix
     Node feature:	ℝ^10 <Matrix{Float32}>
 
 julia> nf = rand(Float32[0, 1], 10, 1024);
 
-julia> fg = GraphSignals.kneighbors_graph(nf, 5, Jaccard(); include_self=true)
+julia> fg = kneighbors_graph(nf, 5, Jaccard(); include_self=true)
 FeaturedGraph:
     Directed graph with (#V=1024, #E=5120) in adjacency matrix
     Node feature:	ℝ^10 <Matrix{Float32}>
@@ -64,7 +64,3 @@ function kneighbors_graph(X::AbstractMatrix, k::Int, metric::Metric;
 end
 
 kneighbors_graph(X::AbstractMatrix, k::Int; kwargs...) = kneighbors_graph(X, k, Euclidean(); kwargs...)
-
-# function epsilon_neighbor_graph()
-    
-# end

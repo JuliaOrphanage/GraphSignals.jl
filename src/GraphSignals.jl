@@ -3,8 +3,7 @@ module GraphSignals
 using LinearAlgebra
 using SparseArrays
 
-using CUDA
-using CUDA.CUSPARSE
+using CUDA, CUDA.CUSPARSE
 using ChainRulesCore: @non_differentiable
 using Distances
 using FillArrays
@@ -55,13 +54,14 @@ export
     # subgraph
     FeaturedSubgraph,
     subgraph,
-
-    # mask
     mask,
 
     # random
     random_walk,
-    neighbor_sample
+    neighbor_sample,
+
+    # neighbor_graphs
+    kneighbors_graph
 
 include("graph.jl")
 include("linalg.jl")
