@@ -73,8 +73,6 @@ include("cuda.jl")
 include("neighbor_graphs.jl")
 
 include("subgraph.jl")
-# include("sampling.jl")
-include("mask.jl")
 include("random.jl")
 
 # Non-differentiables

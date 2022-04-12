@@ -436,5 +436,5 @@ end
 
 ## sample
 
-StatsBase.sample(fg::FeaturedGraph, n::Int) =
-    subgraph(fg, sample(vertices(graph(fg)), n; replace=false))
+StatsBase.sample(fg::AbstractFeaturedGraph, n::Int) =
+    subgraph(fg, sample(vertices(fg), n; replace=false))

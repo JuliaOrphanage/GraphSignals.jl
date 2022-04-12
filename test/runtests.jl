@@ -19,7 +19,6 @@ tests = [
     "sparsegraph",
     "featuredgraph",
     "subgraph",
-    "mask",
     "random",
     "neighbor_graphs"
 ]
