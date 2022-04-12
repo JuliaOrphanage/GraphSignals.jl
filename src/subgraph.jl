@@ -28,9 +28,6 @@ It constructs a subgraph by reserving `nodes` in a graph.
 subgraph(fg::AbstractFeaturedGraph, nodes::AbstractVector) = FeaturedSubgraph(fg, nodes)
 subgraph(fsg::FeaturedSubgraph, nodes::AbstractVector) = FeaturedSubgraph(fsg.fg, nodes)
 
-StatsBase.sample(fsg::FeaturedSubgraph, n::Int) =
-    subgraph(fsg, sample(fsg.nodes, n; replace=false))
-
 
 ## show
 
@@ -90,3 +87,12 @@ normalized_laplacian(fsg::FeaturedSubgraph, T::DataType=eltype(graph(fsg.fg));
 
 scaled_laplacian(fsg::FeaturedSubgraph, T::DataType=eltype(graph(fsg.fg))) =
     scaled_laplacian(fsg.fg, T)[fsg.nodes, fsg.nodes]
+
+"""
+    mask(fg, m)
+
+A syntax sugar for masking graph.
+
+Returns a `FeaturedSubgraph`.
+"""
+mask(fg::AbstractFeaturedGraph, m::AbstractVector) = subgraph(fg, m)
