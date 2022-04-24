@@ -118,8 +118,6 @@ julia> GraphSignals.degree_matrix(m)
 """
 function degree_matrix(adj::AbstractMatrix, T::DataType=eltype(adj);
                        dir::Symbol=:out, squared::Bool=false, inverse::Bool=false)
-    D = similar(adj, T)
-    fill!(D, 0)
     d = degrees(adj, T, dir=dir)
     squared && (d .= sqrt.(d))
     inverse && (d .= safe_inv.(d))
