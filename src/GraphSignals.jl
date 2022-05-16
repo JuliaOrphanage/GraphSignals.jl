@@ -91,5 +91,6 @@ include("random.jl")
 @non_differentiable incident_edges(x...)
 @non_differentiable order_edges(x...)
 @non_differentiable aggregate_index(x...)
+@non_differentiable kneighbors_graph(x...)
 
 end
