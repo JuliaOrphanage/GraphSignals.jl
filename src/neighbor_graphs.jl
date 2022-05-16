@@ -63,4 +63,9 @@ function kneighbors_graph(X::AbstractMatrix, k::Int, metric::Metric;
     return FeaturedGraph(g, nf=X)
 end
 
-kneighbors_graph(X::AbstractMatrix, k::Int; kwargs...) = kneighbors_graph(X, k, Euclidean(); kwargs...)
+function kneighbors_graph(X::AbstractArray{T,3}, k::Int, metric::Metric; kwargs...) where {T}
+    X = reshape(mean(X, dims=3), size(X)[1:2]...)
+    return kneighbors_graph(X, k, metric; kwargs...)
+end
+
+kneighbors_graph(X::AbstractArray, k::Int; kwargs...) = kneighbors_graph(X, k, Euclidean(); kwargs...)

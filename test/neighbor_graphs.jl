@@ -2,6 +2,7 @@
     T = Float32
     V = 100
     vdim = 10
+    batch_size = 10
     k = 5
 
     @testset "Euclidean distance" begin
@@ -29,5 +30,14 @@
         @test nv(fg) == V
         @test ne(fg) == V*k
         @test node_feature(fg) == nf
+    end
+
+    @testset "batch" begin
+        nf = rand(T, vdim, V, batch_size)
+        fg = kneighbors_graph(nf, k; include_self=false)
+        @test fg isa FeaturedGraph
+        @test nv(fg) == V
+        @test ne(fg) == V*k
+        @test node_feature(fg) == reshape(mean(nf, dims=3), size(nf)[1:2]...)
     end
 end
