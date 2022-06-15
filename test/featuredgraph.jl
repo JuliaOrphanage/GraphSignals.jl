@@ -4,10 +4,12 @@
     vdim = 3
     edim = 5
     gdim = 7
+    pdim = 11
 
     nf = rand(vdim, V)
     ef = rand(edim, E)
     gf = rand(gdim)
+    pf = rand(pdim, V)
 
     @testset "null graph" begin
         ng = NullGraph()
@@ -17,10 +19,12 @@
         @test !has_node_feature(ng)
         @test !has_edge_feature(ng)
         @test !has_global_feature(ng)
+        @test !has_positional_feature(ng)
         @test isnothing(graph(ng))
         @test isnothing(node_feature(ng))
         @test isnothing(edge_feature(ng))
         @test isnothing(global_feature(ng))
+        @test isnothing(positional_feature(ng))
     end
 
     @testset "features" begin
@@ -29,18 +33,21 @@
                 1 1 0 1;
                 1 0 1 0]
 
-        fg = FeaturedGraph(adjm; nf=nf, ef=ef ,gf=gf)
+        fg = FeaturedGraph(adjm; nf=nf, ef=ef ,gf=gf, pf=pf)
         @test has_graph(fg)
         @test has_node_feature(fg)
         @test has_edge_feature(fg)
         @test has_global_feature(fg)
+        @test has_positional_feature(fg)
         @test graph(fg).S == adjm
         @test node_feature(fg) == nf
         @test edge_feature(fg) == ef
         @test global_feature(fg) == gf
+        @test positional_feature(fg) == pf
         @test GraphSignals.nf_dims_repr(fg) == vdim
         @test GraphSignals.ef_dims_repr(fg) == edim
         @test GraphSignals.gf_dims_repr(fg) == gdim
+        @test GraphSignals.pf_dims_repr(fg) == pdim
         @test parent(fg) === fg
 
         fg2 = FeaturedGraph(fg)
@@ -54,6 +61,7 @@
         @test node_feature(new_fg) == new_nf
         @test edge_feature(new_fg) == ef
         @test global_feature(new_fg) == gf
+        @test positional_feature(new_fg) == pf
     
         # Test with transposed features
         nf_t = rand(V, vdim)'
@@ -62,16 +70,19 @@
         @test has_node_feature(fg)
         @test !has_edge_feature(fg)
         @test !has_global_feature(fg)
+        @test !has_positional_feature(fg)
         @test graph(fg).S == adjm
         @test node_feature(fg) == nf_t
         @test edge_feature(fg) == Fill(0., (0, E))
         @test global_feature(fg) == zeros(0)
+        @test positional_feature(fg) == Fill(0., (0, V))
 
         T = Matrix{Float32}
-        fg = FeaturedGraph{T,T,T,Vector{Float32}}(adjm, nf, ef, gf, :adjm)
+        fg = FeaturedGraph{T,T,T,Vector{Float32},T}(adjm, nf, ef, gf, pf, :adjm)
         @test node_feature(fg) isa T
         @test edge_feature(fg) isa T
         @test global_feature(fg) isa Vector{Float32}
+        @test positional_feature(fg) isa T
     end
 
     @testset "setting properties" begin
