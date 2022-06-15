@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0]
+
+- add positional features
+
 ## [0.5.2]
 
 - make `kneighbors_graph` non-differentiable and enable batch learning
