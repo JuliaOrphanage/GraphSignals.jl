@@ -19,10 +19,12 @@
         @test !has_node_feature(ng)
         @test !has_edge_feature(ng)
         @test !has_global_feature(ng)
+        @test !has_positional_feature(ng)
         @test isnothing(graph(ng))
         @test isnothing(node_feature(ng))
         @test isnothing(edge_feature(ng))
         @test isnothing(global_feature(ng))
+        @test isnothing(positional_feature(ng))
     end
 
     @testset "features" begin
