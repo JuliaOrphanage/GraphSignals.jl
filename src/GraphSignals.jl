@@ -28,10 +28,12 @@ export
     node_feature,
     edge_feature,
     global_feature,
+    positional_feature,
     has_graph,
     has_node_feature,
     has_edge_feature,
     has_global_feature,
+    has_positional_feature,
 
     # graph
     adjacency_list,

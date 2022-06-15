@@ -11,7 +11,7 @@ Null object for `FeaturedGraph`.
 struct NullGraph <: AbstractFeaturedGraph end
 
 """
-    FeaturedGraph(g, [mt]; directed=:auto, nf, ef, gf, T, N, E)
+    FeaturedGraph(g, [mt]; directed=:auto, nf, ef, gf, pf, T, N, E)
 
 A type representing a graph structure and storing also arrays 
 that contain features associated to nodes, edges, and the whole graph. 
@@ -36,6 +36,7 @@ is preserved and shared.
 - `nf`: Node features.
 - `ef`: Edge features.
 - `gf`: Global features.
+- `pf`: Positional features.
 - `T`: It specifies the element type of graph. Default value is the element type of `g`.
 - `N`: Number of nodes for `g`.
 - `E`: Number of edges for `g`.
@@ -65,22 +66,23 @@ fg = fg |> cu
 
 See also [`graph`](@ref), [`node_feature`](@ref), [`edge_feature`](@ref), and [`global_feature`](@ref).
 """
-mutable struct FeaturedGraph{T,Tn,Te,Tg} <: AbstractFeaturedGraph
+mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp} <: AbstractFeaturedGraph
     graph::T
     nf::Tn
     ef::Te
     gf::Tg
+    pf::Tp
     matrix_type::Symbol
 
-    function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg,
-                           mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray}
+    function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg, pf::Tp,
+                           mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractArray}
         mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
-        new{typeof(graph),Tn,Te,Tg}(graph, nf, ef, gf, mt)
+        new{typeof(graph),Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt)
     end
-    function FeaturedGraph{T,Tn,Te,Tg}(graph, nf, ef, gf, mt
-            ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray}
+    function FeaturedGraph{T,Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt
+            ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractArray}
         mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
-        new{T,Tn,Te,Tg}(T(graph), Tn(nf), Te(ef), Tg(gf), mt)
+        new{T,Tn,Te,Tg,Tp}(T(graph), Tn(nf), Te(ef), Tg(gf), Tp(pf), mt)
     end
 end
 
@@ -89,10 +91,10 @@ end
 FeaturedGraph() = NullGraph()
 
 function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph),
-                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0))
+                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0), pf=Fill(zero(T), (0, N)))
     @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
-    return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, mat_type)
+    return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, pf, mat_type)
 end
 
 ## Graph from JuliaGraphs
@@ -113,8 +115,14 @@ end
 
 FeaturedGraph(ng::NullGraph) = ng
 
-function FeaturedGraph(fg::FeaturedGraph; nf=node_feature(fg), ef=edge_feature(fg), gf=global_feature(fg))
-    return FeaturedGraph(graph(fg), nf, ef, gf, matrixtype(fg))
+function FeaturedGraph(
+        fg::FeaturedGraph;
+        nf=node_feature(fg),
+        ef=edge_feature(fg),
+        gf=global_feature(fg),
+        pf=positional_feature(fg)
+    )
+    return FeaturedGraph(graph(fg), nf, ef, gf, pf, matrixtype(fg))
 end
 
 """
@@ -191,6 +199,7 @@ function Base.show(io::IO, fg::FeaturedGraph)
     has_node_feature(fg) && print(io, "\n\tNode feature:\tℝ^", nf_dims_repr(fg), " <", typeof(fg.nf), ">")
     has_edge_feature(fg) && print(io, "\n\tEdge feature:\tℝ^", ef_dims_repr(fg), " <", typeof(fg.ef), ">")
     has_global_feature(fg) && print(io, "\n\tGlobal feature:\tℝ^", gf_dims_repr(fg), " <", typeof(fg.gf), ">")
+    has_positional_feature(fg) && print(io, "\n\tPositional feature:\tℝ^", pf_dims_repr(fg), " <", typeof(fg.pf), ">")
 end
 
 matrixrepr(fg::FeaturedGraph) = matrixrepr(Val(matrixtype(fg)))
@@ -203,6 +212,7 @@ matrixrepr(::Val{:scaled}) = "scaled Laplacian"
 nf_dims_repr(fg::FeaturedGraph) = size(fg.nf, 1)
 ef_dims_repr(fg::FeaturedGraph) = size(fg.ef, 1)
 gf_dims_repr(fg::FeaturedGraph) = size(fg.gf, 1)
+pf_dims_repr(fg::FeaturedGraph) = size(fg.pf, 1)
 
 
 ## Accessing
@@ -274,6 +284,18 @@ global_feature(::NullGraph) = nothing
 global_feature(fg::FeaturedGraph) = fg.gf
 
 """
+    positional_feature(fg)
+
+Get positional feature attached to `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
+"""
+positional_feature(::NullGraph) = nothing
+positional_feature(fg::FeaturedGraph) = fg.pf
+
+"""
     has_graph(fg)
 
 Check if `graph` is available or not for `fg`.
@@ -320,6 +342,18 @@ Check if `global_feature` is available or not for `fg`.
 """
 has_global_feature(::NullGraph) = false
 has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
+
+"""
+    has_positional_feature(::AbstractFeaturedGraph)
+
+Check if `positional_feature` is available or not for `fg`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
+"""
+has_positional_feature(::NullGraph) = false
+has_positional_feature(fg::FeaturedGraph) = !isempty(fg.pf)
 
 
 ## Graph property
