@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1]
+
+- support Functors v0.3
+
 ## [0.6.0]
 
 - add positional features
