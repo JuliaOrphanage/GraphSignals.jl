@@ -89,6 +89,19 @@
         end
     end
 
+    @testset "graphdomains" begin
+        d = GraphSignals.NullDomain() |> gpu
+        @test isnothing(GraphSignals.domain(d))
+        @test isnothing(positional_feature(d))
+        @test !has_positional_feature(d)
+    
+        pf = rand(T, 2, 3, 4)
+        d = GraphSignals.NodeDomain(pf) |> gpu
+        @test collect(GraphSignals.domain(d)) == pf
+        @test collect(positional_feature(d)) == pf
+        @test has_positional_feature(d)
+    end
+
     @testset "featuredgraph" begin
         @testset "undirected graph" begin
             # undirected graph with self loop

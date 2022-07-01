@@ -28,12 +28,10 @@ export
     node_feature,
     edge_feature,
     global_feature,
-    positional_feature,
     has_graph,
     has_node_feature,
     has_edge_feature,
     has_global_feature,
-    has_positional_feature,
 
     # graph
     adjacency_list,
@@ -44,6 +42,10 @@ export
     SparseSubgraph,
     incident_edges,
     edge_index,
+
+    # graphdomains
+    positional_feature,
+    has_positional_feature,
 
     # linalg
     laplacian_matrix,
@@ -69,6 +71,7 @@ include("graph.jl")
 include("linalg.jl")
 include("sparsematrix.jl")
 include("sparsegraph.jl")
+include("graphdomains.jl")
 include("featuredgraph.jl")
 
 include("cuda.jl")
