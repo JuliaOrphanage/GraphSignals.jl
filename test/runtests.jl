@@ -17,6 +17,7 @@ tests = [
     "graph",
     "linalg",
     "sparsegraph",
+    "graphdomains",
     "featuredgraph",
     "subgraph",
     "random",

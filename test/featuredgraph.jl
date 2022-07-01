@@ -75,14 +75,7 @@
         @test node_feature(fg) == nf_t
         @test edge_feature(fg) == Fill(0., (0, E))
         @test global_feature(fg) == zeros(0)
-        @test positional_feature(fg) == Fill(0., (0, V))
-
-        T = Matrix{Float32}
-        fg = FeaturedGraph{T,T,T,Vector{Float32},T}(adjm, nf, ef, gf, pf, :adjm)
-        @test node_feature(fg) isa T
-        @test edge_feature(fg) isa T
-        @test global_feature(fg) isa Vector{Float32}
-        @test positional_feature(fg) isa T
+        @test isnothing(positional_feature(fg))
     end
 
     @testset "setting properties" begin
