@@ -1,6 +1,8 @@
 const MATRIX_TYPES = [:adjm, :normedadjm, :laplacian, :normalized, :scaled]
 const DIRECTEDS = [:auto, :directed, :undirected]
 
+_string(s::Symbol) = ":$(s)"
+
 abstract type AbstractFeaturedGraph end
 
 """
@@ -11,7 +13,8 @@ Null object for `FeaturedGraph`.
 struct NullGraph <: AbstractFeaturedGraph end
 
 """
-    FeaturedGraph(g, [mt]; directed=:auto, nf, ef, gf, pf, T, N, E)
+    FeaturedGraph(g, [mt]; directed=:auto, nf, ef, gf, pf=nothing,
+        T, N, E, with_batch=false)
 
 A type representing a graph structure and storing also arrays 
 that contain features associated to nodes, edges, and the whole graph. 
@@ -29,17 +32,20 @@ is preserved and shared.
     - A Graphs' graph, i.e. `SimpleGraph`, `SimpleDiGraph` from Graphs, or `SimpleWeightedGraph`,
         `SimpleWeightedDiGraph` from SimpleWeightedGraphs.
     - An `AbstractFeaturedGraph` object.
-- `mt::Symbol`: Matrix type for `g` in matrix form. if `graph` is in matrix form, `mt` is recorded as one of `:adjm`,
-    `:normedadjm`, `:laplacian`, `:normalized` or `:scaled`.
-- `directed`: It specify that direction of a graph. It can be `:auto`, `:directed` and `:undirected`.
-    Default value is `:auto`, which infers direction automatically.
+- `mt::Symbol`: Matrix type for `g` in matrix form. if `graph` is in matrix form, `mt` is
+    recorded as one of `:adjm`, `:normedadjm`, `:laplacian`, `:normalized` or `:scaled`.
+- `directed`: It specify that direction of a graph. It can be `:auto`, `:directed` and
+    `:undirected`. Default value is `:auto`, which infers direction automatically.
 - `nf`: Node features.
 - `ef`: Edge features.
 - `gf`: Global features.
-- `pf`: Positional features.
+- `pf`: Positional features. If `nothing` is given, positional encoding is turned off. If an
+    array is given, positional encoding is assigned as given array. If `:auto` is given,
+    positional encoding is generated automatically for node features and `with_batch` is considered.
 - `T`: It specifies the element type of graph. Default value is the element type of `g`.
 - `N`: Number of nodes for `g`.
 - `E`: Number of edges for `g`.
+- `with_batch::Bool`: Consider last dimension of all features as batch dimension.
 
 # Usage
 
@@ -76,12 +82,14 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp} <: AbstractFeaturedGraph
 
     function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg, pf::Tp,
                            mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractGraphDomain}
-        mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
+        errmsg = "matrix_type must be one of $(join(_string.(MATRIX_TYPES), ", ", " or "))"
+        mt ∈ MATRIX_TYPES || throw(ArgumentError(errmsg))
         new{typeof(graph),Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt
             ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractGraphDomain}
-        mt ∈ MATRIX_TYPES || throw(ArgumentError("matrix_type must be one of :adjm, :normedadjm, :laplacian, :normalized or :scaled"))
+        errmsg = "matrix_type must be one of $(join(_string.(MATRIX_TYPES), ", ", " or "))"
+        mt ∈ MATRIX_TYPES || throw(ArgumentError(errmsg))
         new{T,Tn,Te,Tg,Tp}(T(graph), Tn(nf), Te(ef), Tg(gf), Tp(pf), mt)
     end
 end
@@ -91,9 +99,14 @@ end
 FeaturedGraph() = NullGraph()
 
 function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph),
-                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0), pf=nothing)
-    @assert directed ∈ DIRECTEDS "directed must be one of :auto, :directed and :undirected"
+                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0), pf=nothing,
+                       with_batch::Bool=false)
+    @assert directed ∈ DIRECTEDS "directed must be one of $(join(_string.(DIRECTEDS), ", ", " or "))"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
+    if pf == :auto
+        A = nf[1, ntuple(i -> Colon(), length(size(nf))-1)...]
+        pf = generate_coordinates(A, with_batch=with_batch)
+    end
     return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, NodeDomain(pf), mat_type)
 end
 
@@ -177,15 +190,16 @@ function check_num_edges(graph_ne::Real, E::Real)
     end
 end
 
-check_num_nodes(graph_nv::Real, nf) = check_num_nodes(graph_nv, size(nf, 2))
-check_num_edges(graph_ne::Real, ef) = check_num_edges(graph_ne, size(ef, 2))
+check_num_nodes(graph_nv::Real, feat) = check_num_nodes(graph_nv, size(feat, 2))
+check_num_edges(graph_ne::Real, feat) = check_num_edges(graph_ne, size(feat, 2))
 
-check_num_nodes(g, nf) = check_num_nodes(nv(g), nf)
-check_num_edges(g, ef) = check_num_edges(ne(g), ef)
+check_num_nodes(g, feat) = check_num_nodes(nv(g), feat)
+check_num_edges(g, feat) = check_num_edges(ne(g), feat)
 
-function check_precondition(graph, nf, ef, mt::Symbol)
+function check_precondition(graph, nf, ef, pf)
     check_num_edges(ne(graph), ef)
     check_num_nodes(nv(graph), nf)
+    check_num_nodes(nv(graph), pf)
     return
 end
 
@@ -232,6 +246,7 @@ function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
         check_num_edges(fg.graph, x)
     elseif prop == :pf
         check_num_nodes(fg.graph, x)
+        x = NodeDomain(x)
     end
     setfield!(fg, prop, x)
 end
