@@ -82,14 +82,14 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp} <: AbstractFeaturedGraph
 
     function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg, pf::Tp,
                            mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractGraphDomain}
-        errmsg = "matrix_type must be one of $(join(_string.(MATRIX_TYPES), ", ", " or "))"
-        mt ∈ MATRIX_TYPES || throw(ArgumentError(errmsg))
+        check_matrix_type(mt)
+        check_features(graph, nf, ef, pf)
         new{typeof(graph),Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt
             ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractGraphDomain}
-        errmsg = "matrix_type must be one of $(join(_string.(MATRIX_TYPES), ", ", " or "))"
-        mt ∈ MATRIX_TYPES || throw(ArgumentError(errmsg))
+        check_matrix_type(mt)
+        check_features(graph, nf, ef, pf)
         new{T,Tn,Te,Tg,Tp}(T(graph), Tn(nf), Te(ef), Tg(gf), Tp(pf), mt)
     end
 end
@@ -196,7 +196,12 @@ check_num_edges(graph_ne::Real, feat) = check_num_edges(graph_ne, size(feat, 2))
 check_num_nodes(g, feat) = check_num_nodes(nv(g), feat)
 check_num_edges(g, feat) = check_num_edges(ne(g), feat)
 
-function check_precondition(graph, nf, ef, pf)
+function check_matrix_type(mt::Symbol)
+    errmsg = "matrix_type must be one of $(join(_string.(MATRIX_TYPES), ", ", " or "))"
+    mt ∈ MATRIX_TYPES || throw(ArgumentError(errmsg))
+end
+
+function check_features(graph, nf, ef, pf)
     check_num_edges(ne(graph), ef)
     check_num_nodes(nv(graph), nf)
     check_num_nodes(nv(graph), pf)
