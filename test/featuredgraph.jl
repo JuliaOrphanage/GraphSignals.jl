@@ -87,20 +87,25 @@
                  1 0 1 1;
                  0 1 0 1;
                  1 1 1 0]
-        fg = FeaturedGraph(adjm1; nf=nf, ef=ef, gf=gf)
+        fg = FeaturedGraph(adjm1; nf=nf, ef=ef, gf=gf, pf=pf)
         fg.graph.S .= adjm2
         @test fg.graph.S == adjm2
         @test_throws DimensionMismatch fg.graph = [0 1; 0 1]
 
         nf_ = rand(10, V)
         fg.nf = nf_
-        @test fg.nf == nf_
+        @test node_feature(fg) == nf_
         @test_throws DimensionMismatch fg.nf = rand(10, 11)
 
         ef_ = rand(10, E)
         fg.ef = ef_
-        @test fg.ef == ef_
+        @test edge_feature(fg) == ef_
         @test_throws DimensionMismatch fg.ef = rand(10, 11)
+
+        pf_ = rand(10, V)
+        fg.pf = pf_
+        @test positional_feature(fg) == pf_
+        @test_throws DimensionMismatch fg.pf = rand(10, 11)
     end
 
     @testset "graph properties" begin
@@ -114,6 +119,16 @@
         @test edges(fg) isa GraphSignals.EdgeIter
         @test neighbors(fg) == [2, 3, 4, 1, 3, 1, 2, 4, 1, 3]
         @test incident_edges(fg) == fg |> graph |> GraphSignals.edgevals
+    end
+
+    @testset "generate coordinates" begin
+        adjm = [0 1 1 1;
+                1 0 1 0;
+                1 1 0 1;
+                1 0 1 0]
+
+        fg = FeaturedGraph(adjm; nf=nf, pf=:auto)
+        @test size(positional_feature(fg)) == (1, V)
     end
 
     @testset "random subgraph" begin

@@ -7,7 +7,7 @@ domain(::NullDomain) = nothing
 positional_feature(::NullDomain) = nothing
 has_positional_feature(::NullDomain) = false
 pf_dims_repr(::NullDomain) = 0
-check_num_nodes(graph_nv::Real, ::NullDomain) = check_num_nodes(graph_nv, 0)
+check_num_nodes(graph_nv::Real, ::NullDomain) = nothing
 
 
 struct NodeDomain{T} <: AbstractGraphDomain
