@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.2]
+
+- support positional encoding for `FeaturedGraph`
+- add `NodeDomain` and `NullDomain`
+
 ## [0.6.1]
 
 - support Functors v0.3
