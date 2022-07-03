@@ -67,9 +67,11 @@ export
     # neighbor_graphs
     kneighbors_graph
 
+include("utils.jl")
 include("graph.jl")
 include("linalg.jl")
 include("sparsematrix.jl")
+
 include("sparsegraph.jl")
 include("graphdomains.jl")
 include("featuredgraph.jl")
