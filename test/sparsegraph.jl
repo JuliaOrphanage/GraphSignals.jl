@@ -66,10 +66,12 @@
         @test sg[1, 5] == 1
         @test sg[CartesianIndex((1, 5))] == 1
         @test length(edges(sg)) == 9
-        es, nbrs, xs = collect(edges(sg))
-        @test es == [1, 3, 4, 1, 2, 3, 5, 4, 5]
-        @test nbrs == [2, 4, 5, 1, 3, 1, 5, 1, 4]
-        @test xs == [1, 1, 1, 2, 3, 4, 4, 5, 5]
+        el = GraphSignals.to_namedtuple(sg)
+        @test el.N == V
+        @test el.E == E
+        @test el.es == [1, 3, 4, 1, 2, 3, 5, 4, 5]
+        @test el.nbrs == [2, 4, 5, 1, 3, 1, 5, 1, 4]
+        @test el.xs == [1, 1, 1, 2, 3, 4, 4, 5, 5]
         @test GraphSignals.edgevals(sg) == sg.edges
         @test GraphSignals.edgevals(sg, 1) == sg.edges[1:3]
         @test GraphSignals.edgevals(sg, 1:2) == sg.edges[1:4]

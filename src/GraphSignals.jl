@@ -86,6 +86,7 @@ include("random.jl")
 
 @non_differentiable nv(x...)
 @non_differentiable ne(x...)
+@non_differentiable GraphSignals.to_namedtuple(x...)
 @non_differentiable adjacency_list(x...)
 @non_differentiable GraphSignals.adjacency_matrix(x...)
 @non_differentiable is_directed(x...)

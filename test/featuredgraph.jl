@@ -119,6 +119,13 @@
         @test edges(fg) isa GraphSignals.EdgeIter
         @test neighbors(fg) == [2, 3, 4, 1, 3, 1, 2, 4, 1, 3]
         @test incident_edges(fg) == fg |> graph |> GraphSignals.edgevals
+
+        el = GraphSignals.to_namedtuple(fg)
+        @test el.N == V
+        @test el.E == E
+        @test el.es == [1, 2, 4, 1, 3, 2, 3, 5, 4, 5]
+        @test el.nbrs == [2, 3, 4, 1, 3, 1, 2, 4, 1, 3]
+        @test el.xs == [1, 1, 1, 2, 2, 3, 3, 3, 4, 4]
     end
 
     @testset "generate coordinates" begin
