@@ -141,6 +141,11 @@ graph(ss::SparseSubgraph) = ss.sg
 
 subgraph(sg::AbstractSparseGraph, nodes::AbstractVector) = SparseSubgraph(graph(sg), nodes)
 
+function to_namedtuple(sg::SparseGraph)
+    es, nbrs, xs = collect(edges(sg))
+    return (N=nv(sg), E=ne(sg), es=es, nbrs=nbrs, xs=xs)
+end
+
 edgevals(sg::SparseGraph) = sg.edges
 edgevals(sg::SparseGraph, col::Integer) = view(sg.edges, SparseArrays.getcolptr(sparse(sg), col))
 edgevals(sg::SparseGraph, I::UnitRange) = view(sg.edges, SparseArrays.getcolptr(sparse(sg), I))

@@ -405,6 +405,8 @@ Get edge number of in `fg`.
 Graphs.ne(::NullGraph) = 0
 Graphs.ne(fg::FeaturedGraph) = ne(graph(fg))
 
+to_namedtuple(fg::AbstractFeaturedGraph) = to_namedtuple(graph(fg))
+
 Graphs.vertices(fg::FeaturedGraph) = vertices(graph(fg))
 
 Graphs.edges(fg::FeaturedGraph) = edges(graph(fg))
