@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.3]
+
+- move `to_namedtuple` from GeometricFlux
+
 ## [0.6.2]
 
 - support positional encoding for `FeaturedGraph`
