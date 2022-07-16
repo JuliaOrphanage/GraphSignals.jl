@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.4]
+
+- change `generate_coordinates` to `generate_grid`
+
 ## [0.6.3]
 
 - move `to_namedtuple` from GeometricFlux
