@@ -105,38 +105,34 @@ function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
     if pf == :auto
         A = nf[1, ntuple(i -> Colon(), length(size(nf))-1)...]
-        pf = generate_coordinates(A, with_batch=with_batch)
+        pf = generate_grid(A, with_batch=with_batch)
     end
     return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, NodeDomain(pf), mat_type)
 end
 
 ## Graph from JuliaGraphs
 
-FeaturedGraph(graph::AbstractGraph; kwargs...) = FeaturedGraph(graph, :adjm; T=Float32, kwargs...)
+FeaturedGraph(graph::AbstractGraph; kwargs...) =
+    FeaturedGraph(graph, :adjm; T=Float32, kwargs...)
 
 ## Graph in adjacency list
 
-function FeaturedGraph(graph::AbstractVector{T}; ET=eltype(graph[1]), kwargs...) where {T<:AbstractVector}
-    return FeaturedGraph(graph, :adjm; T=ET, kwargs...)
-end
+FeaturedGraph(graph::AbstractVector{T};
+              ET=eltype(graph[1]), kwargs...) where {T<:AbstractVector} =
+    FeaturedGraph(graph, :adjm; T=ET, kwargs...)
 
 ## Graph in adjacency matrix
 
-function FeaturedGraph(graph::AbstractMatrix{T}; N=nv(graph), nf=Fill(zero(T), (0, N)), kwargs...) where T
-    return FeaturedGraph(graph, :adjm; N=N, nf=nf, kwargs...)
-end
+FeaturedGraph(graph::AbstractMatrix{T};
+              N=nv(graph), nf=Fill(zero(T), (0, N)), kwargs...) where T =
+    FeaturedGraph(graph, :adjm; N=N, nf=nf, kwargs...)
 
 FeaturedGraph(ng::NullGraph) = ng
 
-function FeaturedGraph(
-        fg::FeaturedGraph;
-        nf=node_feature(fg),
-        ef=edge_feature(fg),
-        gf=global_feature(fg),
-        pf=positional_feature(fg)
-    )
-    return FeaturedGraph(graph(fg), nf, ef, gf, NodeDomain(pf), matrixtype(fg))
-end
+FeaturedGraph(fg::FeaturedGraph;
+              nf=node_feature(fg), ef=edge_feature(fg), gf=global_feature(fg),
+              pf=positional_feature(fg)) =
+    FeaturedGraph(graph(fg), nf, ef, gf, NodeDomain(pf), matrixtype(fg))
 
 """
     ConcreteFeaturedGraph(fg; kwargs...)
@@ -179,15 +175,13 @@ ConcreteFeaturedGraph(fg::FeaturedGraph; kwargs...) = FeaturedGraph(fg; kwargs..
 ## dimensional checks
 
 function check_num_nodes(graph_nv::Real, N::Real)
-    if graph_nv != N
-        throw(DimensionMismatch("number of nodes must match between graph ($graph_nv) and node features ($N)"))
-    end
+    msg = "number of nodes must match between graph ($graph_nv) and features ($N)"
+    graph_nv == N || throw(DimensionMismatch(msg))
 end
 
 function check_num_edges(graph_ne::Real, E::Real)
-    if graph_ne != E
-        throw(DimensionMismatch("number of edges must match between graph ($graph_ne) and edge features ($E)"))
-    end
+    msg = "number of edges must match between graph ($graph_ne) and features ($E)"
+    graph_ne == E || throw(DimensionMismatch(msg))
 end
 
 check_num_nodes(graph_nv::Real, feat) = check_num_nodes(graph_nv, size(feat, 2))

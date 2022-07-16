@@ -1,7 +1,7 @@
 """
-    generate_coordinates(A, with_batch=false)
+    generate_grid(A, with_batch=false)
 
-Returns coordinates for tensor `A`.
+Returns grid coordinates for tensor `A`.
 
 # Arguments
 
@@ -16,18 +16,18 @@ julia> using GraphSignals
 
 julia> A = rand(3, 4, 5);
 
-julia> coord = GraphSignals.generate_coordinates(A);
+julia> coord = GraphSignals.generate_grid(A);
 
 julia> size(coord)
 (3, 3, 4, 5)
 
-julia> coord = GraphSignals.generate_coordinates(A, with_batch=true);
+julia> coord = GraphSignals.generate_grid(A, with_batch=true);
 
 julia> size(coord)
 (2, 3, 4)
 ```
 """
-function generate_coordinates(A::AbstractArray; with_batch::Bool=false)
+function generate_grid(A::AbstractArray; with_batch::Bool=false)
     dims = with_batch ? size(A)[1:end-1] : size(A)
     N = length(dims)
     colons = ntuple(i -> Colon(), N)
@@ -38,3 +38,5 @@ function generate_coordinates(A::AbstractArray; with_batch::Bool=false)
     end
     return coord
 end
+
+@deprecate generate_coordinates(A, with_batch=false) generate_grid(A, with_batch=false)
