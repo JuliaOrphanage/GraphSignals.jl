@@ -67,7 +67,7 @@ export
     # neighbor_graphs
     kneighbors_graph
 
-include("utils.jl")
+include("positional.jl")
 include("graph.jl")
 include("linalg.jl")
 include("sparsematrix.jl")

@@ -14,7 +14,7 @@ CUDA.allowscalar(false)
 include("test_utils.jl")
 
 tests = [
-    "utils",
+    "positional",
     "graph",
     "linalg",
     "sparsegraph",
