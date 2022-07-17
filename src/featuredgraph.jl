@@ -135,7 +135,8 @@ FeaturedGraph(fg::FeaturedGraph;
     FeaturedGraph(graph(fg), nf, ef, gf, NodeDomain(pf), matrixtype(fg))
 
 """
-    ConcreteFeaturedGraph(fg; kwargs...)
+    ConcreteFeaturedGraph(fg; nf=node_feature(fg), ef=edge_feature(fg),
+                          gf=global_feature(fg), pf=positional_feature(fg))
 
 This is a syntax sugar for construction for `FeaturedGraph` and `FeaturedSubgraph` object.
 It is an idempotent operation, which gives the same type of object as inputs.
@@ -144,6 +145,10 @@ It wraps input `fg` again but reconfigures with `kwargs`.
 # Arguments
 
 - `fg`: `FeaturedGraph` and `FeaturedSubgraph` object.
+- `nf`: Node features.
+- `ef`: Edge features.
+- `gf`: Global features.
+- `pf`: Positional features.
 
 # Usage
 
