@@ -27,6 +27,10 @@ function check_obs_size(obs_size, feat_obs_size, feat::String)
     return feat_obs_size
 end
 
-MLUtils.getobs(fg::FeaturedGraph, idx) =
-    FeaturedGraph(fg, nf=getobs(node_feature(fg), idx), ef=getobs(edge_feature(fg), idx),
-                  gf=getobs(global_feature(fg), idx), pf=getobs(positional_feature(fg), idx))
+function MLUtils.getobs(fg::FeaturedGraph, idx)
+    nf = has_node_feature(fg) ? getobs(node_feature(fg), idx) : node_feature(fg)
+    ef = has_edge_feature(fg) ? getobs(edge_feature(fg), idx) : edge_feature(fg)
+    gf = has_global_feature(fg) ? getobs(global_feature(fg), idx) : global_feature(fg)
+    pf = has_positional_feature(fg) ? getobs(positional_feature(fg), idx) : positional_feature(fg)
+    return FeaturedGraph(fg, nf=nf, ef=ef, gf=gf, pf=pf)
+end
