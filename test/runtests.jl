@@ -5,6 +5,7 @@ using Flux
 using FillArrays
 using Graphs
 using LinearAlgebra
+using MLUtils
 using SimpleWeightedGraphs
 using SparseArrays
 using StatsBase
@@ -22,7 +23,8 @@ tests = [
     "featuredgraph",
     "subgraph",
     "random",
-    "neighbor_graphs"
+    "neighbor_graphs",
+    "dataloader",
 ]
 
 if CUDA.functional()

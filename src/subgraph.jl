@@ -7,12 +7,13 @@ end
 
 FeaturedSubgraph(ng::NullGraph, ::AbstractVector) = ng
 
-function ConcreteFeaturedGraph(fsg::FeaturedSubgraph; nf=node_feature(fsg.fg),
-                               ef=edge_feature(fsg.fg), gf=global_feature(fsg.fg),
-                               pf=positional_feature(fsg.fg), subgraph=fsg.nodes)
-    fg = FeaturedGraph(graph(fsg.fg), nf, ef, gf, NodeDomain(pf), matrixtype(fsg.fg))
-    return FeaturedSubgraph(fg, subgraph)
-end
+ConcreteFeaturedGraph(fsg::FeaturedSubgraph; nf=node_feature(fsg.fg),
+                      ef=edge_feature(fsg.fg), gf=global_feature(fsg.fg),
+                      pf=positional_feature(fsg.fg), nodes=fsg.nodes) =
+    FeaturedSubgraph(
+        ConcreteFeaturedGraph(fsg.fg; nf=nf, ef=ef, gf=gf, pf=pf),
+        nodes
+    )
 
 """
     subgraph(fg, nodes)
@@ -31,9 +32,8 @@ subgraph(fsg::FeaturedSubgraph, nodes::AbstractVector) = FeaturedSubgraph(fsg.fg
 
 ## show
 
-function Base.show(io::IO, fsg::FeaturedSubgraph)
+Base.show(io::IO, fsg::FeaturedSubgraph) =
     print(io, "FeaturedSubgraph of ", fsg.fg, ",$(fsg.nodes))")
-end
 
 graph(fsg::FeaturedSubgraph) = graph(fsg.fg)
 

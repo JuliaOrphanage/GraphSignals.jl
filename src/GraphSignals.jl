@@ -10,6 +10,7 @@ using FillArrays
 using Functors: @functor
 using Graphs, SimpleWeightedGraphs
 using Graphs: AbstractGraph, AbstractSimpleGraph
+using MLUtils
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph
 using StatsBase
 using NNlib, NNlibCUDA
@@ -81,6 +82,8 @@ include("neighbor_graphs.jl")
 
 include("subgraph.jl")
 include("random.jl")
+
+include("dataloader.jl")
 
 # Non-differentiables
 
