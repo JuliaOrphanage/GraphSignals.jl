@@ -23,15 +23,7 @@
             1 0 1 0]
     fg = FeaturedGraph(adjm; nf=nf, ef=ef ,gf=gf, pf=pf)
 
-    @testset "shuffleobs" begin
-        
-    end
-
-    @testset "splitobs" begin
-
-    end
-
-    @testset "DataLoader" begin
+    @testset "numobs, getobs" begin
         @test numobs(fg) == obs_size
         @test getobs(fg) == fg
 
@@ -43,7 +35,23 @@
             @test global_feature(idxed_fg) == global_feature(fg)[:, idx]
             @test positional_feature(idxed_fg) == positional_feature(fg)[:, :, idx]
         end
+    end
 
+    @testset "shuffleobs" begin
+        shuffled_obs = shuffleobs(fg)
+        @test shuffled_obs isa MLUtils.ObsView
+        @test shuffled_obs.data isa FeaturedGraph
+    end
+
+    @testset "splitobs" begin
+        train, test = splitobs(fg, at=0.7)
+        @test train isa MLUtils.ObsView
+        @test test isa MLUtils.ObsView
+        @test length(train) == 0.7 * obs_size
+        @test length(test) == 0.3 * obs_size
+    end
+
+    @testset "DataLoader" begin
         loader = DataLoader((fg, y), batchsize = batch_size)
         @test length(loader) == obs_size ÷ batch_size
 
