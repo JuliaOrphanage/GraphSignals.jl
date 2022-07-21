@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.6]
+
+- fix `getobs`
+
 ## [0.6.5]
 
 - `FeaturedGraph` supports `DataLoader`, `shuffleobs` and `splitobs`
