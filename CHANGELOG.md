@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.5]
+
+- `FeaturedGraph` supports `DataLoader`, `shuffleobs` and `splitobs`
+
 ## [0.6.4]
 
 - change `generate_coordinates` to `generate_grid`
