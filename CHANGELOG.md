@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.7]
+
+- fix failed gradient while `FeaturedGraph` passed to cuda
+
 ## [0.6.6]
 
 - fix `getobs`
