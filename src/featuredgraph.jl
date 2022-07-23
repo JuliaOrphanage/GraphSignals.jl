@@ -72,7 +72,7 @@ fg = fg |> cu
 
 See also [`graph`](@ref), [`node_feature`](@ref), [`edge_feature`](@ref), and [`global_feature`](@ref).
 """
-mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp} <: AbstractFeaturedGraph
+mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp<:AbstractGraphDomain} <: AbstractFeaturedGraph
     graph::T
     nf::Tn
     ef::Te
@@ -80,17 +80,19 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp} <: AbstractFeaturedGraph
     pf::Tp
     matrix_type::Symbol
 
-    function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg, pf::Tp,
-                           mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractGraphDomain}
+    function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg, pf,
+                           mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray}
         check_matrix_type(mt)
         check_features(graph, nf, ef, pf)
-        new{typeof(graph),Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt)
+        pf = NodeDomain(pf)
+        new{typeof(graph),Tn,Te,Tg,typeof(pf)}(graph, nf, ef, gf, pf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt
-            ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractGraphDomain}
+            ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp}
         check_matrix_type(mt)
         check_features(graph, nf, ef, pf)
-        new{T,Tn,Te,Tg,Tp}(T(graph), Tn(nf), Te(ef), Tg(gf), Tp(pf), mt)
+        pf = NodeDomain(Tp(pf))
+        new{T,Tn,Te,Tg,typeof(pf)}(T(graph), Tn(nf), Te(ef), Tg(gf), pf, mt)
     end
 end
 

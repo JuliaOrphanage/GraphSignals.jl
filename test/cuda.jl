@@ -100,6 +100,20 @@
         @test collect(GraphSignals.domain(d)) == pf
         @test collect(positional_feature(d)) == pf
         @test has_positional_feature(d)
+
+        V = 5
+        nf = rand(10, V)
+        pf = rand(10, V)
+
+        adjm = T[0 1 0 1 1;
+                1 0 0 0 0;
+                0 0 1 0 0;
+                1 0 0 0 1;
+                1 0 0 1 0]
+
+        fg = FeaturedGraph(adjm; nf=nf, pf=pf) |> gpu
+        gs = gradient(x -> sum(positional_feature(FeaturedGraph(x))), fg)[1]
+        @test :domain in keys(gs.pf)
     end
 
     @testset "featuredgraph" begin

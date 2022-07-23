@@ -15,6 +15,7 @@ struct NodeDomain{T} <: AbstractGraphDomain
 end
 
 NodeDomain(::Nothing) = NullDomain()
+NodeDomain(d::AbstractGraphDomain) = d
 
 @functor NodeDomain
 
