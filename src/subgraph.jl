@@ -1,3 +1,32 @@
+"""
+    FeaturedSubgraph(fg, nodes)
+
+Construct a lightweight subgraph over a `FeaturedGraph`.
+
+# Arguments
+
+- `fg::AbstractFeaturedGraph`: A base featured graph to construct a subgraph.
+- `nodes::AbstractVector`: It specifies nodes to be reserved from `fg`.
+
+# Usage
+
+```
+julia> using GraphSignals
+
+julia> g = [[2,3], [1,4,5], [1], [2,5], [2,4]];
+
+julia> fg = FeaturedGraph(g)
+FeaturedGraph:
+	Undirected graph with (#V=5, #E=5) in adjacency matrix
+
+julia> subgraph(fg, [1,2,3])
+FeaturedGraph:
+	Undirected graph with (#V=5, #E=5) in adjacency matrix
+	Subgraph:	nodes([1, 2, 3])
+```
+
+See also [`subgraph`](@ref) for syntax sugar.
+"""
 struct FeaturedSubgraph{G<:AbstractFeaturedGraph,T} <: AbstractFeaturedGraph
     fg::G
     nodes::T
@@ -32,8 +61,10 @@ subgraph(fsg::FeaturedSubgraph, nodes::AbstractVector) = FeaturedSubgraph(fsg.fg
 
 ## show
 
-Base.show(io::IO, fsg::FeaturedSubgraph) =
-    print(io, "FeaturedSubgraph of ", fsg.fg, ",$(fsg.nodes))")
+function Base.show(io::IO, fsg::FeaturedSubgraph)
+    print(io, fsg.fg)
+    print(io, "\n\tSubgraph:\tnodes(", fsg.nodes, ")")
+end
 
 graph(fsg::FeaturedSubgraph) = graph(fsg.fg)
 
