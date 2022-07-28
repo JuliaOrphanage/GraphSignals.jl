@@ -6,13 +6,6 @@ _string(s::Symbol) = ":$(s)"
 abstract type AbstractFeaturedGraph end
 
 """
-    NullGraph()
-
-Null object for `FeaturedGraph`.
-"""
-struct NullGraph <: AbstractFeaturedGraph end
-
-"""
     FeaturedGraph(g, [mt]; directed=:auto, nf, ef, gf, pf=nothing,
         T, N, E, with_batch=false)
 
@@ -98,8 +91,6 @@ end
 
 @functor FeaturedGraph
 
-FeaturedGraph() = NullGraph()
-
 function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph),
                        nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0), pf=nothing,
                        with_batch::Bool=false)
@@ -128,8 +119,6 @@ FeaturedGraph(graph::AbstractVector{T};
 FeaturedGraph(graph::AbstractMatrix{T};
               N=nv(graph), nf=Fill(zero(T), (0, N)), kwargs...) where T =
     FeaturedGraph(graph, :adjm; N=N, nf=nf, kwargs...)
-
-FeaturedGraph(ng::NullGraph) = ng
 
 FeaturedGraph(fg::FeaturedGraph;
               nf=node_feature(fg), ef=edge_feature(fg), gf=global_feature(fg),
@@ -266,7 +255,6 @@ Get referenced graph in `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-graph(::NullGraph) = nothing
 graph(fg::FeaturedGraph) = fg.graph
 
 Base.parent(fg::FeaturedGraph) = fg
@@ -280,7 +268,6 @@ Get node feature attached to `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-node_feature(::NullGraph) = nothing
 node_feature(fg::FeaturedGraph) = fg.nf
 
 """
@@ -292,7 +279,6 @@ Get edge feature attached to `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-edge_feature(::NullGraph) = nothing
 edge_feature(fg::FeaturedGraph) = fg.ef
 
 """
@@ -304,7 +290,6 @@ Get global feature attached to `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-global_feature(::NullGraph) = nothing
 global_feature(fg::FeaturedGraph) = fg.gf
 
 """
@@ -316,7 +301,6 @@ Get positional feature attached to `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-positional_feature(::NullGraph) = nothing
 positional_feature(fg::FeaturedGraph) = positional_feature(fg.pf)
 
 """
@@ -328,7 +312,6 @@ Check if `graph` is available or not for `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-has_graph(::NullGraph) = false
 has_graph(fg::FeaturedGraph) = fg.graph != Fill(0., (0,0))
 
 """
@@ -340,7 +323,6 @@ Check if `node_feature` is available or not for `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-has_node_feature(::NullGraph) = false
 has_node_feature(fg::FeaturedGraph) = !isempty(fg.nf)
 
 """
@@ -352,7 +334,6 @@ Check if `edge_feature` is available or not for `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-has_edge_feature(::NullGraph) = false
 has_edge_feature(fg::FeaturedGraph) = !isempty(fg.ef)
 
 """
@@ -364,7 +345,6 @@ Check if `global_feature` is available or not for `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-has_global_feature(::NullGraph) = false
 has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
 
 """
@@ -376,7 +356,6 @@ Check if `positional_feature` is available or not for `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-has_positional_feature(::NullGraph) = false
 has_positional_feature(fg::FeaturedGraph) = has_positional_feature(fg.pf)
 
 
@@ -391,7 +370,6 @@ Get node number of graph in `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-Graphs.nv(::NullGraph) = 0
 Graphs.nv(fg::FeaturedGraph) = nv(graph(fg))
 
 """
@@ -403,7 +381,6 @@ Get edge number of in `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-Graphs.ne(::NullGraph) = 0
 Graphs.ne(fg::FeaturedGraph) = ne(graph(fg))
 
 to_namedtuple(fg::AbstractFeaturedGraph) = to_namedtuple(graph(fg))
@@ -431,7 +408,6 @@ Get adjacency list of graph in `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-adjacency_list(::NullGraph) = [zeros(0)]
 adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
 
 adjacency_matrix(fg::FeaturedGraph) = adjacency_matrix(graph(fg))

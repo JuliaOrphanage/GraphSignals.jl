@@ -7,14 +7,6 @@
 
     nodes = [1,2,3,5]
 
-    @testset "null graph" begin
-        fg = NullGraph()
-
-        subg = FeaturedSubgraph(fg, nodes)
-        @test subg === fg
-        @test subgraph(fg, nodes) === fg
-    end
-
     @testset "undirected graph" begin
         E = 5
         ef = rand(5, E)

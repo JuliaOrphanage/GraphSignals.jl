@@ -1,13 +1,6 @@
 @testset "graph" begin
     V = 6
 
-    @testset "null graph" begin
-        ng = NullGraph()
-        @test adjacency_list(ng) == [zeros(0)]
-        @test nv(ng) == 0
-        @test ne(ng) == 0
-    end
-
     @testset "undirected graph" begin
         E = 7
         adjm = [0 1 0 1 0 1;

@@ -34,8 +34,6 @@ end
 
 @functor FeaturedSubgraph
 
-FeaturedSubgraph(ng::NullGraph, ::AbstractVector) = ng
-
 ConcreteFeaturedGraph(fsg::FeaturedSubgraph; nf=node_feature(fsg.fg),
                       ef=edge_feature(fsg.fg), gf=global_feature(fsg.fg),
                       pf=positional_feature(fsg.fg), nodes=fsg.nodes) =
