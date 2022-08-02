@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.9]
+
+- `FeaturedSubgraph` supports `DataLoader`
+
 ## [0.6.8]
 
 - update doc
