@@ -83,11 +83,17 @@ end
 
 Graphs.adjacency_matrix(fsg::FeaturedSubgraph) = view(adjacency_matrix(fsg.fg), fsg.nodes, fsg.nodes)
 
+has_node_feature(fsg::FeaturedSubgraph) = has_node_feature(fsg.fg)
 node_feature(fsg::FeaturedSubgraph) = node_feature(fsg.fg)
 
+has_edge_feature(fsg::FeaturedSubgraph) = has_edge_feature(fsg.fg)
 edge_feature(fsg::FeaturedSubgraph) = edge_feature(fsg.fg)
 
+has_global_feature(fsg::FeaturedSubgraph) = has_global_feature(fsg.fg)
 global_feature(fsg::FeaturedSubgraph) = global_feature(fsg.fg)
+
+has_positional_feature(fsg::FeaturedSubgraph) = has_positional_feature(fsg.fg)
+positional_feature(fsg::FeaturedSubgraph) = positional_feature(fsg.fg)
 
 Graphs.is_directed(fsg::FeaturedSubgraph) = is_directed(fsg.fg)
 

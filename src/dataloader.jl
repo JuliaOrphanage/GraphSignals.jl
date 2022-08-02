@@ -1,4 +1,4 @@
-function MLUtils.numobs(fg::FeaturedGraph)
+function MLUtils.numobs(fg::AbstractFeaturedGraph)
     obs_size = 0
     if has_node_feature(fg)
         nf_obs_size = numobs(node_feature(fg))
@@ -27,10 +27,10 @@ function check_obs_size(obs_size, feat_obs_size, feat::String)
     return feat_obs_size
 end
 
-function MLUtils.getobs(fg::FeaturedGraph, idx)
+function MLUtils.getobs(fg::AbstractFeaturedGraph, idx)
     nf = has_node_feature(fg) ? getobs(node_feature(fg), idx) : node_feature(fg)
     ef = has_edge_feature(fg) ? getobs(edge_feature(fg), idx) : edge_feature(fg)
     gf = has_global_feature(fg) ? getobs(global_feature(fg), idx) : global_feature(fg)
     pf = has_positional_feature(fg) ? getobs(positional_feature(fg), idx) : positional_feature(fg)
-    return FeaturedGraph(fg, nf=nf, ef=ef, gf=gf, pf=pf)
+    return ConcreteFeaturedGraph(fg, nf=nf, ef=ef, gf=gf, pf=pf)
 end
