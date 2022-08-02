@@ -48,6 +48,19 @@
             @test global_feature(idxed_fg) == global_feature(fg)
             @test positional_feature(idxed_fg) == positional_feature(fg)
         end
+
+        fg = subgraph(FeaturedGraph(adjm; nf=nf, ef=ef), [1, 3, 4, 5])
+        @test numobs(fg) == obs_size
+        @test getobs(fg) == fg
+
+        for idx in (2, 2:5, [1, 3, 5])
+            idxed_fg = getobs(fg, idx)
+            @test graph(idxed_fg) == graph(fg)
+            @test node_feature(idxed_fg) == node_feature(fg)[:, :, idx]
+            @test edge_feature(idxed_fg) == edge_feature(fg)[:, :, idx]
+            @test global_feature(idxed_fg) == global_feature(fg)
+            @test positional_feature(idxed_fg) == positional_feature(fg)
+        end
     end
 
     @testset "shuffleobs" begin
