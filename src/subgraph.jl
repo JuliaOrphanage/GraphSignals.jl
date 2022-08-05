@@ -61,10 +61,8 @@ subgraph(fsg::FeaturedSubgraph, nodes::AbstractVector) = FeaturedSubgraph(fsg.fg
 
 ## show
 
-function Base.show(io::IO, fsg::FeaturedSubgraph)
-    print(io, fsg.fg)
-    print(io, "\n\tSubgraph:\tnodes(", fsg.nodes, ")")
-end
+Base.show(io::IO, fsg::FeaturedSubgraph) =
+    print(io, fsg.fg, "\n\tSubgraph:\tnodes(", fsg.nodes, ")")
 
 graph(fsg::FeaturedSubgraph) = graph(fsg.fg)
 
@@ -84,16 +82,46 @@ end
 Graphs.adjacency_matrix(fsg::FeaturedSubgraph) = view(adjacency_matrix(fsg.fg), fsg.nodes, fsg.nodes)
 
 has_node_feature(fsg::FeaturedSubgraph) = has_node_feature(fsg.fg)
-node_feature(fsg::FeaturedSubgraph) = node_feature(fsg.fg)
+
+function node_feature(fsg::FeaturedSubgraph)
+    if has_node_feature(fsg)
+        nf = node_feature(fsg.fg)
+        nodes = vertices(fsg)
+        idx = ntuple(i -> i == 2 ? nodes : Colon(), ndims(nf))
+        return view(nf, idx...)
+    else
+        return node_feature(fsg.fg)
+    end
+end
 
 has_edge_feature(fsg::FeaturedSubgraph) = has_edge_feature(fsg.fg)
-edge_feature(fsg::FeaturedSubgraph) = edge_feature(fsg.fg)
+
+function edge_feature(fsg::FeaturedSubgraph)
+    if has_edge_feature(fsg)
+        ef = edge_feature(fsg.fg)
+        edge = edges(fsg)
+        idx = ntuple(i -> i == 2 ? edge : Colon(), ndims(ef))
+        return view(ef, idx...)
+    else
+        return edge_feature(fsg.fg)
+    end
+end
 
 has_global_feature(fsg::FeaturedSubgraph) = has_global_feature(fsg.fg)
 global_feature(fsg::FeaturedSubgraph) = global_feature(fsg.fg)
 
 has_positional_feature(fsg::FeaturedSubgraph) = has_positional_feature(fsg.fg)
-positional_feature(fsg::FeaturedSubgraph) = positional_feature(fsg.fg)
+
+function positional_feature(fsg::FeaturedSubgraph)
+    if has_positional_feature(fsg)
+        pf = positional_feature(fsg.fg)
+        nodes = vertices(fsg)
+        idx = ntuple(i -> i == 2 ? nodes : Colon(), ndims(pf))
+        return view(pf, idx...)
+    else
+        return positional_feature(fsg.fg)
+    end
+end
 
 Graphs.is_directed(fsg::FeaturedSubgraph) = is_directed(fsg.fg)
 
