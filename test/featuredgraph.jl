@@ -75,7 +75,7 @@
         @test node_feature(fg) == nf_t
         @test edge_feature(fg) == Fill(0., (0, E))
         @test global_feature(fg) == zeros(0)
-        @test isnothing(positional_feature(fg))
+        @test positional_feature(fg) == Fill(0., (0, V))
     end
 
     @testset "setting properties" begin

@@ -74,7 +74,6 @@ include("linalg.jl")
 include("sparsematrix.jl")
 
 include("sparsegraph.jl")
-include("graphdomains.jl")
 include("featuredgraph.jl")
 
 include("cuda.jl")

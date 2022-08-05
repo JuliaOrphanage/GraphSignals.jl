@@ -13,7 +13,7 @@ Null object for `FeaturedGraph`.
 struct NullGraph <: AbstractFeaturedGraph end
 
 """
-    FeaturedGraph(g, [mt]; directed=:auto, nf, ef, gf, pf=nothing,
+    FeaturedGraph(g, [mt]; directed=:auto, nf, ef, gf, pf,
         T, N, E, with_batch=false)
 
 A type representing a graph structure and storing also arrays 
@@ -72,7 +72,7 @@ fg = fg |> cu
 
 See also [`graph`](@ref), [`node_feature`](@ref), [`edge_feature`](@ref), and [`global_feature`](@ref).
 """
-mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp<:AbstractGraphDomain} <: AbstractFeaturedGraph
+mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp} <: AbstractFeaturedGraph
     graph::T
     nf::Tn
     ef::Te
@@ -80,19 +80,17 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp<:AbstractGraphDomain} <: AbstractFeat
     pf::Tp
     matrix_type::Symbol
 
-    function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg, pf,
-                           mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray}
+    function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg, pf::Tp,
+                           mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractArray}
         check_matrix_type(mt)
         check_features(graph, nf, ef, pf)
-        pf = NodeDomain(pf)
-        new{typeof(graph),Tn,Te,Tg,typeof(pf)}(graph, nf, ef, gf, pf, mt)
+        new{typeof(graph),Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt
-            ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp}
+            ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp<:AbstractArray}
         check_matrix_type(mt)
         check_features(graph, nf, ef, pf)
-        pf = NodeDomain(Tp(pf))
-        new{T,Tn,Te,Tg,typeof(pf)}(T(graph), Tn(nf), Te(ef), Tg(gf), pf, mt)
+        new{T,Tn,Te,Tg,Tp}(T(graph), Tn(nf), Te(ef), Tg(gf), Tp(pf), mt)
     end
 end
 
@@ -101,7 +99,7 @@ end
 FeaturedGraph() = NullGraph()
 
 function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph),
-                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0), pf=nothing,
+                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0), pf=Fill(zero(T), (0, N)),
                        with_batch::Bool=false)
     @assert directed ∈ DIRECTEDS "directed must be one of $(join(_string.(DIRECTEDS), ", ", " or "))"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
@@ -109,7 +107,7 @@ function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype
         A = nf[1, ntuple(i -> Colon(), length(size(nf))-1)...]
         pf = generate_grid(A, with_batch=with_batch)
     end
-    return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, NodeDomain(pf), mat_type)
+    return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, pf, mat_type)
 end
 
 ## Graph from JuliaGraphs
@@ -134,7 +132,7 @@ FeaturedGraph(ng::NullGraph) = ng
 FeaturedGraph(fg::FeaturedGraph;
               nf=node_feature(fg), ef=edge_feature(fg), gf=global_feature(fg),
               pf=positional_feature(fg)) =
-    FeaturedGraph(graph(fg), nf, ef, gf, NodeDomain(pf), matrixtype(fg))
+    FeaturedGraph(graph(fg), nf, ef, gf, pf, matrixtype(fg))
 
 """
     ConcreteFeaturedGraph(fg; nf=node_feature(fg), ef=edge_feature(fg),
@@ -232,7 +230,7 @@ matrixrepr(::Val{:scaled}) = "scaled Laplacian"
 nf_dims_repr(fg::FeaturedGraph) = size(fg.nf, 1)
 ef_dims_repr(fg::FeaturedGraph) = size(fg.ef, 1)
 gf_dims_repr(fg::FeaturedGraph) = size(fg.gf, 1)
-pf_dims_repr(fg::FeaturedGraph) = pf_dims_repr(fg.pf)
+pf_dims_repr(fg::FeaturedGraph) = size(fg.pf, 1)
 
 
 ## Accessing
@@ -252,7 +250,6 @@ function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
         check_num_edges(fg.graph, x)
     elseif prop == :pf
         check_num_nodes(fg.graph, x)
-        x = NodeDomain(x)
     end
     setfield!(fg, prop, x)
 end
@@ -317,7 +314,7 @@ Get positional feature attached to `fg`.
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 positional_feature(::NullGraph) = nothing
-positional_feature(fg::FeaturedGraph) = positional_feature(fg.pf)
+positional_feature(fg::FeaturedGraph) = fg.pf
 
 """
     has_graph(fg)
@@ -377,7 +374,7 @@ Check if `positional_feature` is available or not for `fg`.
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
 has_positional_feature(::NullGraph) = false
-has_positional_feature(fg::FeaturedGraph) = has_positional_feature(fg.pf)
+has_positional_feature(fg::FeaturedGraph) = !isempty(fg.pf)
 
 
 ## Graph property
