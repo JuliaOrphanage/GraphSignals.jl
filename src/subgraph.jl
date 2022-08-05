@@ -59,14 +59,10 @@ subgraph(fsg::FeaturedSubgraph, nodes::AbstractVector) = FeaturedSubgraph(fsg.fg
 
 ## show
 
-function Base.show(io::IO, fsg::FeaturedSubgraph)
-    print(io, fsg.fg)
-    print(io, "\n\tSubgraph:\tnodes(", fsg.nodes, ")")
-end
+Base.show(io::IO, fsg::FeaturedSubgraph) =
+    print(io, fsg.fg, "\n\tSubgraph:\tnodes(", fsg.nodes, ")")
 
 graph(fsg::FeaturedSubgraph) = graph(fsg.fg)
-
-Base.parent(fsg::FeaturedSubgraph) = fsg.fg
 
 Graphs.vertices(fsg::FeaturedSubgraph) = fsg.nodes
 

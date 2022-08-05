@@ -82,7 +82,6 @@
         @test node_feature(subg) == nf
         @test edge_feature(subg) == ef
         @test global_feature(subg) == gf
-        @test parent(subg) === subg.fg
 
         @test vertices(subg) == nodes
         @test edges(subg) == [1,2,4,5,6,7,8,9,11,15,16]

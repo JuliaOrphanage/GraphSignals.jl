@@ -257,8 +257,6 @@ Get referenced graph in `fg`.
 """
 graph(fg::FeaturedGraph) = fg.graph
 
-Base.parent(fg::FeaturedGraph) = fg
-
 """
     node_feature(fg)
 
