@@ -23,14 +23,14 @@
         @test is_directed(subg) == is_directed(fg)
         @test adjacency_matrix(subg) == view(adjm, nodes, nodes)
         @test adjacency_matrix(subg) isa SubArray
-        @test node_feature(subg) == nf
-        @test edge_feature(subg) == ef
+        @test node_feature(subg) == nf[:, Graphs.vertices(subg)]
+        @test edge_feature(subg) == ef[:, Graphs.edges(subg)]
         @test global_feature(subg) == gf
 
         new_nf = rand(vdim, V)
         new_subg = ConcreteFeaturedGraph(subg, nf=new_nf)
-        @test node_feature(new_subg) == new_nf
-        @test edge_feature(new_subg) == ef
+        @test node_feature(new_subg) == new_nf[:, Graphs.vertices(new_subg)]
+        @test edge_feature(new_subg) == ef[:, Graphs.edges(new_subg)]
         @test global_feature(new_subg) == gf
 
         @test vertices(subg) == nodes
@@ -79,8 +79,8 @@
         @test is_directed(subg) == is_directed(fg)
         @test adjacency_matrix(subg) == view(adjm, nodes, nodes)
         @test adjacency_matrix(subg) isa SubArray
-        @test node_feature(subg) == nf
-        @test edge_feature(subg) == ef
+        @test node_feature(subg) == nf[:, Graphs.vertices(subg)]
+        @test edge_feature(subg) == ef[:, Graphs.edges(subg)]
         @test global_feature(subg) == gf
 
         @test vertices(subg) == nodes
