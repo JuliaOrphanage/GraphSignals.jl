@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.10]
+
+- fix gradient wrt `NodeDomain` for cuarray
+
 ## [0.6.9]
 
 - `FeaturedSubgraph` supports `DataLoader`

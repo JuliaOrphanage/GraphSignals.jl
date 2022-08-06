@@ -1,7 +1,7 @@
 name = "GraphSignals"
 uuid = "3ebe565e-a4b5-49c6-aed2-300248c3a9c1"
 authors = ["Yueh-Hua Tu <a504082002@gmail.com>"]
-version = "0.6.9"
+version = "0.6.10"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
@@ -21,6 +21,7 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
+Adapt = "3"
 CUDA = "3"
 ChainRulesCore = "1"
 Distances = "0.10"
