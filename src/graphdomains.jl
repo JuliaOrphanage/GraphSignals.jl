@@ -17,7 +17,7 @@ end
 NodeDomain(::Nothing) = NullDomain()
 NodeDomain(d::AbstractGraphDomain) = d
 
-@functor NodeDomain
+Adapt.adapt_structure(to, d::NodeDomain) = NodeDomain(Adapt.adapt(to, d.domain))
 
 domain(d::NodeDomain) = d.domain
 positional_feature(d::NodeDomain) = d.domain
