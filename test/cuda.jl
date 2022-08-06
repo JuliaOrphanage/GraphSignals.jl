@@ -114,6 +114,7 @@
         fg = FeaturedGraph(adjm; nf=nf, pf=pf) |> gpu
         gs = gradient(x -> sum(positional_feature(FeaturedGraph(x))), fg)[1]
         @test :domain in keys(gs.pf)
+        @test gs.pf.domain isa CuArray
     end
 
     @testset "featuredgraph" begin
