@@ -28,10 +28,10 @@
         @test edge_feature(fg) == ef
         @test global_feature(fg) == gf
         @test positional_feature(fg) == pf
-        @test GraphSignals.nf_dims_repr(fg) == vdim
-        @test GraphSignals.ef_dims_repr(fg) == edim
-        @test GraphSignals.gf_dims_repr(fg) == gdim
-        @test GraphSignals.pf_dims_repr(fg) == pdim
+        @test GraphSignals.nf_dims_repr(fg.nf) == vdim
+        @test GraphSignals.ef_dims_repr(fg.ef) == edim
+        @test GraphSignals.gf_dims_repr(fg.gf) == gdim
+        @test GraphSignals.pf_dims_repr(fg.pf) == pdim
 
         fg2 = FeaturedGraph(fg)
         @test GraphSignals.adjacency_matrix(fg2) == adjm
@@ -56,8 +56,8 @@
         @test !has_positional_feature(fg)
         @test graph(fg).S == adjm
         @test node_feature(fg) == nf_t
-        @test edge_feature(fg) == Fill(0., (0, E))
-        @test global_feature(fg) == zeros(0)
+        @test isnothing(edge_feature(fg))
+        @test isnothing(global_feature(fg))
         @test isnothing(positional_feature(fg))
     end
 

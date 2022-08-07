@@ -65,7 +65,7 @@ fg = fg |> cu
 
 See also [`graph`](@ref), [`node_feature`](@ref), [`edge_feature`](@ref), and [`global_feature`](@ref).
 """
-mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp<:AbstractGraphDomain} <: AbstractFeaturedGraph
+mutable struct FeaturedGraph{T,Tn<:AbstractGraphSignal,Te<:AbstractGraphSignal,Tg<:AbstractGraphSignal,Tp<:AbstractGraphDomain} <: AbstractFeaturedGraph
     graph::T
     nf::Tn
     ef::Te
@@ -73,34 +73,43 @@ mutable struct FeaturedGraph{T,Tn,Te,Tg,Tp<:AbstractGraphDomain} <: AbstractFeat
     pf::Tp
     matrix_type::Symbol
 
-    function FeaturedGraph(graph::SparseGraph, nf::Tn, ef::Te, gf::Tg, pf,
-                           mt::Symbol) where {Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray}
+    function FeaturedGraph(graph::SparseGraph, nf, ef, gf, pf, mt::Symbol)
         check_matrix_type(mt)
         check_features(graph, nf, ef, pf)
+        nf = NodeSignal(nf)
+        ef = EdgeSignal(ef)
+        gf = GlobalSignal(gf)
         pf = NodeDomain(pf)
-        new{typeof(graph),Tn,Te,Tg,typeof(pf)}(graph, nf, ef, gf, pf, mt)
+        new{typeof(graph),typeof(nf),typeof(ef),typeof(gf),typeof(pf)}(graph, nf, ef, gf, pf, mt)
     end
     function FeaturedGraph{T,Tn,Te,Tg,Tp}(graph, nf, ef, gf, pf, mt
-            ) where {T,Tn<:AbstractArray,Te<:AbstractArray,Tg<:AbstractArray,Tp}
+            ) where {T,Tn,Te,Tg,Tp}
         check_matrix_type(mt)
         check_features(graph, nf, ef, pf)
+        graph = T(graph)
+        nf = NodeSignal(Tn(nf))
+        ef = EdgeSignal(Te(ef))
+        gf = GlobalSignal(Tg(gf))
         pf = NodeDomain(Tp(pf))
-        new{T,Tn,Te,Tg,typeof(pf)}(T(graph), Tn(nf), Te(ef), Tg(gf), pf, mt)
+        new{T,typeof(nf),typeof(ef),typeof(gf),typeof(pf)}(graph, nf, ef, gf, pf, mt)
     end
 end
 
 @functor FeaturedGraph
 
 function FeaturedGraph(graph, mat_type::Symbol; directed::Symbol=:auto, T=eltype(graph), N=nv(graph), E=ne(graph),
-                       nf=Fill(zero(T), (0, N)), ef=Fill(zero(T), (0, E)), gf=Fill(zero(T), 0), pf=nothing,
-                       with_batch::Bool=false)
+                       nf=nothing, ef=nothing, gf=nothing, pf=nothing, with_batch::Bool=false)
     @assert directed ∈ DIRECTEDS "directed must be one of $(join(_string.(DIRECTEDS), ", ", " or "))"
     dir = (directed == :auto) ? is_directed(graph) : directed == :directed
     if pf == :auto
         A = nf[1, ntuple(i -> Colon(), length(size(nf))-1)...]
         pf = generate_grid(A, with_batch=with_batch)
     end
-    return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, NodeDomain(pf), mat_type)
+    nf = NodeSignal(nf)
+    ef = EdgeSignal(ef)
+    gf = GlobalSignal(gf)
+    pf = NodeDomain(pf)
+    return FeaturedGraph(SparseGraph(graph, dir, T), nf, ef, gf, pf, mat_type)
 end
 
 ## Graph from JuliaGraphs
@@ -116,14 +125,18 @@ FeaturedGraph(graph::AbstractVector{T};
 
 ## Graph in adjacency matrix
 
-FeaturedGraph(graph::AbstractMatrix{T};
-              N=nv(graph), nf=Fill(zero(T), (0, N)), kwargs...) where T =
+FeaturedGraph(graph::AbstractMatrix{T}; N=nv(graph), nf=nothing, kwargs...) where T =
     FeaturedGraph(graph, :adjm; N=N, nf=nf, kwargs...)
 
-FeaturedGraph(fg::FeaturedGraph;
+function FeaturedGraph(fg::FeaturedGraph;
               nf=node_feature(fg), ef=edge_feature(fg), gf=global_feature(fg),
-              pf=positional_feature(fg)) =
-    FeaturedGraph(graph(fg), nf, ef, gf, NodeDomain(pf), matrixtype(fg))
+              pf=positional_feature(fg))
+    nf = NodeSignal(nf)
+    ef = EdgeSignal(ef)
+    gf = GlobalSignal(gf)
+    pf = NodeDomain(pf)
+    return FeaturedGraph(graph(fg), nf, ef, gf, pf, matrixtype(fg))
+end
 
 """
     ConcreteFeaturedGraph(fg; nf=node_feature(fg), ef=edge_feature(fg),
@@ -170,19 +183,6 @@ ConcreteFeaturedGraph(fg::FeaturedGraph; kwargs...) = FeaturedGraph(fg; kwargs..
 
 ## dimensional checks
 
-function check_num_nodes(graph_nv::Real, N::Real)
-    msg = "number of nodes must match between graph ($graph_nv) and features ($N)"
-    graph_nv == N || throw(DimensionMismatch(msg))
-end
-
-function check_num_edges(graph_ne::Real, E::Real)
-    msg = "number of edges must match between graph ($graph_ne) and features ($E)"
-    graph_ne == E || throw(DimensionMismatch(msg))
-end
-
-check_num_nodes(graph_nv::Real, feat) = check_num_nodes(graph_nv, size(feat, 2))
-check_num_edges(graph_ne::Real, feat) = check_num_edges(graph_ne, size(feat, 2))
-
 check_num_nodes(g, feat) = check_num_nodes(nv(g), feat)
 check_num_edges(g, feat) = check_num_edges(ne(g), feat)
 
@@ -205,10 +205,10 @@ function Base.show(io::IO, fg::FeaturedGraph)
     direct = is_directed(fg) ? "Directed" : "Undirected"
     println(io, "FeaturedGraph:")
     print(io, "\t", direct, " graph with (#V=", nv(fg), ", #E=", ne(fg), ") in ", matrixrepr(fg))
-    has_node_feature(fg) && print(io, "\n\tNode feature:\tℝ^", nf_dims_repr(fg), " <", typeof(fg.nf), ">")
-    has_edge_feature(fg) && print(io, "\n\tEdge feature:\tℝ^", ef_dims_repr(fg), " <", typeof(fg.ef), ">")
-    has_global_feature(fg) && print(io, "\n\tGlobal feature:\tℝ^", gf_dims_repr(fg), " <", typeof(fg.gf), ">")
-    has_positional_feature(fg) && print(io, "\n\tPositional feature:\tℝ^", pf_dims_repr(fg), " <", typeof(fg.pf), ">")
+    has_node_feature(fg) && print(io, "\n\tNode feature:\tℝ^", nf_dims_repr(fg.nf), " <", typeof(fg.nf), ">")
+    has_edge_feature(fg) && print(io, "\n\tEdge feature:\tℝ^", ef_dims_repr(fg.ef), " <", typeof(fg.ef), ">")
+    has_global_feature(fg) && print(io, "\n\tGlobal feature:\tℝ^", gf_dims_repr(fg.gf), " <", typeof(fg.gf), ">")
+    has_positional_feature(fg) && print(io, "\n\tPositional feature:\tℝ^", pf_dims_repr(fg.pf), " <", typeof(fg.pf), ">")
 end
 
 matrixrepr(fg::FeaturedGraph) = matrixrepr(Val(matrixtype(fg)))
@@ -217,11 +217,6 @@ matrixrepr(::Val{:normedadjm}) = "normalized adjacency matrix"
 matrixrepr(::Val{:laplacian}) = "Laplacian matrix"
 matrixrepr(::Val{:normalized}) = "normalized Laplacian"
 matrixrepr(::Val{:scaled}) = "scaled Laplacian"
-
-nf_dims_repr(fg::FeaturedGraph) = size(fg.nf, 1)
-ef_dims_repr(fg::FeaturedGraph) = size(fg.ef, 1)
-gf_dims_repr(fg::FeaturedGraph) = size(fg.gf, 1)
-pf_dims_repr(fg::FeaturedGraph) = pf_dims_repr(fg.pf)
 
 
 ## Accessing
@@ -236,12 +231,16 @@ function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
         check_num_edges(x, fg.ef)
         check_num_nodes(x, fg.pf)
     elseif prop == :nf
+        x = NodeSignal(x)
         check_num_nodes(fg.graph, x)
     elseif prop == :ef
+        x = EdgeSignal(x)
         check_num_edges(fg.graph, x)
+    elseif prop == :gf
+        x = GlobalSignal(x)
     elseif prop == :pf
-        check_num_nodes(fg.graph, x)
         x = NodeDomain(x)
+        check_num_nodes(fg.graph, x)
     end
     setfield!(fg, prop, x)
 end
@@ -266,7 +265,7 @@ Get node feature attached to `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-node_feature(fg::FeaturedGraph) = fg.nf
+node_feature(fg::FeaturedGraph) = node_feature(fg.nf)
 
 """
     edge_feature(fg)
@@ -277,7 +276,7 @@ Get edge feature attached to `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-edge_feature(fg::FeaturedGraph) = fg.ef
+edge_feature(fg::FeaturedGraph) = edge_feature(fg.ef)
 
 """
     global_feature(fg)
@@ -288,7 +287,7 @@ Get global feature attached to `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-global_feature(fg::FeaturedGraph) = fg.gf
+global_feature(fg::FeaturedGraph) = global_feature(fg.gf)
 
 """
     positional_feature(fg)
@@ -321,7 +320,7 @@ Check if `node_feature` is available or not for `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-has_node_feature(fg::FeaturedGraph) = !isempty(fg.nf)
+has_node_feature(fg::FeaturedGraph) = has_node_feature(fg.nf)
 
 """
     has_edge_feature(::AbstractFeaturedGraph)
@@ -332,7 +331,7 @@ Check if `edge_feature` is available or not for `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-has_edge_feature(fg::FeaturedGraph) = !isempty(fg.ef)
+has_edge_feature(fg::FeaturedGraph) = has_edge_feature(fg.ef)
 
 """
     has_global_feature(::AbstractFeaturedGraph)
@@ -343,7 +342,7 @@ Check if `global_feature` is available or not for `fg`.
 
 - `fg::AbstractFeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
 """
-has_global_feature(fg::FeaturedGraph) = !isempty(fg.gf)
+has_global_feature(fg::FeaturedGraph) = has_global_feature(fg.gf)
 
 """
     has_positional_feature(::AbstractFeaturedGraph)
