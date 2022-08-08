@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0]
+
+- add `NodeSignal`, `EdgeSignal` and `GlobalSignal`
+- drop inplace operations for `FeaturedGraph`
+- drop `parent`
+- drop `NullGraph` support
+
 ## [0.6.10]
 
 - fix gradient wrt `NodeDomain` for cuarray
