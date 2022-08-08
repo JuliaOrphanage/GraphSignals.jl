@@ -34,8 +34,6 @@ end
 
 @functor FeaturedSubgraph
 
-FeaturedSubgraph(ng::NullGraph, ::AbstractVector) = ng
-
 ConcreteFeaturedGraph(fsg::FeaturedSubgraph; nf=node_feature(fsg.fg),
                       ef=edge_feature(fsg.fg), gf=global_feature(fsg.fg),
                       pf=positional_feature(fsg.fg), nodes=fsg.nodes) =
@@ -61,14 +59,10 @@ subgraph(fsg::FeaturedSubgraph, nodes::AbstractVector) = FeaturedSubgraph(fsg.fg
 
 ## show
 
-function Base.show(io::IO, fsg::FeaturedSubgraph)
-    print(io, fsg.fg)
-    print(io, "\n\tSubgraph:\tnodes(", fsg.nodes, ")")
-end
+Base.show(io::IO, fsg::FeaturedSubgraph) =
+    print(io, fsg.fg, "\n\tSubgraph:\tnodes(", fsg.nodes, ")")
 
 graph(fsg::FeaturedSubgraph) = graph(fsg.fg)
-
-Base.parent(fsg::FeaturedSubgraph) = fsg.fg
 
 Graphs.vertices(fsg::FeaturedSubgraph) = fsg.nodes
 

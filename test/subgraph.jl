@@ -7,14 +7,6 @@
 
     nodes = [1,2,3,5]
 
-    @testset "null graph" begin
-        fg = NullGraph()
-
-        subg = FeaturedSubgraph(fg, nodes)
-        @test subg === fg
-        @test subgraph(fg, nodes) === fg
-    end
-
     @testset "undirected graph" begin
         E = 5
         ef = rand(5, E)
@@ -90,7 +82,6 @@
         @test node_feature(subg) == nf
         @test edge_feature(subg) == ef
         @test global_feature(subg) == gf
-        @test parent(subg) === subg.fg
 
         @test vertices(subg) == nodes
         @test edges(subg) == [1,2,4,5,6,7,8,9,11,15,16]

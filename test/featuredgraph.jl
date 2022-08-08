@@ -11,22 +11,6 @@
     gf = rand(gdim)
     pf = rand(pdim, V)
 
-    @testset "null graph" begin
-        ng = NullGraph()
-        @test FeaturedGraph() == ng
-        @test FeaturedGraph(ng) == ng
-        @test !has_graph(ng)
-        @test !has_node_feature(ng)
-        @test !has_edge_feature(ng)
-        @test !has_global_feature(ng)
-        @test !has_positional_feature(ng)
-        @test isnothing(graph(ng))
-        @test isnothing(node_feature(ng))
-        @test isnothing(edge_feature(ng))
-        @test isnothing(global_feature(ng))
-        @test isnothing(positional_feature(ng))
-    end
-
     @testset "features" begin
         adjm = [0 1 1 1;
                 1 0 1 0;
@@ -48,7 +32,6 @@
         @test GraphSignals.ef_dims_repr(fg) == edim
         @test GraphSignals.gf_dims_repr(fg) == gdim
         @test GraphSignals.pf_dims_repr(fg) == pdim
-        @test parent(fg) === fg
 
         fg2 = FeaturedGraph(fg)
         @test GraphSignals.adjacency_matrix(fg2) == adjm
