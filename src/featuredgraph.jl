@@ -183,6 +183,20 @@ ConcreteFeaturedGraph(fg::FeaturedGraph; kwargs...) = FeaturedGraph(fg; kwargs..
 
 ## dimensional checks
 
+function check_num_nodes(graph_nv::Real, N::Real)
+    msg = "number of nodes must match between graph ($graph_nv) and features ($N)"
+    graph_nv == N || throw(DimensionMismatch(msg))
+end
+
+function check_num_edges(graph_ne::Real, E::Real)
+    msg = "number of edges must match between graph ($graph_ne) and features ($E)"
+    graph_ne == E || throw(DimensionMismatch(msg))
+end
+
+# generic fallback
+check_num_nodes(graph_nv::Real, feat) = check_num_nodes(graph_nv, size(feat, 2))
+check_num_edges(graph_ne::Real, feat) = check_num_edges(graph_ne, size(feat, 2))
+
 check_num_nodes(g, feat) = check_num_nodes(nv(g), feat)
 check_num_edges(g, feat) = check_num_edges(ne(g), feat)
 

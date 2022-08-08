@@ -34,12 +34,6 @@ signal(s::NodeSignal) = s.signal
 node_feature(s::NodeSignal) = s.signal
 has_node_feature(::NodeSignal) = true
 nf_dims_repr(s::NodeSignal) = size(s.signal, 1)
-
-function check_num_nodes(graph_nv::Real, N::Real)
-    errmsg = "number of nodes must match between graph ($graph_nv) and node features ($N)"
-    graph_nv == N || throw(DimensionMismatch(errmsg))
-end
-
 check_num_nodes(graph_nv::Real, s::NodeSignal) = check_num_nodes(graph_nv, size(s.signal, 2))
 
 
@@ -57,12 +51,6 @@ signal(s::EdgeSignal) = s.signal
 edge_feature(s::EdgeSignal) = s.signal
 has_edge_feature(::EdgeSignal) = true
 ef_dims_repr(s::EdgeSignal) = size(s.signal, 1)
-
-function check_num_edges(graph_ne::Real, E::Real)
-    errmsg = "number of edges must match between graph ($graph_ne) and edge features ($E)"
-    graph_ne == E || throw(DimensionMismatch(errmsg))
-end
-
 check_num_edges(graph_ne::Real, s::EdgeSignal) = check_num_edges(graph_ne, size(s.signal, 2))
 
 
