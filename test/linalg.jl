@@ -255,7 +255,7 @@
 
                 for dir in [:out, :in, :both]
                     RW = GraphSignals.random_walk_laplacian(g, T, dir=dir)
-                    @test RW == T.(rw_laps[dir])
+                    @test collect(RW) ≈ T.(rw_laps[dir])
                     @test eltype(RW) == T
                 end
             end

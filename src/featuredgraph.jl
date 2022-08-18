@@ -421,28 +421,11 @@ Get adjacency list of graph in `fg`.
 """
 adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
 
-adjacency_matrix(fg::FeaturedGraph) = adjacency_matrix(graph(fg))
-
-
-## Linear algebra
+adjacency_matrix(fg::FeaturedGraph, ::Type{T}=eltype(graph(fg))) where {T} =
+    adjacency_matrix(graph(fg), T)
 
 degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
     degrees(graph(fg), T; dir=dir)
-
-degree_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    degree_matrix(graph(fg), T; dir=dir)
-
-normalized_adjacency_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); selfloop::Bool=false) =
-    normalized_adjacency_matrix(graph(fg), T; selfloop=selfloop)
-
-laplacian_matrix(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
-    laplacian_matrix(graph(fg), T; dir=dir)
-
-normalized_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg));
-                                     dir::Symbol=:both, selfloop::Bool=false) =
-    normalized_laplacian(graph(fg), T; selfloop=selfloop)
-
-scaled_laplacian(fg::FeaturedGraph, T::DataType=eltype(graph(fg))) = scaled_laplacian(graph(fg), T)
 
 
 ## sample

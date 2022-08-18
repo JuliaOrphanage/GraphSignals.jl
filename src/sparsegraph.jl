@@ -307,27 +307,11 @@ aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:outward}) =
 ## Graph representations
 
 adjacency_list(sg::SparseGraph) = map(j -> outneighbors(sg, j), vertices(sg))
-adjacency_matrix(sg::SparseGraph) = adjacency_matrix(sparse(sg))
-
-
-## Linear algebra
+adjacency_matrix(sg::AbstractSparseGraph, T::DataType=eltype(sg)) =
+    adjacency_matrix(sparse(sg), T)
 
 degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
     degrees(sparse(sg), T; dir=dir)
-
-degree_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
-    degree_matrix(sparse(sg), T; dir=dir)
-
-normalized_adjacency_matrix(sg::SparseGraph, T::DataType=eltype(sg); selfloop::Bool=false) =
-    normalized_adjacency_matrix(sparse(sg), T; selfloop=selfloop)
-
-laplacian_matrix(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
-    laplacian_matrix(sparse(sg), T; dir=dir)
-
-normalized_laplacian(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:both, selfloop::Bool=false) =
-    normalized_laplacian(sparse(sg), T; selfloop=selfloop)
-
-scaled_laplacian(sg::SparseGraph, T::DataType=eltype(sg)) = scaled_laplacian(sparse(sg), T)
 
 
 ## Edge iterator
