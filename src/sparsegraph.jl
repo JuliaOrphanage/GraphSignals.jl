@@ -313,7 +313,6 @@ adjacency_matrix(sg::AbstractSparseGraph, T::DataType=eltype(sg)) =
 degrees(sg::SparseGraph, T::DataType=eltype(sg); dir::Symbol=:out) =
     degrees(sparse(sg), T; dir=dir)
 
-
 ## Edge iterator
 
 struct EdgeIter{G,S}

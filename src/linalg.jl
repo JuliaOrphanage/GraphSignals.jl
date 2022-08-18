@@ -64,7 +64,8 @@ julia> GraphSignals.degrees(m)
  1
 ```
 """
-function degrees(adj::AbstractMatrix; dir::Symbol=:out)
+function degrees(g, ::Type{T}=eltype(g); dir::Symbol=:out) where {T}
+    adj = adjacency_matrix(g, T)
     if issymmetric(adj)
         d = vec(sum(adj, dims=1))
     else
@@ -75,19 +76,14 @@ function degrees(adj::AbstractMatrix; dir::Symbol=:out)
         elseif dir == :both
             d = vec(sum(adj, dims=1)) + vec(sum(adj, dims=2))
         else
-            throw(DomainError(dir, "invalid argument, only accept :in, :out and :both"))
+            throw(ArgumentError("dir only accept :in, :out or :both, but got $(dir)."))
         end
     end
-    d
+    return T.(d)
 end
 
-degrees(adj::AbstractMatrix, T::DataType; dir::Symbol=:out) = T.(degrees(adj; dir=dir))
-degrees(adj::CuSparseMatrixCSC, T::DataType; dir::Symbol=:out) = T.(degrees(CuMatrix(adj); dir=dir))
-
-function degrees(g::AbstractGraph, T::DataType=eltype(g); dir::Symbol=:out)
-    adj = Graphs.adjacency_matrix(g, T; dir=dir)
-    degrees(adj, T; dir=dir)
-end
+degrees(adj::CuSparseMatrixCSC, ::Type{T}=eltype(adj); dir::Symbol=:out) where {T} =
+    degrees(CuMatrix{T}(adj); dir=dir)
 
 """
     degree_matrix(g, [T]; dir=:out)

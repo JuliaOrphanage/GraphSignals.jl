@@ -237,7 +237,7 @@ matrixrepr(::Val{:scaled}) = "scaled Laplacian"
 
 matrixtype(fg::FeaturedGraph) = fg.matrix_type
 
-Graphs.is_directed(fg::FeaturedGraph) = is_directed(graph(fg))
+Graphs.is_directed(fg::AbstractFeaturedGraph) = is_directed(graph(fg))
 
 function Base.setproperty!(fg::FeaturedGraph, prop::Symbol, x)
     if prop == :graph
@@ -424,7 +424,7 @@ adjacency_list(fg::FeaturedGraph) = adjacency_list(graph(fg))
 adjacency_matrix(fg::FeaturedGraph, ::Type{T}=eltype(graph(fg))) where {T} =
     adjacency_matrix(graph(fg), T)
 
-degrees(fg::FeaturedGraph, T::DataType=eltype(graph(fg)); dir::Symbol=:out) =
+degrees(fg::AbstractFeaturedGraph, ::Type{T}=eltype(graph(fg)); dir::Symbol=:out) where {T} =
     degrees(graph(fg), T; dir=dir)
 
 

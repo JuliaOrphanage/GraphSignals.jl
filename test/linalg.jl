@@ -241,7 +241,7 @@
                     @test SL == T.(sig_laps[dir])
                     @test eltype(SL) == T
                 end
-                @test_throws DomainError GraphSignals.degree_matrix(g, dir=:other)
+                @test_throws ArgumentError GraphSignals.degree_matrix(g, dir=:other)
             end
         end
 
