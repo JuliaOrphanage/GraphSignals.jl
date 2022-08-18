@@ -17,7 +17,7 @@ using StatsBase
 using NNlib, NNlibCUDA
 using NearestNeighbors
 
-import Graphs: laplacian_matrix
+import Graphs: adjacency_matrix, laplacian_matrix
 
 export
     # featuredgraph

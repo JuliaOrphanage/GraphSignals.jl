@@ -241,7 +241,7 @@
                     @test SL == T.(sig_laps[dir])
                     @test eltype(SL) == T
                 end
-                @test_throws DomainError GraphSignals.degree_matrix(g, dir=:other)
+                @test_throws ArgumentError GraphSignals.degree_matrix(g, dir=:other)
             end
         end
 
@@ -255,7 +255,7 @@
 
                 for dir in [:out, :in, :both]
                     RW = GraphSignals.random_walk_laplacian(g, T, dir=dir)
-                    @test RW == T.(rw_laps[dir])
+                    @test collect(RW) ≈ T.(rw_laps[dir])
                     @test eltype(RW) == T
                 end
             end
