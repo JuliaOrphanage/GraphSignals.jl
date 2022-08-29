@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.2]
+
+- fix naming issue
+
 ## [0.7.1]
 
 - fix check number functions
