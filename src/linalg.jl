@@ -39,7 +39,7 @@ end
 
 
 """
-    degrees(g, [T]; dir=:out)
+    degrees(g, [T=eltype(g)]; dir=:out)
 
 Degree of each vertex. Return a vector which contains the degree of each vertex in graph `g`.
 
@@ -86,7 +86,7 @@ degrees(adj::CuSparseMatrixCSC, ::Type{T}=eltype(adj); dir::Symbol=:out) where {
     degrees(CuMatrix{T}(adj); dir=dir)
 
 """
-    degree_matrix(g, [T]; dir=:out, squared=false, inverse=false)
+    degree_matrix(g, [T=eltype(g)]; dir=:out, squared=false, inverse=false)
 
 Degree matrix of graph `g`. Return a matrix which contains degrees of each vertex in its diagonal.
 The values other than diagonal are zeros.
@@ -126,7 +126,7 @@ end
 safe_inv(x::T) where {T} = ifelse(iszero(x), zero(T), inv(x))
 
 @doc raw"""
-    normalized_adjacency_matrix(g, [T]; selfloop=false)
+    normalized_adjacency_matrix(g, [T=float(eltype(g))]; selfloop=false)
 
 Normalized adjacency matrix of graph `g`, defined as
 
@@ -143,7 +143,8 @@ where ``D`` is degree matrix and ``\tilde{A}`` is adjacency matrix w/o self loop
 - `T`: The element type of result degree vector. The default type is the element type of `g`.
 - `selfloop`: Adding self loop to ``\tilde{A}`` or not.
 """
-function normalized_adjacency_matrix(g, ::Type{T}=eltype(g); selfloop::Bool=false) where {T}
+function normalized_adjacency_matrix(g, ::Type{T}=float(eltype(g));
+                                     selfloop::Bool=false) where {T}
     adj = adjacency_matrix(g, T)
     selfloop && (adj += I)
     inv_sqrtD = degree_matrix(g, T, dir=:both, squared=true, inverse=true)
@@ -151,7 +152,7 @@ function normalized_adjacency_matrix(g, ::Type{T}=eltype(g); selfloop::Bool=fals
 end
 
 """
-    laplacian_matrix(g, [T]; dir=:out)
+    laplacian_matrix(g, [T=eltype(g)]; dir=:out)
 
 Laplacian matrix of graph `g`, defined as
 
@@ -173,7 +174,7 @@ Graphs.laplacian_matrix(g, ::Type{T}=eltype(g); dir::Symbol=:out) where {T} =
     degree_matrix(g, T, dir=dir) - adjacency_matrix(g, T)
 
 @doc raw"""
-    normalized_laplacian(g, [T]; dir=:both, selfloop=false)
+    normalized_laplacian(g, [T=float(eltype(g))]; dir=:both, selfloop=false)
 
 Normalized Laplacian matrix of graph `g`, defined as
 
@@ -207,7 +208,7 @@ function normalized_laplacian(g, ::Type{T}=float(eltype(g));
 end
 
 @doc raw"""
-    scaled_laplacian(g, [T])
+    scaled_laplacian(g, [T=float(eltype(g))])
 
 Scaled Laplacien matrix of graph `g`, defined as
 
@@ -231,7 +232,32 @@ function scaled_laplacian(g, ::Type{T}=float(eltype(g))) where {T}
 end
 
 """
-    random_walk_laplacian(g, [T]; dir=:out)
+    transition_matrix(g, [T=float(eltype(g))]; dir=:out)
+
+Transition matrix of performing random walk over graph `g`, defined as
+
+```math
+D^{-1} A
+```
+
+where ``D`` is degree matrix and ``A`` is adjacency matrix from `g`.
+
+# Arguments
+
+- `g`: Should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
+    or `SimpleWeightedGraph`, `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
+- `T`: The element type of result degree vector. The default type is the element type of `g`.
+- `dir::Symbol`: The way to calculate degree of a graph `g` regards its directions.
+    Should be `:in`, `:out`, or `:both`.
+"""
+function transition_matrix(g, ::Type{T}=float(eltype(g)); dir::Symbol=:out) where {T}
+    inv_D = degree_matrix(g, T; dir=dir, inverse=true)
+    A = adjacency_matrix(g, T)
+    return inv_D * A
+end
+
+"""
+    random_walk_laplacian(g, [T=float(eltype(g))]; dir=:out)
 
 Random walk normalized Laplacian matrix of graph `g`, defined as
 
@@ -249,15 +275,11 @@ where ``D`` is degree matrix and ``A`` is adjacency matrix from `g`.
 - `dir::Symbol`: The way to calculate degree of a graph `g` regards its directions.
     Should be `:in`, `:out`, or `:both`.
 """
-function random_walk_laplacian(g, ::Type{T}=float(eltype(g)); dir::Symbol=:out) where {T}
-    inv_D = degree_matrix(g, T; dir=dir, inverse=true)
-    A = adjacency_matrix(g, T)
-    P = inv_D * A
-    return SparseMatrixCSC(I - P)
-end
+random_walk_laplacian(g, ::Type{T}=float(eltype(g)); dir::Symbol=:out) where {T} =
+    SparseMatrixCSC(I - transition_matrix(g, T, dir=dir))
 
 """
-    signless_laplacian(g, [T]; dir=:out)
+    signless_laplacian(g, [T=eltype(g)]; dir=:out)
 
 Signless Laplacian matrix of graph `g`, defined as
 
