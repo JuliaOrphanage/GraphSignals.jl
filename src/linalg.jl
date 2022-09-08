@@ -125,10 +125,10 @@ end
 
 safe_inv(x::T) where {T} = ifelse(iszero(x), zero(T), inv(x))
 
-"""
+@doc raw"""
     normalized_adjacency_matrix(g, [T]; selfloop=false)
 
-Normalized adjacency matrix of graph `g`.
+Normalized adjacency matrix of graph `g`, defined as
 
 ```math
 D^{-\frac{1}{2}} \tilde{A} D^{-\frac{1}{2}}
@@ -153,7 +153,7 @@ end
 """
     laplacian_matrix(g, [T]; dir=:out)
 
-Laplacian matrix of graph `g`.
+Laplacian matrix of graph `g`, defined as
 
 ```math
 D - A
@@ -172,10 +172,10 @@ where ``D`` is degree matrix and ``A`` is adjacency matrix from `g`.
 Graphs.laplacian_matrix(g, ::Type{T}=eltype(g); dir::Symbol=:out) where {T} =
     degree_matrix(g, T, dir=dir) - adjacency_matrix(g, T)
 
-"""
+@doc raw"""
     normalized_laplacian(g, [T]; dir=:both, selfloop=false)
 
-Normalized Laplacian matrix of graph `g`.
+Normalized Laplacian matrix of graph `g`, defined as
 
 ```math
 I - D^{-\frac{1}{2}} \tilde{A} D^{-\frac{1}{2}}
@@ -233,10 +233,10 @@ end
 """
     random_walk_laplacian(g, [T]; dir=:out)
 
-Random walk normalized Laplacian matrix of graph `g`.
+Random walk normalized Laplacian matrix of graph `g`, defined as
 
 ```math
-D^{-1} A
+I - D^{-1} A
 ```
 
 where ``D`` is degree matrix and ``A`` is adjacency matrix from `g`.
@@ -259,7 +259,7 @@ end
 """
     signless_laplacian(g, [T]; dir=:out)
 
-Signless Laplacian matrix of graph `g`.
+Signless Laplacian matrix of graph `g`, defined as
 
 ```math
 D + A
