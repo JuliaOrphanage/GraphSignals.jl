@@ -86,17 +86,20 @@ degrees(adj::CuSparseMatrixCSC, ::Type{T}=eltype(adj); dir::Symbol=:out) where {
     degrees(CuMatrix{T}(adj); dir=dir)
 
 """
-    degree_matrix(g, [T]; dir=:out)
+    degree_matrix(g, [T]; dir=:out, squared=false, inverse=false)
 
 Degree matrix of graph `g`. Return a matrix which contains degrees of each vertex in its diagonal.
 The values other than diagonal are zeros.
 
 # Arguments
 
-- `g`: should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
+- `g`: Should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
     or `SimpleWeightedGraph`, `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
-- `T`: result element type of degree vector; default is the element type of `g` (optional).
-- `dir`: direction of degree; should be `:in`, `:out`, or `:both` (optional).
+- `T`: The element type of result degree vector. The default type is the element type of `g`.
+- `dir::Symbol`: The way to calculate degree of a graph `g` regards its directions.
+    Should be `:in`, `:out`, or `:both`.
+- `squared::Bool`: To return a squared degree vector or not.
+- `inverse::Bool`: To return a inverse degree vector or not.
 
 # Examples
 
@@ -127,12 +130,18 @@ safe_inv(x::T) where {T} = ifelse(iszero(x), zero(T), inv(x))
 
 Normalized adjacency matrix of graph `g`.
 
+```math
+D^{-\frac{1}{2}} \tilde{A} D^{-\frac{1}{2}}
+```
+
+where ``D`` is degree matrix and ``\tilde{A}`` is adjacency matrix w/o self loop from `g`.
+
 # Arguments
 
-- `g`: should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
+- `g`: Should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
     or `SimpleWeightedGraph`, `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
-- `T`: result element type of degree vector; default is the element type of `g` (optional).
-- `selfloop`: adding self loop while calculating the matrix (optional).
+- `T`: The element type of result degree vector. The default type is the element type of `g`.
+- `selfloop`: Adding self loop to ``\tilde{A}`` or not.
 """
 function normalized_adjacency_matrix(g, ::Type{T}=eltype(g); selfloop::Bool=false) where {T}
     adj = adjacency_matrix(g, T)
@@ -146,12 +155,19 @@ end
 
 Laplacian matrix of graph `g`.
 
+```math
+D - A
+```
+
+where ``D`` is degree matrix and ``A`` is adjacency matrix from `g`.
+
 # Arguments
 
-- `g`: should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
+- `g`: Should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
     or `SimpleWeightedGraph`, `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
-- `T`: result element type of degree vector; default is the element type of `g` (optional).
-- `dir`: direction of degree; should be `:in`, `:out`, or `:both` (optional).
+- `T`: The element type of result degree vector. The default type is the element type of `g`.
+- `dir::Symbol`: The way to calculate degree of a graph `g` regards its directions.
+    Should be `:in`, `:out`, or `:both`.
 """
 Graphs.laplacian_matrix(g, ::Type{T}=eltype(g); dir::Symbol=:out) where {T} =
     degree_matrix(g, T, dir=dir) - adjacency_matrix(g, T)
@@ -161,13 +177,20 @@ Graphs.laplacian_matrix(g, ::Type{T}=eltype(g); dir::Symbol=:out) where {T} =
 
 Normalized Laplacian matrix of graph `g`.
 
+```math
+I - D^{-\frac{1}{2}} \tilde{A} D^{-\frac{1}{2}}
+```
+
+where ``D`` is degree matrix and ``\tilde{A}`` is adjacency matrix w/o self loop from `g`.
+
 # Arguments
 
-- `g`: should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
+- `g`: Should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
     or `SimpleWeightedGraph`, `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
-- `T`: result element type of degree vector; default is the element type of `g` (optional).
-- `selfloop`: adding self loop while calculating the matrix (optional).
-- `dir`: direction of graph; should be `:in` or `:out` (optional).
+- `T`: The element type of result degree vector. The default type is the element type of `g`.
+- `dir::Symbol`: The way to calculate degree of a graph `g` regards its directions.
+    Should be `:in`, `:out`, or `:both`.
+- `selfloop::Bool`: Adding self loop to ``\tilde{A}`` or not.
 """
 function normalized_laplacian(g, ::Type{T}=float(eltype(g));
                               dir::Symbol=:both, selfloop::Bool=false) where {T}
@@ -186,14 +209,19 @@ end
 @doc raw"""
     scaled_laplacian(g, [T])
 
-Scaled Laplacien matrix of graph `g`,
-defined as ``\hat{L} = \frac{2}{\lambda_{max}} L - I`` where ``L`` is the normalized Laplacian matrix.
+Scaled Laplacien matrix of graph `g`, defined as
+
+```math
+\hat{L} = \frac{2}{\lambda_{max}} \tilde{L} - I
+```
+
+where ``\tilde{L}`` is the normalized Laplacian matrix.
 
 # Arguments
 
-- `g`: should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
+- `g`: Should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
     or `SimpleWeightedGraph`, `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
-- `T`: result element type of degree vector; default is the element type of `g` (optional).
+- `T`: The element type of result degree vector. The default type is the element type of `g`.
 """
 function scaled_laplacian(g, ::Type{T}=float(eltype(g))) where {T}
     adj = adjacency_matrix(g, T)
@@ -207,12 +235,19 @@ end
 
 Random walk normalized Laplacian matrix of graph `g`.
 
+```math
+D^{-1} A
+```
+
+where ``D`` is degree matrix and ``A`` is adjacency matrix from `g`.
+
 # Arguments
 
-- `g`: should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
+- `g`: Should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
     or `SimpleWeightedGraph`, `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
-- `T`: result element type of degree vector; default is the element type of `g` (optional).
-- `dir`: direction of degree; should be `:in`, `:out`, or `:both` (optional).
+- `T`: The element type of result degree vector. The default type is the element type of `g`.
+- `dir::Symbol`: The way to calculate degree of a graph `g` regards its directions.
+    Should be `:in`, `:out`, or `:both`.
 """
 function random_walk_laplacian(g, ::Type{T}=float(eltype(g)); dir::Symbol=:out) where {T}
     inv_D = degree_matrix(g, T; dir=dir, inverse=true)
@@ -226,12 +261,19 @@ end
 
 Signless Laplacian matrix of graph `g`.
 
+```math
+D + A
+```
+
+where ``D`` is degree matrix and ``A`` is adjacency matrix from `g`.
+
 # Arguments
 
-- `g`: should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
+- `g`: Should be a adjacency matrix, `FeaturedGraph`, `SimpleGraph`, `SimpleDiGraph` (from Graphs)
     or `SimpleWeightedGraph`, `SimpleWeightedDiGraph` (from SimpleWeightedGraphs).
-- `T`: result element type of degree vector; default is the element type of `g` (optional).
-- `dir`: direction of degree; should be `:in`, `:out`, or `:both` (optional).
+- `T`: The element type of result degree vector. The default type is the element type of `g`.
+- `dir::Symbol`: The way to calculate degree of a graph `g` regards its directions.
+    Should be `:in`, `:out`, or `:both`.
 """
 signless_laplacian(g, ::Type{T}=eltype(g); dir::Symbol=:out) where {T} =
     degree_matrix(g, T, dir=dir) + adjacency_matrix(g, T)
