@@ -87,6 +87,9 @@ include("random.jl")
 
 include("dataloader.jl")
 
+include("tokenizer.jl")
+
+
 # Non-differentiables
 
 @non_differentiable nv(x...)
