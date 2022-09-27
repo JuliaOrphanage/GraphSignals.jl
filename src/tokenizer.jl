@@ -17,9 +17,48 @@ end
 
 function laplacian_matrix(g, dims::Vararg{Int})
     L = laplacian_matrix(g)
-    return repeat(L, outer=(1, 1, dims...))
+    U = eigvecs(L)
+    return repeat(U, outer=(1, 1, dims...))
 end
 
+"""
+    node_identifier(g, dims...; method=GraphSignals.orthogonal_random_features)
+
+Constructing node identifier for a graph `g` with additional dimensions `dims`.
+
+# Arguments
+
+- `g`: Data representing the graph topology. Possible type are
+    - An adjacency matrix.
+    - An adjacency list.
+    - A Graphs' graph, i.e. `SimpleGraph`, `SimpleDiGraph` from Graphs, or `SimpleWeightedGraph`,
+        `SimpleWeightedDiGraph` from SimpleWeightedGraphs.
+    - An `AbstractFeaturedGraph` object.
+- `dims`: Additional dimensions desired following after first two dimensions.
+- `method`: Available methods are `GraphSignals.orthogonal_random_features` and
+    `GraphSignals.laplacian_matrix`.
+
+# Usage
+
+```jldoctest
+julia> using GraphSignals
+
+julia> adjm = [0 1 1 1;
+               1 0 1 0;
+               1 1 0 1;
+               1 0 1 0];
+
+julia> batch_size = 10
+10
+
+julia> node_id = node_identifier(adjm, batch_size; method=GraphSignals.orthogonal_random_features);
+
+julia> size(node_id)
+(4, 4, 10)
+```
+
+See also [`tokenize`](@ref) for node/edge features tokenization.
+"""
 node_identifier(g, dims...; method=orthogonal_random_features) = method(g, dims...)
 
 function tokenize(g, node_feat::AbstractArray, edge_feat::AbstractArray; method=orthogonal_random_features)

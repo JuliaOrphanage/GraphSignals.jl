@@ -67,7 +67,11 @@ export
     neighbor_sample,
 
     # neighbor_graphs
-    kneighbors_graph
+    kneighbors_graph,
+
+    # tokenizer
+    node_identifier,
+    tokenize
 
 include("positional.jl")
 include("graph.jl")
@@ -108,5 +112,7 @@ include("tokenizer.jl")
 @non_differentiable order_edges(x...)
 @non_differentiable aggregate_index(x...)
 @non_differentiable kneighbors_graph(x...)
+@non_differentiable GraphSignals.orthogonal_random_features(x...)
+@non_differentiable GraphSignals.laplacian_matrix(x...)
 
 end
