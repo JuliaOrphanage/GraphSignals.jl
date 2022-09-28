@@ -6,6 +6,7 @@ using FillArrays
 using Graphs
 using LinearAlgebra
 using MLUtils
+using NNlib
 using SimpleWeightedGraphs
 using SparseArrays
 using StatsBase
@@ -26,6 +27,7 @@ tests = [
     "random",
     "neighbor_graphs",
     "dataloader",
+    "tokenizer",
 ]
 
 if CUDA.functional()
