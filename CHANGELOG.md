@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1]
+
+- update docs
+
 ## [0.8.0]
 
 - support facilities for TokenGT: `node_identifier`, `tokenize`
