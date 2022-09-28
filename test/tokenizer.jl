@@ -1,8 +1,6 @@
 @testset "tokenizer" begin
-    V = 4
-    E = 5
-    vdim = 3
-    edim = 5
+    V, E = 4, 5
+    vdim, edim = 3, 5
     batch_size = 10
 
     nf = rand(vdim, V, batch_size)
