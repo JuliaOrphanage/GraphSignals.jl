@@ -84,9 +84,34 @@ Returns tokenized node features and edge features, respectively.
 ```jldoctest
 julia> using GraphSignals
 
+julia> V, E = 4, 5
+(4, 5)
+
+julia> vdim, edim = 3, 5
+(3, 5)
+
+julia> batch_size = 10
+10
+
+julia> nf = rand(vdim, V, batch_size);
+
+julia> ef = rand(edim, E, batch_size);
+
+julia> adjm = [0 1 1 1;
+               1 0 1 0;
+               1 1 0 1;
+               1 0 1 0];
+
+julia> node_token, edge_token = tokenize(adjm, nf, ef);
+
+julia> size(node_token)
+(11, 4, 10)
+
+julia> size(edge_token)
+(13, 10, 10)
 ```
 
-See also [`node_identifier`](@ref) for generating node identifier.
+See also [`node_identifier`](@ref) for generating node identifier only.
 """
 function tokenize(g, node_feat::AbstractArray, edge_feat::AbstractArray; method=orthogonal_random_features)
     fg = FeaturedGraph(g)
