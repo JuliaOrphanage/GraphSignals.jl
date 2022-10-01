@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.2]
+
+- replace `tokenize` with `identifier`
+
 ## [0.8.1]
 
 - update docs
