@@ -62,9 +62,9 @@ See also [`tokenize`](@ref) for node/edge features tokenization.
 node_identifier(g, dims...; method=orthogonal_random_features) = method(g, dims...)
 
 """
-    tokenize(g, node_feat, edge_feat; method=orthogonal_random_features)
+    identifiers(g, dims...; method=orthogonal_random_features)
 
-Returns tokenized node features and edge features, respectively.
+Returns node identifier and edge identifier.
 
 # Arguments
 
@@ -74,8 +74,7 @@ Returns tokenized node features and edge features, respectively.
     - A Graphs' graph, i.e. `SimpleGraph`, `SimpleDiGraph` from Graphs, or `SimpleWeightedGraph`,
         `SimpleWeightedDiGraph` from SimpleWeightedGraphs.
     - An `AbstractFeaturedGraph` object.
-- `node_feat::AbstractArray`: Node features.
-- `edge_feat::AbstractArray`: Edge features.
+- `dims`: Additional dimensions desired following after first two dimensions.
 - `method`: Available methods are `GraphSignals.orthogonal_random_features` and
     `GraphSignals.laplacian_matrix`.
 
@@ -87,41 +86,33 @@ julia> using GraphSignals
 julia> V, E = 4, 5
 (4, 5)
 
-julia> vdim, edim = 3, 5
-(3, 5)
-
 julia> batch_size = 10
 10
-
-julia> nf = rand(vdim, V, batch_size);
-
-julia> ef = rand(edim, E, batch_size);
 
 julia> adjm = [0 1 1 1;
                1 0 1 0;
                1 1 0 1;
                1 0 1 0];
 
-julia> node_token, edge_token = tokenize(adjm, nf, ef);
+julia> node_id, edge_token = identifiers(adjm, batch_size);
 
-julia> size(node_token)
+julia> size(node_id)
 (11, 4, 10)
 
-julia> size(edge_token)
+julia> size(edge_id)
 (13, 10, 10)
 ```
 
 See also [`node_identifier`](@ref) for generating node identifier only.
 """
-function tokenize(g, node_feat::AbstractArray, edge_feat::AbstractArray; method=orthogonal_random_features)
+function identifiers(g, dims...; method=orthogonal_random_features)
     fg = FeaturedGraph(g)
-    node_id = node_identifier(g, size(node_feat)[3:end]...; method=method)
-    node_token = vcat(node_feat, node_id, node_id)
-    idx, nbrs, xs = collect(edges(fg))
-    edge_feat = NNlib.gather(edge_feat, batched_index(idx, size(edge_feat)[end]))
-    xs_id = NNlib.gather(node_id, batched_index(xs, size(node_id)[end]))
-    nbr_id = NNlib.gather(node_id, batched_index(nbrs, size(node_id)[end]))
-    edge_token = vcat(edge_feat, xs_id, nbr_id)
+    node_id = node_identifier(g, dims...; method=method)
+    node_token = vcat(node_id, node_id)
+    el = to_namedtuple(fg)
+    xs_id = NNlib.gather(node_id, batched_index(el.xs, size(node_id)[end]))
+    nbr_id = NNlib.gather(node_id, batched_index(el.nbrs, size(node_id)[end]))
+    edge_token = vcat(xs_id, nbr_id)
     return node_token, edge_token
 end
 
@@ -129,3 +120,6 @@ function batched_index(idx::AbstractVector, batch_size::Integer)
     b = copyto!(similar(idx, 1, batch_size), collect(1:batch_size))
     return tuple.(idx, b)
 end
+
+Base.depwarn("""tokenize() is removed from GraphSignals 0.8.2.
+        It should be replaced with `identifiers`.""", :tokenize)
