@@ -1,7 +1,10 @@
-orthogonal_random_features(nvertex::Int, dims...) =
+orthogonal_random_features(nvertex::Int, dims::Vararg{Int}) =
     orthogonal_random_features(Float32, nvertex, dims...)
 
-orthogonal_random_features(g, dims...) =
+orthogonal_random_features(::Type{T}, g, dims::Vararg{Int}) where {T} =
+    orthogonal_random_features(T, nv(g), dims...)
+
+orthogonal_random_features(g, dims::Vararg{Int}) =
     orthogonal_random_features(float(eltype(g)), nv(g), dims...)
 
 function orthogonal_random_features(::Type{T}, nvertex::Int, dims::Vararg{Int}) where {T}
@@ -15,19 +18,22 @@ function orthogonal_random_features(::Type{T}, nvertex::Int, dims::Vararg{Int}) 
     return orf
 end
 
-function laplacian_matrix(g, dims::Vararg{Int})
-    L = laplacian_matrix(g)
+function laplacian_matrix(::Type{T}, g, dims::Vararg{Int}) where {T}
+    L = laplacian_matrix(g, T)
     U = eigvecs(L)
     return repeat(U, outer=(1, 1, dims...))
 end
 
+laplacian_matrix(g, dims::Vararg{Int}) = laplacian_matrix(float(eltype(g)), g, dims...)
+
 """
-    node_identifier(g, dims...; method=GraphSignals.orthogonal_random_features)
+    node_identifier([T], g, dims...; method=GraphSignals.orthogonal_random_features)
 
 Constructing node identifier for a graph `g` with additional dimensions `dims`.
 
 # Arguments
 
+- `T`: Element type of returning objects.
 - `g`: Data representing the graph topology. Possible type are
     - An adjacency matrix.
     - An adjacency list.
@@ -57,17 +63,22 @@ julia> size(node_id)
 (4, 4, 10)
 ```
 
-See also [`tokenize`](@ref) for node/edge features tokenization.
+See also [`identifiers`](@ref) for node/edge identifiers.
 """
-node_identifier(g, dims...; method=orthogonal_random_features) = method(g, dims...)
+node_identifier(::Type{T}, g, dims...; method=orthogonal_random_features) where {T} =
+    method(T, g, dims...)
+
+node_identifier(g, dims...; method=orthogonal_random_features) =
+    method(float(eltype(g)), g, dims...)
 
 """
-    identifiers(g, dims...; method=orthogonal_random_features)
+    identifiers([T], g, dims...; method=orthogonal_random_features)
 
 Returns node identifier and edge identifier.
 
 # Arguments
 
+- `T`: Element type of returning objects.
 - `g`: Data representing the graph topology. Possible type are
     - An adjacency matrix.
     - An adjacency list.
@@ -97,17 +108,17 @@ julia> adjm = [0 1 1 1;
 julia> node_id, edge_token = identifiers(adjm, batch_size);
 
 julia> size(node_id)
-(11, 4, 10)
+(8, 4, 10)
 
 julia> size(edge_id)
-(13, 10, 10)
+(8, 10, 10)
 ```
 
 See also [`node_identifier`](@ref) for generating node identifier only.
 """
-function identifiers(g, dims...; method=orthogonal_random_features)
+function identifiers(::Type{T}, g, dims...; method=orthogonal_random_features) where {T}
     fg = FeaturedGraph(g)
-    node_id = node_identifier(g, dims...; method=method)
+    node_id = node_identifier(T, g, dims...; method=method)
     node_token = vcat(node_id, node_id)
     el = to_namedtuple(fg)
     xs_id = NNlib.gather(node_id, batched_index(el.xs, size(node_id)[end]))
@@ -115,6 +126,9 @@ function identifiers(g, dims...; method=orthogonal_random_features)
     edge_token = vcat(xs_id, nbr_id)
     return node_token, edge_token
 end
+
+identifiers(g, dims...; method=orthogonal_random_features) =
+    identifiers(float(eltype(g)), g, dims...; method=method)
 
 function batched_index(idx::AbstractVector, batch_size::Integer)
     b = copyto!(similar(idx, 1, batch_size), collect(1:batch_size))
