@@ -71,7 +71,7 @@ export
 
     # tokenizer
     node_identifier,
-    tokenize
+    identifiers
 
 include("positional.jl")
 include("graph.jl")
