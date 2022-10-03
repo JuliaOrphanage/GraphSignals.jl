@@ -20,13 +20,13 @@
             V = 5
             E = 5
             ef = cu(rand(10, E))
-    
+
             adjm = T[0 1 0 1 1;
                     1 0 0 0 0;
                     0 0 1 0 0;
                     1 0 0 0 1;
                     1 0 0 1 0]
-    
+
             adjl = Vector{T}[
                 [2, 4, 5],
                 [1],
@@ -34,7 +34,7 @@
                 [1, 5],
                 [1, 4]
             ]
-    
+
             sg = SparseGraph(adjm, false) |> gpu
             @test (collect(sg.S) .!= 0) == adjm
             @test sg.S isa CUSPARSE.CuSparseMatrixCSC{T}
@@ -45,8 +45,8 @@
             @test ne(sg) == E
             @test collect(neighbors(sg, 1)) == adjl[1]
             @test collect(neighbors(sg, 2)) == adjl[2]
-            @test collect(GraphSignals.aggregate_index(sg, :edge, :inward)) == [1, 3, 1, 1, 4]
-            @test collect(GraphSignals.aggregate_index(sg, :edge, :outward)) == [2, 3, 4, 5, 5]
+            @test collect(GraphSignals.dsts(sg)) == [1, 3, 1, 1, 4]
+            @test collect(GraphSignals.srcs(sg)) == [2, 3, 4, 5, 5]
             @test_throws ArgumentError GraphSignals.aggregate_index(sg, :edge, :in)
             @test random_walk(sg, 1) ⊆ [2, 4, 5]
             @test neighbor_sample(sg, 1) ⊆ [2, 4, 5]
@@ -57,13 +57,13 @@
             V = 5
             E = 7
             ef = cu(rand(10, E))
-    
+
             adjm = T[0 0 1 0 1;
                     1 0 0 0 0;
                     0 0 0 0 0;
                     0 0 1 1 1;
                     1 0 0 0 0]
-    
+
             adjl = Vector{T}[
                 [2, 5],
                 [],
@@ -71,7 +71,7 @@
                 [4],
                 [1, 4],
             ]
-            
+
             sg = SparseGraph(adjm, true) |> gpu
             @test (collect(sg.S) .!= 0) == adjm
             @test sg.S isa CUSPARSE.CuSparseMatrixCSC{T}
@@ -82,8 +82,8 @@
             @test ne(sg) == E
             @test collect(neighbors(sg, 1)) == adjl[1]
             @test collect(neighbors(sg, 3)) == adjl[3]
-            @test Array(GraphSignals.aggregate_index(sg, :edge, :inward)) == [2, 5, 1, 4, 4, 1, 4]
-            @test Array(GraphSignals.aggregate_index(sg, :edge, :outward)) == [1, 1, 3, 3, 4, 5, 5]
+            @test Array(GraphSignals.dsts(sg)) == [2, 5, 1, 4, 4, 1, 4]
+            @test Array(GraphSignals.srcs(sg)) == [1, 1, 3, 3, 4, 5, 5]
             @test random_walk(sg, 1) ⊆ [2, 5]
             @test neighbor_sample(sg, 1) ⊆ [2, 5]
         end
@@ -94,7 +94,7 @@
         @test isnothing(GraphSignals.domain(d))
         @test isnothing(positional_feature(d))
         @test !has_positional_feature(d)
-    
+
         pf = rand(T, 2, 3, 4)
         d = GraphSignals.NodeDomain(pf) |> gpu
         @test collect(GraphSignals.domain(d)) == pf
@@ -123,13 +123,13 @@
             V = 5
             E = 5
             nf = rand(10, V)
-    
+
             adjm = T[0 1 0 1 1;
                     1 0 0 0 0;
                     0 0 1 0 0;
                     1 0 0 0 1;
                     1 0 0 1 0]
-    
+
             fg = FeaturedGraph(adjm; directed=:undirected, nf=nf) |> gpu
             @test has_graph(fg)
             @test has_node_feature(fg)
@@ -144,13 +144,13 @@
             V = 5
             E = 7
             nf = rand(10, V)
-    
+
             adjm = T[0 0 1 0 1;
                     1 0 0 0 0;
                     0 0 0 0 0;
                     0 0 1 1 1;
                     1 0 0 0 0]
-    
+
             fg = FeaturedGraph(adjm; directed=:directed, nf=nf) |> gpu
             @test has_graph(fg)
             @test has_node_feature(fg)
@@ -165,7 +165,7 @@
         in_channel = 3
         out_channel = 5
         N = 6
-    
+
         adjs = Dict(
             :simple => [0. 1. 1. 0. 0. 0.;
                         1. 0. 1. 0. 1. 0.;
@@ -180,7 +180,7 @@
                         0. 2. 0. 0. 0. 0.;
                         0. 0. 2. 0. 0. 0.],
         )
-    
+
         degs = Dict(
             :simple => [2. 0. 0. 0. 0. 0.;
                         0. 3. 0. 0. 0. 0.;
@@ -195,7 +195,7 @@
                         0. 0. 0. 0. 2. 0.;
                         0. 0. 0. 0. 0. 2.]
         )
-    
+
         laps = Dict(
             :simple => [2. -1. -1. 0. 0. 0.;
                         -1. 3. -1. 0. -1. 0.;
@@ -210,7 +210,7 @@
                         0. -2. 0. 0. 2. 0.;
                         0. 0. -2. 0. 0. 2.],
         )
-    
+
         norm_laps = Dict(
             :simple => [1. -1/sqrt(2*3) -1/sqrt(2*4) 0. 0. 0.;
                         -1/sqrt(2*3) 1. -1/sqrt(3*4) 0. -1/sqrt(3) 0.;
@@ -225,7 +225,7 @@
                         0. -2/sqrt(2*5) 0. 0. 1. 0.;
                         0. 0. -2/sqrt(2*10) 0. 0. 1.]
         )
-    
+
         @testset "undirected graph" begin
             adjm = [0 1 0 1;
                     1 0 1 0;
@@ -252,7 +252,7 @@
                       -.5 1 -.5 0;
                       0 -.5 1 -.5;
                       -.5 0 -.5 1]
-            
+
             fg = FeaturedGraph(T.(adjm)) |> gpu
             @test collect(GraphSignals.adjacency_matrix(fg)) == adjm
             @test collect(GraphSignals.degrees(fg; dir=:both)) == [2, 2, 2, 2]
@@ -264,7 +264,7 @@
             L = Graphs.laplacian_matrix(fg, T)
             @test collect(L) == T.(lap)
             @test eltype(L) == T
-    
+
             NA = GraphSignals.normalized_adjacency_matrix(fg, T)
             @test collect(NA) ≈ T.(I - norm_lap)
             @test eltype(NA) == T
@@ -279,12 +279,12 @@
             SL = GraphSignals.scaled_laplacian(fg, T)
             @test collect(SL) ≈ T.(scaled_lap)
             @test eltype(SL) == T
-            
+
             # RW = GraphSignals.random_walk_laplacian(fg, T)
             # @test RW == T.(rw_lap)
             # @test eltype(RW) == T
         end
-    
+
         # @testset "directed" begin
         #     adjm = [0 2 0 3;
         #             0 0 4 0;
@@ -314,7 +314,7 @@
         #         :in   => I - diagm(0=>[1/5, 1/4, 1/3, 0]) * adjm,
         #         :both => I - diagm(0=>[1/7, 1/6, 1/7, 1/4]) * adjm,
         #     )
-    
+
         #     for g in [adjm, sparse(adjm)]
         #         for dir in [:out, :in, :both]
         #             D = GraphSignals.degree_matrix(g, T, dir=dir)
@@ -331,7 +331,7 @@
         #         end
         #         @test_throws DomainError GraphSignals.degree_matrix(g, dir=:other)
         #     end
-    
+
         #     for g in [adjm, sparse(adjm)]
         #         for dir in [:out, :in]
         #             L = normalized_laplacian(g, T, dir=dir)
