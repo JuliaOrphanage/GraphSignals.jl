@@ -9,8 +9,8 @@ abstract type AbstractFeaturedGraph end
     FeaturedGraph(g, [mt]; directed=:auto, nf, ef, gf, pf=nothing,
         T, N, E, with_batch=false)
 
-A type representing a graph structure and storing also arrays 
-that contain features associated to nodes, edges, and the whole graph. 
+A type representing a graph structure and storing also arrays
+that contain features associated to nodes, edges, and the whole graph.
 
 A `FeaturedGraph` can be constructed out of different objects `g` representing
 the connections inside the graph.
@@ -19,7 +19,7 @@ is preserved and shared.
 
 # Arguments
 
-- `g`: Data representing the graph topology. Possible type are 
+- `g`: Data representing the graph topology. Possible type are
     - An adjacency matrix.
     - An adjacency list.
     - A Graphs' graph, i.e. `SimpleGraph`, `SimpleDiGraph` from Graphs, or `SimpleWeightedGraph`,
@@ -174,7 +174,7 @@ FeaturedGraph:
 julia> ConcreteFeaturedGraph(fg, nf=rand(7, 4))
 FeaturedGraph:
     Undirected graph with (#V=4, #E=5) in adjacency matrix
-    Node feature:	ℝ^7 <Matrix{Float64}>    
+    Node feature:	ℝ^7 <Matrix{Float64}>
 ```
 
 """
@@ -398,6 +398,15 @@ to_namedtuple(fg::AbstractFeaturedGraph) = to_namedtuple(graph(fg))
 
 Graphs.vertices(fg::FeaturedGraph) = vertices(graph(fg))
 
+"""
+    edges(fg)
+
+Returns an iterator over an edge list for graph in `fg`.
+
+# Arguments
+
+- `fg::FeaturedGraph`: A concrete object of `AbstractFeaturedGraph` type.
+"""
 Graphs.edges(fg::FeaturedGraph) = edges(graph(fg))
 
 Graphs.neighbors(fg::FeaturedGraph; dir::Symbol=:out) = neighbors(graph(fg); dir=dir)

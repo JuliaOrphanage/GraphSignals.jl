@@ -23,7 +23,7 @@
             ug = SimpleGraph(V)
             add_edge!(ug, 1, 2); add_edge!(ug, 1, 4); add_edge!(ug, 1, 5)
             add_edge!(ug, 3, 3); add_edge!(ug, 4, 5)
-        
+
             wug = SimpleWeightedGraph(V)
             add_edge!(wug, 1, 2, 2); add_edge!(wug, 1, 4, 2); add_edge!(wug, 1, 5, 1)
             add_edge!(wug, 3, 3, 5); add_edge!(wug, 4, 5, 2)
@@ -82,18 +82,16 @@
         @test es == []
         @test nbrs == []
         @test xs == []
-    
+
         @test Graphs.neighbors(sg, 1) == adjl[1]
         @test Graphs.neighbors(sg, 3) == adjl[3]
         @test incident_edges(sg, 1) == [1, 3, 4]
         @test incident_edges(sg, 3) == [2]
-    
-        @test GraphSignals.aggregate_index(sg, :edge, :inward) == [1, 3, 1, 1, 4]
-        @test GraphSignals.aggregate_index(sg, :edge, :outward) == [2, 3, 4, 5, 5]
-        @test GraphSignals.aggregate_index(sg, :vertex, :inward) == [[2, 4, 5], [1], [3], [1, 5], [1, 4]]
-        @test GraphSignals.aggregate_index(sg, :vertex, :outward) == [[2, 4, 5], [1], [3], [1, 5], [1, 4]]
-        @test_throws ArgumentError GraphSignals.aggregate_index(sg, :edge, :in)
-        @test_throws ArgumentError GraphSignals.aggregate_index(sg, :foo, :inward)
+
+        @test GraphSignals.dsts(sg) == [1, 3, 1, 1, 4]
+        @test GraphSignals.srcs(sg) == [2, 3, 4, 5, 5]
+        @test outneighbors(sg) == [[2, 4, 5], [1], [3], [1, 5], [1, 4]]
+        @test inneighbors(sg) == [[2, 4, 5], [1], [3], [1, 5], [1, 4]]
 
         @testset "subgraph" begin
             nodes = [1, 2, 4, 5]
@@ -110,7 +108,7 @@
                                  1 0 0 0;
                                  1 0 0 1;
                                  1 0 1 0]
-        
+
             @test !Graphs.has_vertex(ss, 3)
             @test Graphs.vertices(ss) == nodes
             @test Graphs.edgetype(ss) == typeof((1, 5))
@@ -147,7 +145,7 @@
             add_edge!(dg, 1, 2); add_edge!(dg, 1, 5); add_edge!(dg, 3, 1)
             add_edge!(dg, 3, 4); add_edge!(dg, 4, 4); add_edge!(dg, 5, 1)
             add_edge!(dg, 5, 4)
-        
+
             wdg = SimpleWeightedDiGraph(V)
             add_edge!(wdg, 1, 2, 2); add_edge!(wdg, 1, 5, 2); add_edge!(wdg, 3, 1, 1)
             add_edge!(wdg, 3, 4, 5); add_edge!(wdg, 4, 4, 2); add_edge!(wdg, 5, 1, 2)
@@ -211,9 +209,9 @@
         @test sort!(incident_edges(sg, 1, dir=:both)) == [1, 2, 3, 6]
         @test_throws ArgumentError incident_edges(sg, 2, dir=:none)
 
-        @test GraphSignals.aggregate_index(sg, :edge, :inward) == [2, 5, 1, 4, 4, 1, 4]
-        @test GraphSignals.aggregate_index(sg, :edge, :outward) == [1, 1, 3, 3, 4, 5, 5]
-        @test GraphSignals.aggregate_index(sg, :vertex, :inward) == [[2, 5], [], [1, 4], [4], [1, 4]]
-        @test GraphSignals.aggregate_index(sg, :vertex, :outward) == [[3, 5], [1], [], [3, 4, 5], [1]]
+        @test GraphSignals.dsts(sg) == [2, 5, 1, 4, 4, 1, 4]
+        @test GraphSignals.srcs(sg) == [1, 1, 3, 3, 4, 5, 5]
+        @test outneighbors(sg) == [[2, 5], [], [1, 4], [4], [1, 4]]
+        @test inneighbors(sg) == [[3, 5], [1], [], [3, 4, 5], [1]]
     end
 end

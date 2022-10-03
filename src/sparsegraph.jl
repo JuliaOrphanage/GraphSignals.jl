@@ -95,7 +95,7 @@ Graphs.nv(sg::SparseGraph) = size(sparse(sg), 1)
 Graphs.nv(ss::SparseSubgraph) = length(ss.nodes)
 
 Graphs.ne(sg::SparseGraph) = sg.E
-# Graphs.ne(ss::SparseSubgraph) = 
+# Graphs.ne(ss::SparseSubgraph) =
 
 Graphs.is_directed(::SparseGraph{G}) where {G} = G
 Graphs.is_directed(::Type{<:SparseGraph{G}}) where {G} = G
@@ -176,17 +176,51 @@ function Graphs.neighbors(sg::SparseGraph{true}, i::Integer; dir::Symbol=:out)
     end
 end
 
+Graphs.outneighbors(sg::SparseGraph) = map(i -> outneighbors(sg, i), vertices(sg))
 Graphs.outneighbors(sg::SparseGraph, i::Integer) = rowvalview(sparse(sg), i)
 
+Graphs.inneighbors(sg::SparseGraph) = map(i -> inneighbors(sg, i), vertices(sg))
 function Graphs.inneighbors(sg::SparseGraph, i::Integer)
     mask = map(j -> isneighbor(sg, i, j), vertices(sg))
     return findall(mask)
 end
 
-noutneighbors(sg::SparseGraph, i) =
-    length(SparseArrays.getcolptr(SparseMatrixCSC(sparse(sg)), i))
+function noutneighbors(sg::SparseGraph, i)
+    Base.depwarn("noutneighbors will be deprecated in the next release.", :noutneighbors)
+    return length(SparseArrays.getcolptr(SparseMatrixCSC(sparse(sg)), i))
+end
 
 isneighbor(sg::SparseGraph, j, i) = any(j .== outneighbors(sg, i))
+
+"""
+    dsts(sg::SparseGraph)
+
+Returns all the destination vertex of each edge from graph `sg`.
+For undirected graph, the same edge is considered once only.
+"""
+dsts(sg::SparseGraph{true}) = rowvals(sparse(sg))
+
+"""
+    srcs(sg::SparseGraph)
+
+Returns all the source vertex of each edge from graph `sg`.
+For undirected graph, the same edge is considered once only.
+"""
+srcs(sg::SparseGraph{true}) = colvals(sparse(sg))
+
+function dsts(sg::SparseGraph{false})
+    # For undirected graph, upper traingle of matrix is considered only.
+    S = sparse(sg)
+    res = Int[]
+    for j in vertices(sg)
+        r = rowvalview(S, j)
+        r = view(r, r .≤ j)
+        append!(res, r)
+    end
+    return res
+end
+
+srcs(sg::SparseGraph{false}) = colvals(sparse(sg), upper_traingle=true)
 
 """
     incident_edges(sg, i)
@@ -217,7 +251,6 @@ end
 incident_outedges(sg::SparseGraph{true}, i) = edgevals(sg, i)
 
 function incident_inedges(sg::SparseGraph{true,M,V}, i) where {M,V}
-    S = sparse(sg)
     inedges = V()
     for j in vertices(sg)
         mask = isneighbor(sg, i, j)
@@ -228,10 +261,10 @@ function incident_inedges(sg::SparseGraph{true,M,V}, i) where {M,V}
 end
 
 Base.getindex(sg::SparseGraph, ind...) = getindex(sparse(sg), ind...)
-# Base.getindex(ss::SparseSubgraph, ind...) = 
+# Base.getindex(ss::SparseSubgraph, ind...) =
 
 edge_index(sg::SparseGraph, i, j) = sg.edges[get_csc_index(sparse(sg), j, i)]
-# edge_index(ss::SparseSubgraph, i, j) = 
+# edge_index(ss::SparseSubgraph, i, j) =
 
 """
 Transform a CSC-based edge index `edges[eidx]` into a regular cartesian index `A[i, j]`.
@@ -266,42 +299,25 @@ function aggregate_index(sg::SparseGraph, kind::Symbol=:edge, direction::Symbol=
     if !(direction in [:inward, :outward])
         throw(ArgumentError("direction must be one of :outward or :inward."))
     end
-    
+
     return aggregate_index(sg, Val(kind), Val(direction))
 end
 
-aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:inward}) = rowvals(sparse(sg))
+@deprecate aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:inward}) dsts(sg)
 
-aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:outward}) = colvals(sparse(sg))
+@deprecate aggregate_index(sg::SparseGraph{true}, ::Val{:edge}, ::Val{:outward}) srcs(sg)
 
-function aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:inward})
-    # for undirected graph, upper traingle of matrix is considered only.
-    S = sparse(sg)
-    res = Int[]
-    for j in vertices(sg)
-        r = rowvalview(S, j)
-        r = view(r, r .≤ j)
-        append!(res, r)
-    end
-    return res
-end
+@deprecate aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:inward}) dsts(sg)
 
-# for undirected graph, upper traingle of matrix is considered only.
-aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward}) = colvals(sparse(sg), upper_traingle=true)
+@deprecate aggregate_index(sg::SparseGraph{false}, ::Val{:edge}, ::Val{:outward}) srcs(sg)
 
-aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:inward}) =
-    map(i -> outneighbors(sg, i), vertices(sg))
+@deprecate aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:inward}) outneighbors(sg)
 
-aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:outward}) =
-    map(i -> inneighbors(sg, i), vertices(sg))
+@deprecate aggregate_index(sg::SparseGraph{true}, ::Val{:vertex}, ::Val{:outward}) inneighbors(sg)
 
-# for undirected graph, upper traingle of matrix is considered only.
-aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:inward}) =
-    map(i -> outneighbors(sg, i), vertices(sg))
+@deprecate aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:inward}) outneighbors(sg)
 
-# for undirected graph, upper traingle of matrix is considered only.
-aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:outward}) =
-    map(i -> inneighbors(sg, i), vertices(sg))
+@deprecate aggregate_index(sg::SparseGraph{false}, ::Val{:vertex}, ::Val{:outward}) inneighbors(sg)
 
 
 ## Graph representations
