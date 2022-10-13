@@ -45,6 +45,10 @@ export
     incident_edges,
     edge_index,
 
+    # sparsehypergraph
+    SparseHyperGraph,
+    isneighbor,
+
     # graphdomains
     positional_feature,
     has_positional_feature,
@@ -79,6 +83,8 @@ include("linalg.jl")
 include("sparsematrix.jl")
 
 include("sparsegraph.jl")
+include("sparsehypergraph.jl")
+
 include("graphdomain.jl")
 include("graphsignal.jl")
 include("featuredgraph.jl")
