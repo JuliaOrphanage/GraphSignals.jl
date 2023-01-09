@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.4]
+
+- improve performance on `orthogonal_random_features` by not collecting `qr.Q`
+
 ## [0.8.3]
 
 - update compat
