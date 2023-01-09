@@ -11,9 +11,9 @@ function orthogonal_random_features(::Type{T}, nvertex::Int, dims::Vararg{Int}) 
     N = length(dims) + 2
     orf = Array{T,N}(undef, nvertex, nvertex, dims...)
     for cidx in CartesianIndices(dims)
-        G = randn(nvertex, nvertex)
+        G = randn(T, nvertex, nvertex)
         A = qr(G)
-        orf[:, :, cidx] .= collect(A.Q)
+        copyto!(view(orf, :, :, cidx), A.Q)
     end
     return orf
 end
