@@ -24,11 +24,11 @@ struct NodeSignal{T} <: AbstractGraphSignal
     signal::T
 end
 
+@functor NodeSignal
+
 NodeSignal(::Nothing) = NullGraphSignal()
 NodeSignal(::NullGraphSignal) = NullGraphSignal()
 NodeSignal(s::NodeSignal) = s
-
-Adapt.adapt_structure(to, s::NodeSignal) = NodeSignal(Adapt.adapt(to, s.signal))
 
 signal(s::NodeSignal) = s.signal
 node_feature(s::NodeSignal) = s.signal
@@ -41,11 +41,11 @@ struct EdgeSignal{T} <: AbstractGraphSignal
     signal::T
 end
 
+@functor EdgeSignal
+
 EdgeSignal(::Nothing) = NullGraphSignal()
 EdgeSignal(::NullGraphSignal) = NullGraphSignal()
 EdgeSignal(s::EdgeSignal) = s
-
-Adapt.adapt_structure(to, s::EdgeSignal) = EdgeSignal(Adapt.adapt(to, s.signal))
 
 signal(s::EdgeSignal) = s.signal
 edge_feature(s::EdgeSignal) = s.signal
@@ -58,11 +58,11 @@ struct GlobalSignal{T} <: AbstractGraphSignal
     signal::T
 end
 
+@functor GlobalSignal
+
 GlobalSignal(::Nothing) = NullGraphSignal()
 GlobalSignal(::NullGraphSignal) = NullGraphSignal()
 GlobalSignal(s::GlobalSignal) = s
-
-Adapt.adapt_structure(to, s::GlobalSignal) = GlobalSignal(Adapt.adapt(to, s.signal))
 
 signal(s::GlobalSignal) = s.signal
 global_feature(s::GlobalSignal) = s.signal

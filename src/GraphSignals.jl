@@ -3,7 +3,7 @@ module GraphSignals
 using LinearAlgebra
 using SparseArrays
 
-using CUDA, CUDA.CUSPARSE, Adapt
+using CUDA, CUDA.CUSPARSE
 using ChainRulesCore
 using ChainRulesCore: @non_differentiable
 using Distances
