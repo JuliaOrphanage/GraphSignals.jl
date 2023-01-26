@@ -14,10 +14,10 @@ struct NodeDomain{T} <: AbstractGraphDomain
     domain::T
 end
 
+@functor NodeDomain
+
 NodeDomain(::Nothing) = NullDomain()
 NodeDomain(d::AbstractGraphDomain) = d
-
-Adapt.adapt_structure(to, d::NodeDomain) = NodeDomain(Adapt.adapt(to, d.domain))
 
 domain(d::NodeDomain) = d.domain
 positional_feature(d::NodeDomain) = d.domain
