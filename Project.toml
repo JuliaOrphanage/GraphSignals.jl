@@ -1,7 +1,7 @@
 name = "GraphSignals"
 uuid = "3ebe565e-a4b5-49c6-aed2-300248c3a9c1"
 authors = ["Yueh-Hua Tu <a504082002@gmail.com>"]
-version = "0.8.4"
+version = "0.8.5"
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
