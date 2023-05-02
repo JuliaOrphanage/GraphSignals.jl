@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.6]
+
+- update compat
+
 ## [0.8.5]
 
 - refactor and drop Adapt dependency
