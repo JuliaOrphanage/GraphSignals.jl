@@ -15,23 +15,6 @@ function adjacency_matrix(adj::Matrix)
     return adj
 end
 
-function adjacency_matrix(adj::CuSparseMatrixCSC{T}, ::Type{S}) where {T,S}
-    _dim_check(adj)
-    return CuMatrix{S}(collect(adj))
-end
-
-function adjacency_matrix(adj::CuSparseMatrixCSC)
-    _dim_check(adj)
-    return CuMatrix(adj)
-end
-
-adjacency_matrix(adj::CuMatrix{T}, ::Type{T}) where {T} = adjacency_matrix(adj)
-
-function adjacency_matrix(adj::CuMatrix)
-    _dim_check(adj)
-    return adj
-end
-
 function _dim_check(adj)
     m, n = size(adj)
     (m == n) || throw(DimensionMismatch("adjacency matrix is not a square matrix: ($m, $n)"))
@@ -81,9 +64,6 @@ function degrees(g, ::Type{T}=eltype(g); dir::Symbol=:out) where {T}
     end
     return T.(d)
 end
-
-degrees(adj::CuSparseMatrixCSC, ::Type{T}=eltype(adj); dir::Symbol=:out) where {T} =
-    degrees(CuMatrix{T}(adj); dir=dir)
 
 """
     degree_matrix(g, [T=eltype(g)]; dir=:out, squared=false, inverse=false)

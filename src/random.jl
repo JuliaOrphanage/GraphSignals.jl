@@ -6,7 +6,7 @@ are considered to be proportional to the transition probability.
 
 # Arguments
 
-- `g`: Data representing the graph topology. Possible type are 
+- `g`: Data representing the graph topology. Possible type are
     - An adjacency matrix.
     - An `FeaturedGraph` or `SparseGraph` object.
 - `start::Int`: A start point for a random walk on graph `g`.
@@ -54,8 +54,6 @@ random_walk(A::AbstractMatrix, start::Int, n::Int=1) =
 random_walk(x::AbstractVector, n::Int=1) = [sample(1:length(x), Weights(x)) for _ in 1:n]
 
 random_walk(sg::SparseGraph, start::Int, n::Int=1) = random_walk(sg.S, start, n)
-random_walk(sg::SparseGraph{B,T}, start::Int, n::Int=1) where {B,T<:CuSparseMatrixCSC} =
-    random_walk(collect(sg.S), start, n)
 
 random_walk(fg::FeaturedGraph, start::Int, n::Int=1) = random_walk(graph(fg), start, n)
 
@@ -68,7 +66,7 @@ are considered to be proportional to the transition probability.
 
 # Arguments
 
-- `g`: Data representing the graph topology. Possible type are 
+- `g`: Data representing the graph topology. Possible type are
     - An adjacency matrix.
     - An `FeaturedGraph` or `SparseGraph` object.
 - `start::Int`: A vertex for a random neighbor sampling on graph `g`.
@@ -97,7 +95,7 @@ julia> neighbor_sample(fg, 1, 3)
  5
  4
  2
- 
+
 julia> using Flux
 
 julia> fg = fg |> gpu;
@@ -118,8 +116,6 @@ neighbor_sample(x::AbstractVector, n::Int=1; replace::Bool=false) = sample(1:len
 
 neighbor_sample(sg::SparseGraph, start::Int, n::Int=1; replace::Bool=false) =
     neighbor_sample(sg.S, start, n; replace=replace)
-neighbor_sample(sg::SparseGraph{B,T}, start::Int, n::Int=1; replace::Bool=false) where {B,T<:CuSparseMatrixCSC} =
-    neighbor_sample(collect(sg.S), start, n; replace=replace)
 
 neighbor_sample(fg::FeaturedGraph, start::Int, n::Int=1; replace::Bool=false) =
     neighbor_sample(graph(fg), start, n; replace=replace)

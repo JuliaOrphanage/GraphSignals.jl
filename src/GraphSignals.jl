@@ -3,7 +3,6 @@ module GraphSignals
 using LinearAlgebra
 using SparseArrays
 
-using CUDA, CUDA.CUSPARSE
 using ChainRulesCore
 using ChainRulesCore: @non_differentiable
 using Distances
@@ -14,10 +13,18 @@ using Graphs: AbstractGraph, AbstractSimpleGraph
 using MLUtils
 using SimpleWeightedGraphs: AbstractSimpleWeightedGraph
 using StatsBase
-using NNlib, NNlibCUDA
+using NNlib
 using NearestNeighbors
 
 import Graphs: adjacency_matrix, laplacian_matrix
+
+@static if !isdefined(Base, :get_extension)
+    using Requires
+
+    function __init__()
+        @require CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba" include("../ext/GraphSignalsCUDAExt.jl")
+    end
+end
 
 export
     # featuredgraph
@@ -83,7 +90,6 @@ include("graphdomain.jl")
 include("graphsignal.jl")
 include("featuredgraph.jl")
 
-include("cuda.jl")
 include("neighbor_graphs.jl")
 
 include("subgraph.jl")
