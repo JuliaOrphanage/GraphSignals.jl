@@ -134,6 +134,3 @@ function batched_index(idx::AbstractVector, batch_size::Integer)
     b = copyto!(similar(idx, 1, batch_size), collect(1:batch_size))
     return tuple.(idx, b)
 end
-
-Base.depwarn("""tokenize() is removed from GraphSignals 0.8.2.
-        It should be replaced with `identifiers`.""", :tokenize)

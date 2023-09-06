@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0]
+
+- compatible to NNlib v0.9
+- support Julia equals or greater than v1.9
+
 ## [0.8.6]
 
 - update compat
