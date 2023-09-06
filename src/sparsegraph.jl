@@ -35,7 +35,7 @@ function SparseGraph(
     return SparseGraph{directed}(spA, edges, E)
 end
 
-SparseGraph(A::SparseCSC, directed::Bool, ::Type{T}=eltype(A)) where {T} =
+SparseGraph(A::SparseMatrixCSC, directed::Bool, ::Type{T}=eltype(A)) where {T} =
     SparseGraph(A, order_edges(A, directed=directed), directed, T)
 SparseGraph(A::AbstractMatrix, directed::Bool, ::Type{T}=eltype(A)) where {T} =
     SparseGraph(sparsecsc(A), directed, T)
