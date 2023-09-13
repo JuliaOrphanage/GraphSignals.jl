@@ -8,9 +8,12 @@ function GraphSignals.adjacency_matrix(adj::CuSparseMatrixCSC)
     return CuMatrix(adj)
 end
 
-adjacency_matrix(adj::CuMatrix{T}, ::Type{T}) where {T} = adjacency_matrix(adj)
+function GraphSignals.adjacency_matrix(adj::CuMatrix{T}, ::Type{S}) where {T,S}
+    GraphSignals._dim_check(adj)
+    return CuMatrix{S}(adj)
+end
 
-function adjacency_matrix(adj::CuMatrix)
+function GraphSignals.adjacency_matrix(adj::CuMatrix)
     GraphSignals._dim_check(adj)
     return adj
 end

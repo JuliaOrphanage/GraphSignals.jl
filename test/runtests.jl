@@ -15,6 +15,14 @@ CUDA.allowscalar(false)
 
 include("test_utils.jl")
 
+cuda_tests = [
+    "cuda/linalg",
+    "cuda/featuredgraph",
+    "cuda/sparsematrix",
+    "cuda/sparsegraph",
+    "cuda/graphdomain",
+]
+
 tests = [
     "positional",
     "graph",
@@ -31,7 +39,7 @@ tests = [
 ]
 
 if CUDA.functional()
-    push!(tests, "cuda")
+    append!(tests, cuda_tests)
 end
 
 @testset "GraphSignals.jl" begin
