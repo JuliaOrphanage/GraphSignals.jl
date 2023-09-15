@@ -119,6 +119,7 @@ T = Float32
         @test eltype(NL) == T
 
         SL = GraphSignals.scaled_laplacian(fg, T)
+        @test SL isa CuMatrix{T}
         @test collect(SL) ≈ T.(scaled_lap)
         @test eltype(SL) == T
 
