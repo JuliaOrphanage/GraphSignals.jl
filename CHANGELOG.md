@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.1]
+
+- fix `GraphSignals.scaled_laplacian` on `CuArray`
+
 ## [0.9.0]
 
 - compatible to NNlib v0.9
