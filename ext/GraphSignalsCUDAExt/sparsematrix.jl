@@ -6,7 +6,6 @@ GraphSignals.rowvalview(S::CuSparseMatrixCSC, col::Integer) = view(rowvals(S), S
 GraphSignals.rowvalview(S::CuSparseMatrixCSC, I::UnitRange) = view(rowvals(S), SparseArrays.getcolptr(S, I))
 
 # TODO: @allowscalar should be removed.
-SparseArrays.getcolptr(S::CuSparseMatrixCSC) = S.colPtr
 SparseArrays.getcolptr(S::CuSparseMatrixCSC, col::Integer) = CUDA.@allowscalar S.colPtr[col]:(S.colPtr[col+1]-1)
 
 SparseArrays.nonzeros(S::CuSparseMatrixCSC, col::Integer) = GraphSignals._nonzeros(S, col)
