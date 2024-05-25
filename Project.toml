@@ -25,7 +25,7 @@ CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 GraphSignalsCUDAExt = "CUDA"
 
 [compat]
-CUDA = "4"
+CUDA = "4, 5"
 ChainRulesCore = "1"
 Distances = "0.10"
 FillArrays = "1"
