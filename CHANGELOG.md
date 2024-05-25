@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.2]
+
+- update dependencies
+
 ## [0.9.1]
 
 - fix `GraphSignals.scaled_laplacian` on `CuArray`
